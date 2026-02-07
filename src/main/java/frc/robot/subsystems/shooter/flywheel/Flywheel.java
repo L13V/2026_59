@@ -2,11 +2,15 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.subsystems.shooter;
+package frc.robot.subsystems.shooter.flywheel;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.StrictFollower;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.NeutralModeValue;
+
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -24,6 +28,7 @@ public class Flywheel extends SubsystemBase {
   private boolean rightConfigured = false;
   // Controls
   static VelocityVoltage velocityVoltage = new VelocityVoltage(0);
+  static StrictFollower strictFollower = new StrictFollower(FlywheelConstants.leftMotorId);
 
   // Alerts
   private final Debouncer motorConnectedDebouncer = new Debouncer(0.5, Debouncer.DebounceType.kFalling);
@@ -56,14 +61,25 @@ public class Flywheel extends SubsystemBase {
      */
     // TODO: Complete implementation of motor configs (put vars and stuff)
     if (!leftConfigured && leftConnected) {
-      leftFlywheelMotor.getConfigurator().refresh(leftFlywheelConfig);
-
+      // leftFlywheelMotor.getConfigurator().refresh(leftFlywheelConfig);
+      leftFlywheelConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+      leftFlywheelConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+      leftFlywheelConfig.Slot0.kP = FlywheelConstants.kP_Slot0;
+      leftFlywheelConfig.Slot0.kI = FlywheelConstants.kI_Slot0;
+      leftFlywheelConfig.Slot0.kD = FlywheelConstants.kD_Slot0;
+      leftFlywheelConfig.Slot0.kS = FlywheelConstants.kS_Slot0;
+      leftFlywheelConfig.Slot0.kV = FlywheelConstants.kV_Slot0;
+      leftFlywheelConfig.Slot0.kA = FlywheelConstants.kA_Slot0;
+      leftFlywheelConfig.Slot0.kG = FlywheelConstants.kG_Slot0;
+      leftFlywheelConfig.Voltage.PeakForwardVoltage = FlywheelConstants.peakForwardVoltage;
+      leftFlywheelConfig.Voltage.PeakReverseVoltage = FlywheelConstants.peakReverseVoltage;
       leftFlywheelMotor.getConfigurator().apply(leftFlywheelConfig);
       leftConfigured = true;
     }
     if (!rightConfigured && rightConnected) {
-      rightFlywheelMotor.getConfigurator().refresh(rightFlywheelConfig);
-
+      // rightFlywheelMotor.getConfigurator().refresh(rightFlywheelConfig);
+      leftFlywheelConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+      leftFlywheelConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
       rightFlywheelMotor.getConfigurator().apply(rightFlywheelConfig);
       rightConfigured = true;
     }
