@@ -10,7 +10,6 @@ import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -31,8 +30,10 @@ public class Flywheel extends SubsystemBase {
   static StrictFollower strictFollower = new StrictFollower(FlywheelConstants.leftMotorId);
 
   // Alerts
-  private final Debouncer motorConnectedDebouncer = new Debouncer(0.5, Debouncer.DebounceType.kFalling);
-  private final Debouncer motorFollowerConnectedDebouncer = new Debouncer(0.5, Debouncer.DebounceType.kFalling);
+  private final Debouncer motorConnectedDebouncer =
+      new Debouncer(0.5, Debouncer.DebounceType.kFalling);
+  private final Debouncer motorFollowerConnectedDebouncer =
+      new Debouncer(0.5, Debouncer.DebounceType.kFalling);
   private final Alert leftConnectionAlert;
   private final Alert rightConnectionAlert;
   private boolean leftConnected = false;
@@ -41,7 +42,8 @@ public class Flywheel extends SubsystemBase {
   public Flywheel() {
     // Alerts
     leftConnectionAlert = new Alert("Left Flywheel Motor Disconnected!", Alert.AlertType.kWarning);
-    rightConnectionAlert = new Alert("Right Flywheel Motor Disconnected!", Alert.AlertType.kWarning);
+    rightConnectionAlert =
+        new Alert("Right Flywheel Motor Disconnected!", Alert.AlertType.kWarning);
   }
 
   @Override
@@ -50,11 +52,9 @@ public class Flywheel extends SubsystemBase {
     rightConnected = rightFlywheelMotor.isConnected();
     // Alerts
     leftConnectionAlert.set(
-        Robot.showHardwareAlerts()
-            && !motorConnectedDebouncer.calculate(leftConnected));
+        Robot.showHardwareAlerts() && !motorConnectedDebouncer.calculate(leftConnected));
     rightConnectionAlert.set(
-        Robot.showHardwareAlerts()
-            && !motorFollowerConnectedDebouncer.calculate(rightConnected));
+        Robot.showHardwareAlerts() && !motorFollowerConnectedDebouncer.calculate(rightConnected));
 
     /*
      * Configuration
