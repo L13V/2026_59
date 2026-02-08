@@ -92,7 +92,7 @@ public class Robot extends LoggedRobot {
   }
 
   public static boolean showHardwareAlerts() {
-    return Constants.currentMode != Mode.SIM && Timer.getTimestamp() > 30.0;
+    return Constants.currentMode != Mode.SIM && Timer.getTimestamp() > 3.0; // TODO: Set to 30
   }
 
   /** This function is called once when the robot is disabled. */

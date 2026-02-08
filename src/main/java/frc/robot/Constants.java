@@ -30,30 +30,34 @@ public final class Constants {
   }
 
   public static final class FloorIntakeConstants {
-    public static final int intakePivotMotorId = 0;
-    public static final int intakeWheelsMotorId = 0;
+    public static final int intakePivotMotorId = 45;
+    public static final int intakeWheelsMotorId = 47;
     public static final int intakeEncoderId = 0;
     ;
   }
 
   public static final class IndexerConstants {
-    public static final int indexerIntakeSideMotorID = 0;
-    public static final int indexerTurretSideMotorID = 0;
+    public static final int indexerIntakeSideMotorID = 50;
+    public static final int indexerTurretSideMotorID = 51;
+  }
+
+    public static final class TowerConstants {
+    public static final int towerMotorId = 53;
   }
 
   public static final class TurretConstants {
-    public static final int turretMotorId = 0;
-    public static final int turretLowEncoderId = 0;
-    public static final int turretHighEncoderId = 0;
+    public static final int turretMotorId = 54;
+    public static final int turretLowEncoderId = 55;
+    public static final int turretHighEncoderId = 56;
   }
 
   public static final class HoodConstants {
-    public static final int hoodMotorId = 0;
+    public static final int hoodMotorId = 57;
   }
 
   public static final class FlywheelConstants {
-    public static final int leftMotorId = 0;
-    public static final int rightMotorId = 0;
+    public static final int leftMotorId = 58;
+    public static final int rightMotorId = 59;
 
     public static final Double kP_Slot0 = 0.5;
     public static final Double kI_Slot0 = 1.0;
@@ -67,7 +71,7 @@ public final class Constants {
   }
 
   public static final class ClimbConstants {
-    public static final int leftClimbMotorId = 0;
-    public static final int rightClimbMotorId = 0;
+    public static final int leftClimbMotorId = 60;
+    public static final int rightClimbMotorId = 61;
   }
 }

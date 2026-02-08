@@ -30,10 +30,8 @@ public class Flywheel extends SubsystemBase {
   static StrictFollower strictFollower = new StrictFollower(FlywheelConstants.leftMotorId);
 
   // Alerts
-  private final Debouncer motorConnectedDebouncer =
-      new Debouncer(0.5, Debouncer.DebounceType.kFalling);
-  private final Debouncer motorFollowerConnectedDebouncer =
-      new Debouncer(0.5, Debouncer.DebounceType.kFalling);
+  private final Debouncer leftMotorConnectedDebouncer = new Debouncer(0.5, Debouncer.DebounceType.kFalling);
+  private final Debouncer rightMotorFollowerConnectedDebouncer = new Debouncer(0.5, Debouncer.DebounceType.kFalling);
   private final Alert leftConnectionAlert;
   private final Alert rightConnectionAlert;
   private boolean leftConnected = false;
@@ -42,8 +40,7 @@ public class Flywheel extends SubsystemBase {
   public Flywheel() {
     // Alerts
     leftConnectionAlert = new Alert("Left Flywheel Motor Disconnected!", Alert.AlertType.kWarning);
-    rightConnectionAlert =
-        new Alert("Right Flywheel Motor Disconnected!", Alert.AlertType.kWarning);
+    rightConnectionAlert = new Alert("Right Flywheel Motor Disconnected!", Alert.AlertType.kWarning);
   }
 
   @Override
@@ -52,9 +49,9 @@ public class Flywheel extends SubsystemBase {
     rightConnected = rightFlywheelMotor.isConnected();
     // Alerts
     leftConnectionAlert.set(
-        Robot.showHardwareAlerts() && !motorConnectedDebouncer.calculate(leftConnected));
+        Robot.showHardwareAlerts() && !leftMotorConnectedDebouncer.calculate(leftConnected));
     rightConnectionAlert.set(
-        Robot.showHardwareAlerts() && !motorFollowerConnectedDebouncer.calculate(rightConnected));
+        Robot.showHardwareAlerts() && !rightMotorFollowerConnectedDebouncer.calculate(rightConnected));
 
     /*
      * Configuration
@@ -74,14 +71,26 @@ public class Flywheel extends SubsystemBase {
       leftFlywheelConfig.Voltage.PeakForwardVoltage = FlywheelConstants.peakForwardVoltage;
       leftFlywheelConfig.Voltage.PeakReverseVoltage = FlywheelConstants.peakReverseVoltage;
       leftFlywheelMotor.getConfigurator().apply(leftFlywheelConfig);
+      leftFlywheelMotor.setControl(velocityVoltage.withVelocity(0));
       leftConfigured = true;
     }
     if (!rightConfigured && rightConnected) {
       // rightFlywheelMotor.getConfigurator().refresh(rightFlywheelConfig);
-      leftFlywheelConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+      leftFlywheelConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive; // TODO: FIX
       leftFlywheelConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
       rightFlywheelMotor.getConfigurator().apply(rightFlywheelConfig);
+      rightFlywheelMotor.setControl(strictFollower.withLeaderID(FlywheelConstants.leftMotorId));
       rightConfigured = true;
     }
+  }
+
+  public void setVelocity(double rps) { // TODO: Conversion Factor
+    leftFlywheelMotor.setControl(velocityVoltage.withVelocity(rps));
+    rightFlywheelMotor.setControl(strictFollower.withLeaderID(FlywheelConstants.leftMotorId));
+  }
+
+  public void stop() {
+    leftFlywheelMotor.stopMotor();
+    rightFlywheelMotor.stopMotor();
   }
 }
