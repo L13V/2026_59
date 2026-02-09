@@ -10,21 +10,18 @@ import org.ramtech.frc2026.Constants.IndexerConstants;
 
 public class IndexerIOTalonFXS implements IndexerIO {
   // Motors
-  private final TalonFXS turretSideMotor =
-      new TalonFXS(IndexerConstants.indexerTurretSideMotorID, Constants.CANBus);
-  private final TalonFXS intakeSideMotor =
-      new TalonFXS(IndexerConstants.indexerIntakeSideMotorID, Constants.CANBus);
+  private final TalonFXS turretSideMotor = new TalonFXS(IndexerConstants.indexerTurretSideMotorID, Constants.CANBus);
+  private final TalonFXS intakeSideMotor = new TalonFXS(IndexerConstants.indexerIntakeSideMotorID, Constants.CANBus);
 
   // Configuration
-  TalonFXSConfiguration turretSideConfig = new TalonFXSConfiguration();
-  TalonFXSConfiguration intakeSideConfig = new TalonFXSConfiguration();
-  private boolean turretSideConfgured = false;
-  private boolean intakeSideConfgured = false;
+  private final TalonFXSConfiguration turretSideConfig = new TalonFXSConfiguration();
+  private final TalonFXSConfiguration intakeSideConfig = new TalonFXSConfiguration();
+  private boolean turretSideConfigured = false;
+  private boolean intakeSideConfigured = false;
 
   // Control Methods
   private final VoltageOut voltageOut = new VoltageOut(0);
-  private final StrictFollower follower =
-      new StrictFollower(IndexerConstants.indexerTurretSideMotorID);
+  private final StrictFollower follower = new StrictFollower(IndexerConstants.indexerTurretSideMotorID);
 
   public IndexerIOTalonFXS() {
     // Complete the config
@@ -44,15 +41,18 @@ public class IndexerIOTalonFXS implements IndexerIO {
     inputs.turretSideConnected = turretSideMotor.isConnected();
     inputs.intakeSideConnected = intakeSideMotor.isConnected();
 
-    if (!turretSideConfgured && inputs.turretSideConnected) {
+    if (!turretSideConfigured && inputs.turretSideConnected) {
       turretSideMotor.getConfigurator().apply(turretSideConfig);
-      turretSideConfgured = true;
+      turretSideConfigured = true;
     }
-    if (!intakeSideConfgured && inputs.intakeSideConnected) {
+    if (!intakeSideConfigured && inputs.intakeSideConnected) {
       intakeSideMotor.getConfigurator().apply(intakeSideConfig);
       intakeSideMotor.setControl(follower);
-      intakeSideConfgured = true;
+      intakeSideConfigured = true;
     }
+
+    inputs.turretSideConfigured = turretSideConfigured;
+    inputs.intakeSideConfigured = intakeSideConfigured;
 
     inputs.turretSideAppliedVoltage = turretSideMotor.getMotorVoltage().getValueAsDouble();
     inputs.intakeSideAppliedVoltage = intakeSideMotor.getMotorVoltage().getValueAsDouble();
@@ -71,7 +71,7 @@ public class IndexerIOTalonFXS implements IndexerIO {
 
       case VOLTAGE:
         turretSideMotor.setControl(voltageOut.withOutput(outputs.voltage));
-        intakeSideMotor.setControl(follower);
+        // intakeSideMotor.setControl(follower);
         break;
     }
   }

@@ -7,6 +7,7 @@ public interface TowerIO {
   @AutoLog
   public static class TowerIOInputs {
     public boolean towerConnected = false;
+    public boolean towerConfigured = false;
 
     public double towerAppliedVoltage = 0.0;
     public double towerSupplyCurrentAmps = 0.0;

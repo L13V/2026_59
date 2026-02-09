@@ -10,11 +10,10 @@ import org.ramtech.frc2026.Constants.TowerConstants;
 
 public class TowerIOTalonFX implements TowerIO {
   // Motors
-  private final TalonFX towerMotor =
-      new TalonFX(TowerConstants.towerMotorId, Constants.CANBus); // Main Motor
+  private final TalonFX towerMotor = new TalonFX(TowerConstants.towerMotorId, Constants.CANBus); // Main Motor
 
   // Configuration
-  TalonFXConfiguration towerConfig = new TalonFXConfiguration();
+  private final TalonFXConfiguration towerConfig = new TalonFXConfiguration();
   private boolean towerConfigured = false;
 
   // Control Methods
@@ -35,11 +34,14 @@ public class TowerIOTalonFX implements TowerIO {
       towerConfigured = true;
     }
 
+    inputs.towerConfigured = towerConfigured;
+
     inputs.towerAppliedVoltage = towerMotor.getMotorVoltage().getValueAsDouble();
 
     inputs.towerSupplyCurrentAmps = towerMotor.getSupplyCurrent().getValueAsDouble();
   }
 
+  @Override
   public void applyOutputs(TowerIOOutputs outputs) {
     switch (outputs.mode) {
       case COAST:

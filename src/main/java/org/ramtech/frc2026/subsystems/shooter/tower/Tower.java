@@ -19,8 +19,7 @@ public class Tower extends FullSubsystem {
   private final TowerIOOutputs outputs = new TowerIOOutputs();
   // Alerts
   private final Debouncer towerDebouncer = new Debouncer(0.5, Debouncer.DebounceType.kFalling);
-  private final Alert towerDisconnected =
-      new Alert("Tower Motor Disconnected!", Alert.AlertType.kWarning);
+  private final Alert towerDisconnected = new Alert("Tower Motor Disconnected!", Alert.AlertType.kWarning);
 
   /** Creates a new Tower. */
   public Tower(TowerIO io) {
@@ -34,13 +33,13 @@ public class Tower extends FullSubsystem {
     Logger.processInputs("Shooter/Tower", inputs);
     towerDisconnected.set(
         Robot.showHardwareAlerts() && !towerDebouncer.calculate(inputs.towerConnected));
-    periodicAfterScheduler();
   }
 
+  @Override
   public void periodicAfterScheduler() {
     io.applyOutputs(outputs); // Set the targets for the motor
-    Logger.recordOutput("Tower/Mode", outputs.mode);
-    Logger.recordOutput("Tower/Voltage", outputs.voltage);
+    Logger.recordOutput("Shooter/Tower/Mode", outputs.mode);
+    Logger.recordOutput("Shooter/Tower/Voltage", outputs.voltage);
   }
 
   public void setVoltage(double voltage) {
