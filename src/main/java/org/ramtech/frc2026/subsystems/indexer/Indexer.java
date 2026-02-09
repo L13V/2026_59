@@ -7,8 +7,9 @@ import org.littletonrobotics.junction.Logger;
 import org.ramtech.frc2026.Robot;
 import org.ramtech.frc2026.subsystems.indexer.IndexerIO.IndexerIOOutputMode;
 import org.ramtech.frc2026.subsystems.indexer.IndexerIO.IndexerIOOutputs;
+import org.ramtech.frc2026.util.FullSubsystem;
 
-public class Indexer extends SubsystemBase {
+public class Indexer extends FullSubsystem {
   // IO
   private final IndexerIO io; // the different values and possiblities relating to the subsystem.
   private final IndexerIOInputsAutoLogged inputs =

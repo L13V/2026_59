@@ -6,13 +6,13 @@ package org.ramtech.frc2026.subsystems.shooter.tower;
 
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.wpilibj.Alert;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import org.littletonrobotics.junction.Logger;
 import org.ramtech.frc2026.Robot;
 import org.ramtech.frc2026.subsystems.shooter.tower.TowerIO.TowerIOOutputMode;
 import org.ramtech.frc2026.subsystems.shooter.tower.TowerIO.TowerIOOutputs;
+import org.ramtech.frc2026.util.FullSubsystem;
 
-public class Tower extends SubsystemBase {
+public class Tower extends FullSubsystem {
   // IO
   private final TowerIO io;
   private final TowerIOInputsAutoLogged inputs = new TowerIOInputsAutoLogged();
