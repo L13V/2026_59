@@ -10,6 +10,7 @@ public interface TowerIO {
     public boolean towerConfigured = false;
 
     public double towerAppliedVoltage = 0.0;
+    public double towerVelocity = 0.0;
     public double towerSupplyCurrentAmps = 0.0;
   }
 
@@ -23,7 +24,9 @@ public interface TowerIO {
     public double voltage = 0.0;
   }
 
-  default void updateInputs(TowerIOInputs inputs) {}
+  default void updateInputs(TowerIOInputs inputs) {
+  }
 
-  default void applyOutputs(TowerIOOutputs outputs) {}
+  default void applyOutputs(TowerIOOutputs outputs) {
+  }
 }

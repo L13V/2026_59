@@ -1,100 +1,63 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
-
 package org.ramtech.frc2026.subsystems.shooter.flywheel;
 
-import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.StrictFollower;
-import com.ctre.phoenix6.controls.VelocityVoltage;
-import com.ctre.phoenix6.hardware.TalonFX;
-import com.ctre.phoenix6.signals.InvertedValue;
-import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.wpilibj.Alert;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import org.ramtech.frc2026.Constants.FlywheelConstants;
+import org.littletonrobotics.junction.Logger;
 import org.ramtech.frc2026.Robot;
+import org.ramtech.frc2026.subsystems.shooter.flywheel.FlywheelIO.FlywheelIOOutputMode;
+import org.ramtech.frc2026.subsystems.shooter.flywheel.FlywheelIO.FlywheelIOOutputs;
+import org.ramtech.frc2026.util.FullSubsystem;
 
-public class Flywheel extends SubsystemBase {
-  // Motors
-  static TalonFX leftFlywheelMotor = new TalonFX(FlywheelConstants.leftMotorId, "RT Canivore");
-  static TalonFX rightFlywheelMotor = new TalonFX(FlywheelConstants.rightMotorId, "RT Canivore");
-  // Configurations
-  static TalonFXConfiguration leftFlywheelConfig = new TalonFXConfiguration();
-  static TalonFXConfiguration rightFlywheelConfig = new TalonFXConfiguration();
-  private boolean leftConfigured = false;
-  private boolean rightConfigured = false;
-  // Controls
-  static VelocityVoltage velocityVoltage = new VelocityVoltage(0);
-  static StrictFollower strictFollower = new StrictFollower(FlywheelConstants.leftMotorId);
-
+public class Flywheel extends FullSubsystem {
+  // IO
+  private final FlywheelIO io; // the different values and possiblities relating to the subsystem.
+  private final FlywheelIOInputsAutoLogged inputs = new FlywheelIOInputsAutoLogged(); // the truth: what the motor sees
+  private final FlywheelIOOutputs outputs = new FlywheelIOOutputs(); // the targets
   // Alerts
-  private final Debouncer leftMotorConnectedDebouncer =
-      new Debouncer(0.5, Debouncer.DebounceType.kFalling);
-  private final Debouncer rightMotorFollowerConnectedDebouncer =
-      new Debouncer(0.5, Debouncer.DebounceType.kFalling);
-  private final Alert leftConnectionAlert;
-  private final Alert rightConnectionAlert;
-  private boolean leftConnected = false;
-  private boolean rightConnected = false;
+  private final Debouncer leftSideDebouncer = new Debouncer(0.5, Debouncer.DebounceType.kFalling);
+  private final Debouncer rightSideDebouncer = new Debouncer(0.5, Debouncer.DebounceType.kFalling);
 
-  public Flywheel() {
-    // Alerts
-    leftConnectionAlert = new Alert("Left Flywheel Motor Disconnected!", Alert.AlertType.kWarning);
-    rightConnectionAlert =
-        new Alert("Right Flywheel Motor Disconnected!", Alert.AlertType.kWarning);
+  private final Alert leftSideDisconnected = new Alert("Left Flywheel Motor Disconnected", Alert.AlertType.kWarning);
+  private final Alert rightSideDisconnected = new Alert("Right Flywheel Motor Disconnected", Alert.AlertType.kWarning);
+
+  public Flywheel(FlywheelIO io) {
+    this.io = io;
   }
 
   @Override
   public void periodic() {
-    leftConnected = leftFlywheelMotor.isConnected();
-    rightConnected = rightFlywheelMotor.isConnected();
+    io.updateInputs(inputs); // Grab new values from motor
+    Logger.processInputs("Shooter/Flywheel", inputs); // Put values in the log
     // Alerts
-    leftConnectionAlert.set(
-        Robot.showHardwareAlerts() && !leftMotorConnectedDebouncer.calculate(leftConnected));
-    rightConnectionAlert.set(
-        Robot.showHardwareAlerts()
-            && !rightMotorFollowerConnectedDebouncer.calculate(rightConnected));
+    leftSideDisconnected.set(
+        Robot.showHardwareAlerts() && !leftSideDebouncer.calculate(inputs.leftSideConnected));
 
-    /*
-     * Configuration
-     */
-    // TODO: Complete implementation of motor configs (put vars and stuff)
-    if (!leftConfigured && leftConnected) {
-      // leftFlywheelMotor.getConfigurator().refresh(leftFlywheelConfig);
-      leftFlywheelConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
-      leftFlywheelConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
-      leftFlywheelConfig.Slot0.kP = FlywheelConstants.kP_Slot0;
-      leftFlywheelConfig.Slot0.kI = FlywheelConstants.kI_Slot0;
-      leftFlywheelConfig.Slot0.kD = FlywheelConstants.kD_Slot0;
-      leftFlywheelConfig.Slot0.kS = FlywheelConstants.kS_Slot0;
-      leftFlywheelConfig.Slot0.kV = FlywheelConstants.kV_Slot0;
-      leftFlywheelConfig.Slot0.kA = FlywheelConstants.kA_Slot0;
-      leftFlywheelConfig.Slot0.kG = FlywheelConstants.kG_Slot0;
-      leftFlywheelConfig.Voltage.PeakForwardVoltage = FlywheelConstants.peakForwardVoltage;
-      leftFlywheelConfig.Voltage.PeakReverseVoltage = FlywheelConstants.peakReverseVoltage;
-      leftFlywheelMotor.getConfigurator().apply(leftFlywheelConfig);
-      leftFlywheelMotor.setControl(velocityVoltage.withVelocity(0));
-      leftConfigured = true;
-    }
-    if (!rightConfigured && rightConnected) {
-      // rightFlywheelMotor.getConfigurator().refresh(rightFlywheelConfig);
-      leftFlywheelConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive; // TODO: FIX
-      leftFlywheelConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
-      rightFlywheelMotor.getConfigurator().apply(rightFlywheelConfig);
-      rightFlywheelMotor.setControl(strictFollower.withLeaderID(FlywheelConstants.leftMotorId));
-      rightConfigured = true;
-    }
+    rightSideDisconnected.set(
+        Robot.showHardwareAlerts() && !rightSideDebouncer.calculate(inputs.rightSideConnected));
   }
 
-  public void setVelocity(double rps) { // TODO: Conversion Factor
-    leftFlywheelMotor.setControl(velocityVoltage.withVelocity(rps));
-    rightFlywheelMotor.setControl(strictFollower.withLeaderID(FlywheelConstants.leftMotorId));
+  @Override
+  public void periodicAfterScheduler() {
+    io.applyOutputs(outputs); // Set the targets for the motor
+    Logger.recordOutput("Shooter/Flywheel/Mode", outputs.mode);
+    Logger.recordOutput("Shooter/Flywheel/VoltageSetpoint", outputs.voltageSetpoint);
+    Logger.recordOutput("Shooter/Flywheel/VelocitySetpoint", outputs.velocitySetpoint);
+
+  }
+
+  public void setVoltage(double voltage) {
+    outputs.mode = FlywheelIOOutputMode.VOLTAGE;
+    outputs.voltageSetpoint = voltage;
+  }
+
+  public void setVelocity(double velocity) {
+    outputs.mode = FlywheelIOOutputMode.VELOCITY;
+    outputs.velocitySetpoint = velocity;
   }
 
   public void stop() {
-    leftFlywheelMotor.stopMotor();
-    rightFlywheelMotor.stopMotor();
+    outputs.mode = FlywheelIOOutputMode.COAST;
+    outputs.voltageSetpoint = 0.0;
+    outputs.velocitySetpoint = 0.0;
   }
 }

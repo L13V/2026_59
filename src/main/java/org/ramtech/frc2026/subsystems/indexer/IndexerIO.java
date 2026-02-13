@@ -15,6 +15,9 @@ public interface IndexerIO {
     public double turretSideAppliedVoltage = 0.0;
     public double intakeSideAppliedVoltage = 0.0;
 
+    public double turretSideVelocity = 0.0;
+    public double intakeSideVelocity = 0.0;
+
     public double turretSideSupplyCurrentAmps = 0.0;
     public double intakeSideSupplyCurrentAmps = 0.0;
   }
@@ -29,7 +32,9 @@ public interface IndexerIO {
     public double voltage = 0.0;
   }
 
-  default void updateInputs(IndexerIOInputs inputs) {}
+  default void updateInputs(IndexerIOInputs inputs) {
+  }
 
-  default void applyOutputs(IndexerIOOutputs outputs) {}
+  default void applyOutputs(IndexerIOOutputs outputs) {
+  }
 }

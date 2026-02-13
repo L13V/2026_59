@@ -50,6 +50,6 @@ public class Tower extends FullSubsystem {
 
   public void stop() {
     outputs.mode = TowerIOOutputMode.COAST;
-    outputs.voltage = 0.00;
+    outputs.voltage = 0.0;
   }
 }
