@@ -30,7 +30,6 @@ import org.ramtech.frc2026.subsystems.drive.ModuleIOSim;
 import org.ramtech.frc2026.subsystems.drive.ModuleIOTalonFX;
 import org.ramtech.frc2026.subsystems.indexer.Indexer;
 import org.ramtech.frc2026.subsystems.indexer.IndexerIOTalonFXS;
-import org.ramtech.frc2026.subsystems.indexer.IndexerOld;
 import org.ramtech.frc2026.subsystems.shooter.tower.Tower;
 import org.ramtech.frc2026.subsystems.shooter.tower.TowerIOTalonFX;
 import org.ramtech.frc2026.subsystems.vision.Vision;
@@ -47,7 +46,7 @@ import org.ramtech.frc2026.subsystems.vision.VisionIOPhotonVisionSim;
 public class RobotContainer {
   // Subsystems
   private final Vision vision;
-  private final IndexerOld indexerold = new IndexerOld();
+  //   private final IndexerOld indexerold = new IndexerOld();
   private final Indexer indexer = new Indexer(new IndexerIOTalonFXS());
   private final Tower tower = new Tower(new TowerIOTalonFX());
   private final Drive drive;
@@ -169,10 +168,10 @@ public class RobotContainer {
 
     controller
         .y()
-        .onTrue(new InstantCommand(() -> indexerold.setVoltage(12)))
-        .onTrue(new InstantCommand(() -> tower.setVoltage(12)))
-        .onFalse(new InstantCommand(() -> indexerold.setVoltage(0)))
-        .onFalse(new InstantCommand(() -> tower.setVoltage(0)));
+        .onTrue(new InstantCommand(() -> indexer.setVoltage(12.0)))
+        .onTrue(new InstantCommand(() -> tower.setVoltage(12.0)))
+        .onFalse(new InstantCommand(() -> indexer.setVoltage(0.0)))
+        .onFalse(new InstantCommand(() -> tower.setVoltage(0.0)));
 
     // Reset gyro to 0° when B button is pressed
     controller

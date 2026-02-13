@@ -12,7 +12,6 @@ public interface IndexerIO {
     public boolean intakeSideConnected = false;
     public boolean intakeSideConfigured = false;
 
-
     public double turretSideAppliedVoltage = 0.0;
     public double intakeSideAppliedVoltage = 0.0;
 

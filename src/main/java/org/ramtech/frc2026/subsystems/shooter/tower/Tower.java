@@ -19,7 +19,8 @@ public class Tower extends FullSubsystem {
   private final TowerIOOutputs outputs = new TowerIOOutputs();
   // Alerts
   private final Debouncer towerDebouncer = new Debouncer(0.5, Debouncer.DebounceType.kFalling);
-  private final Alert towerDisconnected = new Alert("Tower Motor Disconnected!", Alert.AlertType.kWarning);
+  private final Alert towerDisconnected =
+      new Alert("Tower Motor Disconnected!", Alert.AlertType.kWarning);
 
   /** Creates a new Tower. */
   public Tower(TowerIO io) {

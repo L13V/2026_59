@@ -10,8 +10,10 @@ import org.ramtech.frc2026.Constants.IndexerConstants;
 
 public class IndexerIOTalonFXS implements IndexerIO {
   // Motors
-  private final TalonFXS turretSideMotor = new TalonFXS(IndexerConstants.indexerTurretSideMotorID, Constants.CANBus);
-  private final TalonFXS intakeSideMotor = new TalonFXS(IndexerConstants.indexerIntakeSideMotorID, Constants.CANBus);
+  private final TalonFXS turretSideMotor =
+      new TalonFXS(IndexerConstants.indexerTurretSideMotorID, Constants.CANBus);
+  private final TalonFXS intakeSideMotor =
+      new TalonFXS(IndexerConstants.indexerIntakeSideMotorID, Constants.CANBus);
 
   // Configuration
   private final TalonFXSConfiguration turretSideConfig = new TalonFXSConfiguration();
@@ -21,7 +23,8 @@ public class IndexerIOTalonFXS implements IndexerIO {
 
   // Control Methods
   private final VoltageOut voltageOut = new VoltageOut(0);
-  private final StrictFollower follower = new StrictFollower(IndexerConstants.indexerTurretSideMotorID);
+  private final StrictFollower follower =
+      new StrictFollower(IndexerConstants.indexerTurretSideMotorID);
 
   public IndexerIOTalonFXS() {
     // Complete the config

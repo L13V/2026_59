@@ -11,14 +11,17 @@ import org.ramtech.frc2026.util.FullSubsystem;
 public class Indexer extends FullSubsystem {
   // IO
   private final IndexerIO io; // the different values and possiblities relating to the subsystem.
-  private final IndexerIOInputsAutoLogged inputs = new IndexerIOInputsAutoLogged(); // the truth: what the motor sees
+  private final IndexerIOInputsAutoLogged inputs =
+      new IndexerIOInputsAutoLogged(); // the truth: what the motor sees
   private final IndexerIOOutputs outputs = new IndexerIOOutputs(); // the targets
   // Alerts
   private final Debouncer turretSideDebouncer = new Debouncer(0.5, Debouncer.DebounceType.kFalling);
   private final Debouncer intakeSideDebouncer = new Debouncer(0.5, Debouncer.DebounceType.kFalling);
 
-  private final Alert turretSideDisconnected = new Alert("Turret Indexer Motor Disconnected", Alert.AlertType.kWarning);
-  private final Alert intakeSideDisconnected = new Alert("Intake Indexer Motor Disconnected", Alert.AlertType.kWarning);
+  private final Alert turretSideDisconnected =
+      new Alert("Turret Indexer Motor Disconnected", Alert.AlertType.kWarning);
+  private final Alert intakeSideDisconnected =
+      new Alert("Intake Indexer Motor Disconnected", Alert.AlertType.kWarning);
 
   public Indexer(IndexerIO io) {
     this.io = io;
@@ -34,7 +37,6 @@ public class Indexer extends FullSubsystem {
 
     intakeSideDisconnected.set(
         Robot.showHardwareAlerts() && !intakeSideDebouncer.calculate(inputs.intakeSideConnected));
-
   }
 
   @Override

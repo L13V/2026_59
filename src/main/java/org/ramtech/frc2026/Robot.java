@@ -17,6 +17,7 @@ import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 import org.ramtech.frc2026.Constants.Mode;
+import org.ramtech.frc2026.util.FullSubsystem;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -87,9 +88,13 @@ public class Robot extends LoggedRobot {
     // the Command-based framework to work.
     CommandScheduler.getInstance().run();
 
-    // Return to non-RT thread priority (do not modify the first argument)
-    // Threads.setCurrentThreadPriority(false, 10);
+    // Call periodicAfterScheduler on FullSubsystems
+
+    FullSubsystem.runAllPeriodicAfterScheduler();
   }
+
+  // Return to non-RT thread priority (do not modify the first argument)
+  // Threads.setCurrentThreadPriority(false, 10);
 
   public static boolean showHardwareAlerts() {
     return Constants.currentMode != Mode.SIM && Timer.getTimestamp() > 3.0; // TODO: Set to 30
