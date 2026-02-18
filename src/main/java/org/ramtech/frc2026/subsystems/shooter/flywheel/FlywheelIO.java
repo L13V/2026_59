@@ -22,14 +22,20 @@ public interface FlywheelIO {
     public double rightSideSupplyCurrentAmps = 0.0;
   }
 
+  public static enum FlywheelIOSetpointSource {
+    SHOT_CALCULATOR,
+    MANUAL
+  }
+
   public static enum FlywheelIOOutputMode {
-    COAST,
+    OFF,
     VOLTAGE,
     VELOCITY
   }
 
   public static class FlywheelIOOutputs {
-    public FlywheelIOOutputMode mode = FlywheelIOOutputMode.COAST;
+    public FlywheelIOOutputMode mode = FlywheelIOOutputMode.OFF;
+    public FlywheelIOSetpointSource setpointSource = FlywheelIOSetpointSource.SHOT_CALCULATOR;
     public double voltageSetpoint = 0.0;
     public double velocitySetpoint = 0.0;
   }

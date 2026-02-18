@@ -2,14 +2,15 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package org.ramtech.frc2026.subsystems.shooter.tower;
+package org.ramtech.frc2026.subsystems.tower;
 
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.wpilibj.Alert;
 import org.littletonrobotics.junction.Logger;
 import org.ramtech.frc2026.Robot;
-import org.ramtech.frc2026.subsystems.shooter.tower.TowerIO.TowerIOOutputMode;
-import org.ramtech.frc2026.subsystems.shooter.tower.TowerIO.TowerIOOutputs;
+import org.ramtech.frc2026.subsystems.shooter.tower.TowerIOInputsAutoLogged;
+import org.ramtech.frc2026.subsystems.tower.TowerIO.TowerIOOutputMode;
+import org.ramtech.frc2026.subsystems.tower.TowerIO.TowerIOOutputs;
 import org.ramtech.frc2026.util.FullSubsystem;
 
 public class Tower extends FullSubsystem {

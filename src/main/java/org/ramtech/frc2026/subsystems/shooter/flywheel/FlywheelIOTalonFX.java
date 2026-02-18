@@ -11,8 +11,10 @@ import org.ramtech.frc2026.Constants.FlywheelConstants;
 
 public class FlywheelIOTalonFX implements FlywheelIO {
   // Motors
-  private final TalonFX leftFlywheelMotor = new TalonFX(FlywheelConstants.leftMotorId, Constants.CANBus);
-  private final TalonFX rightFlywheelMotor = new TalonFX(FlywheelConstants.rightMotorId, Constants.CANBus);
+  private final TalonFX leftFlywheelMotor =
+      new TalonFX(FlywheelConstants.leftMotorId, Constants.CANBus);
+  private final TalonFX rightFlywheelMotor =
+      new TalonFX(FlywheelConstants.rightMotorId, Constants.CANBus);
 
   // Configuration
   private final TalonFXConfiguration leftSideConfig = new TalonFXConfiguration();
@@ -77,7 +79,7 @@ public class FlywheelIOTalonFX implements FlywheelIO {
   @Override
   public void applyOutputs(FlywheelIOOutputs outputs) {
     switch (outputs.mode) {
-      case COAST:
+      case OFF:
         leftFlywheelMotor.stopMotor();
         rightFlywheelMotor.stopMotor();
         break;

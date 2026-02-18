@@ -29,9 +29,9 @@ import org.ramtech.frc2026.subsystems.drive.ModuleIO;
 import org.ramtech.frc2026.subsystems.drive.ModuleIOSim;
 import org.ramtech.frc2026.subsystems.drive.ModuleIOTalonFX;
 import org.ramtech.frc2026.subsystems.indexer.Indexer;
-import org.ramtech.frc2026.subsystems.indexer.IndexerIOTalonFXS;
-import org.ramtech.frc2026.subsystems.shooter.tower.Tower;
-import org.ramtech.frc2026.subsystems.shooter.tower.TowerIOTalonFX;
+import org.ramtech.frc2026.subsystems.indexer.IndexerIOTalonFX;
+import org.ramtech.frc2026.subsystems.tower.Tower;
+import org.ramtech.frc2026.subsystems.tower.TowerIOTalonFX;
 import org.ramtech.frc2026.subsystems.vision.Vision;
 import org.ramtech.frc2026.subsystems.vision.VisionIO;
 import org.ramtech.frc2026.subsystems.vision.VisionIOPhotonVision;
@@ -46,8 +46,9 @@ import org.ramtech.frc2026.subsystems.vision.VisionIOPhotonVisionSim;
 public class RobotContainer {
   // Subsystems
   private final Vision vision;
-  //   private final IndexerOld indexerold = new IndexerOld();
-  private final Indexer indexer = new Indexer(new IndexerIOTalonFXS());
+  // private final IndexerOld indexerold = new IndexerOld();
+  // TODO integrate into sim and default logic
+  private final Indexer indexer = new Indexer(new IndexerIOTalonFX());
   private final Tower tower = new Tower(new TowerIOTalonFX());
   private final Drive drive;
 
@@ -114,6 +115,9 @@ public class RobotContainer {
 
         break;
     }
+    RobotState.getInstance().setPoseSupplier(drive::getPose);
+    RobotState.getInstance().setSpeedSupplier(drive::getChassisSpeeds);
+    RobotState.getInstance().setModuleStateSupplier(drive::getModuleStates);
 
     // Set up auto routines
     autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
@@ -168,9 +172,9 @@ public class RobotContainer {
 
     controller
         .y()
-        .onTrue(new InstantCommand(() -> indexer.setVoltage(12.0)))
+        .onTrue(new InstantCommand(() -> indexer.setVoltages(12.0, 12.0)))
         .onTrue(new InstantCommand(() -> tower.setVoltage(12.0)))
-        .onFalse(new InstantCommand(() -> indexer.setVoltage(0.0)))
+        .onFalse(new InstantCommand(() -> indexer.stop()))
         .onFalse(new InstantCommand(() -> tower.setVoltage(0.0)));
 
     // Reset gyro to 0° when B button is pressed
@@ -192,5 +196,9 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     return autoChooser.get();
+  }
+
+  public Pose2d getRobotPose() {
+    return drive.getPose();
   }
 }

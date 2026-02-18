@@ -5,6 +5,11 @@
 // license that can be found in the LICENSE file
 // at the root directory of this project.
 
+// Courtesy of T. Gotti & Liev Arango Dorfman with help from Andrew Whalen, KP, the entire
+// Mechanical Advantage team, ChatGPT, Google Gemini, Grok, Copilot, Github Copilot, Deepseek, all
+// of Cheesy Poofs, Blackbox AI, cpapplefamily, Patrick Fairbank, not REV Robotics, and also ChatGPT
+// Codex a second time.
+
 package org.ramtech.frc2026;
 
 import edu.wpi.first.wpilibj.RobotBase;

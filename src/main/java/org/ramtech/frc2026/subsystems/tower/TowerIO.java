@@ -1,4 +1,4 @@
-package org.ramtech.frc2026.subsystems.shooter.tower;
+package org.ramtech.frc2026.subsystems.tower;
 
 import org.littletonrobotics.junction.AutoLog;
 
@@ -24,9 +24,7 @@ public interface TowerIO {
     public double voltage = 0.0;
   }
 
-  default void updateInputs(TowerIOInputs inputs) {
-  }
+  default void updateInputs(TowerIOInputs inputs) {}
 
-  default void applyOutputs(TowerIOOutputs outputs) {
-  }
+  default void applyOutputs(TowerIOOutputs outputs) {}
 }

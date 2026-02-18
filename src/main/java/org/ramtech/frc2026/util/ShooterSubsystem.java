@@ -17,30 +17,24 @@ import java.util.List;
  * scheduler. Allows outputs to be published after all other periodic code has
  * finished.
  */
-public abstract class FullSubsystem extends SubsystemBase {
-  private static List<FullSubsystem> instances = new ArrayList<>();
+public abstract class ShooterSubsystem extends FullSubsystem {
+  private static List<ShooterSubsystem> instances = new ArrayList<>();
 
-  public FullSubsystem() {
+  public ShooterSubsystem() {
     super();
     instances.add(this);
   }
 
-  public FullSubsystem(String name) {
+  public ShooterSubsystem(String name) {
     super(name);
     instances.add(this);
   }
 
-  /**
-   * This method is called periodically after the command scheduler, and should be
-   * used for applying
-   * outputs.
-   */
-  public abstract void periodicAfterScheduler();
+  public abstract void shooterMotorPeriodic(double dt);
 
-  /** Run the "after periodic" methods for all subsystems. */
-  public static void runAllPeriodicAfterScheduler() {
-    for (FullSubsystem instance : instances) {
-      instance.periodicAfterScheduler();
+  public static void runAllShooterMotorPeriodics(double dt) {
+    for (ShooterSubsystem instance : instances) {
+      instance.shooterMotorPeriodic(dt);
     }
   }
 }

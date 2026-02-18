@@ -7,6 +7,8 @@
 
 package org.ramtech.frc2026;
 
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -17,17 +19,50 @@ import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 import org.ramtech.frc2026.Constants.Mode;
+import org.ramtech.frc2026.subsystems.shooter.ShotCalculator;
 import org.ramtech.frc2026.util.FullSubsystem;
+import org.ramtech.frc2026.util.ShooterSubsystem;
 
 /**
- * The VM is configured to automatically run this class, and to call the functions corresponding to
- * each mode, as described in the TimedRobot documentation. If you change the name of this class or
- * the package after creating this project, you must also update the build.gradle file in the
+ * The VM is configured to automatically run this class, and to call the
+ * functions corresponding to
+ * each mode, as described in the TimedRobot documentation. If you change the
+ * name of this class or
+ * the package after creating this project, you must also update the
+ * build.gradle file in the
  * project.
  */
 public class Robot extends LoggedRobot {
   private Command autonomousCommand;
   private RobotContainer robotContainer;
+  private double lastCalcTs;
+  private double lastShooterTs;
+
+  private final Notifier CalculationLoop = new Notifier(() -> {
+    double now = Timer.getFPGATimestamp();
+    double dt = now - lastCalcTs;
+    lastCalcTs = now;
+    ShotCalculator.getInstance().update(dt);
+  });
+
+  private final Notifier shooterLoop = new Notifier(() -> {
+    double now = Timer.getFPGATimestamp();
+    double dt = now - lastShooterTs;
+    lastShooterTs = now;
+    if (DriverStation.isEnabled()) {
+      ShooterSubsystem.runAllShooterMotorPeriodics(dt);
+    }
+  });
+
+  @Override
+  public void robotInit() {
+    lastCalcTs = Timer.getFPGATimestamp();
+    lastShooterTs = Timer.getFPGATimestamp();
+    // Start 5ms periodic
+    CalculationLoop.startPeriodic(0.005);
+    shooterLoop.startPeriodic(0.010);
+
+  }
 
   public Robot() {
     // Record metadata
@@ -102,13 +137,18 @@ public class Robot extends LoggedRobot {
 
   /** This function is called once when the robot is disabled. */
   @Override
-  public void disabledInit() {}
+  public void disabledInit() {
+  }
 
   /** This function is called periodically when disabled. */
   @Override
-  public void disabledPeriodic() {}
+  public void disabledPeriodic() {
+  }
 
-  /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
+  /**
+   * This autonomous runs the autonomous command selected by your
+   * {@link RobotContainer} class.
+   */
   @Override
   public void autonomousInit() {
     autonomousCommand = robotContainer.getAutonomousCommand();
@@ -121,7 +161,8 @@ public class Robot extends LoggedRobot {
 
   /** This function is called periodically during autonomous. */
   @Override
-  public void autonomousPeriodic() {}
+  public void autonomousPeriodic() {
+  }
 
   /** This function is called once when teleop is enabled. */
   @Override
@@ -137,7 +178,8 @@ public class Robot extends LoggedRobot {
 
   /** This function is called periodically during operator control. */
   @Override
-  public void teleopPeriodic() {}
+  public void teleopPeriodic() {
+  }
 
   /** This function is called once when test mode is enabled. */
   @Override
@@ -148,13 +190,16 @@ public class Robot extends LoggedRobot {
 
   /** This function is called periodically during test mode. */
   @Override
-  public void testPeriodic() {}
+  public void testPeriodic() {
+  }
 
   /** This function is called once when the robot is first started up. */
   @Override
-  public void simulationInit() {}
+  public void simulationInit() {
+  }
 
   /** This function is called periodically whilst in simulation. */
   @Override
-  public void simulationPeriodic() {}
+  public void simulationPeriodic() {
+  }
 }

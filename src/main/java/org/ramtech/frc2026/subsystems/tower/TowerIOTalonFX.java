@@ -1,4 +1,4 @@
-package org.ramtech.frc2026.subsystems.shooter.tower;
+package org.ramtech.frc2026.subsystems.tower;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.VoltageOut;
@@ -10,7 +10,8 @@ import org.ramtech.frc2026.Constants.TowerConstants;
 
 public class TowerIOTalonFX implements TowerIO {
   // Motors
-  private final TalonFX towerMotor = new TalonFX(TowerConstants.towerMotorId, Constants.CANBus); // Main Motor
+  private final TalonFX towerMotor =
+      new TalonFX(TowerConstants.towerMotorId, Constants.CANBus); // Main Motor
 
   // Configuration
   private final TalonFXConfiguration towerConfig = new TalonFXConfiguration();

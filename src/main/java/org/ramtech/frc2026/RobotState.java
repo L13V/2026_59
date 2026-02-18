@@ -1,0 +1,67 @@
+// Copyright (c) FIRST and other WPILib contributors.
+// Open Source Software; you can modify and/or share it under the terms of
+// the WPILib BSD license file in the root directory of this project.
+
+package org.ramtech.frc2026;
+
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.kinematics.SwerveModuleState;
+import java.util.function.Supplier;
+
+/** Add your docs here. */
+public class RobotState {
+  private static RobotState instance;
+
+  public static RobotState getInstance() { //
+    if (instance == null) instance = new RobotState();
+    return instance;
+  }
+
+  // Create an initial pose for the supplier to overwrite.
+  private Supplier<Pose2d> poseSupplier = Pose2d::new;
+  private Supplier<ChassisSpeeds> speedSupplier = ChassisSpeeds::new;
+  private Supplier<SwerveModuleState[]> moduleStateSupplier =
+      () ->
+          new SwerveModuleState[] {
+            new SwerveModuleState(),
+            new SwerveModuleState(),
+            new SwerveModuleState(),
+            new SwerveModuleState()
+          };
+
+  /** Call once during robot init */
+  public void setPoseSupplier(Supplier<Pose2d> supplier) {
+    this.poseSupplier = supplier;
+  }
+
+  /** Call once during robot init */
+  public void setSpeedSupplier(Supplier<ChassisSpeeds> supplier) {
+    this.speedSupplier = supplier;
+  }
+
+  public void setModuleStateSupplier(Supplier<SwerveModuleState[]> supplier) {
+    this.moduleStateSupplier = supplier;
+  }
+
+  public Pose2d getRobotPose() {
+    return poseSupplier.get();
+  }
+
+  public Rotation2d getRotation() {
+    return poseSupplier.get().getRotation();
+  }
+
+  public ChassisSpeeds getChassisSpeeds() {
+    return speedSupplier.get();
+  }
+
+  public ChassisSpeeds getFieldSpeeds() {
+    return ChassisSpeeds.fromRobotRelativeSpeeds(getChassisSpeeds(), getRotation());
+  }
+
+  public SwerveModuleState[] getModuleStates() {
+    return moduleStateSupplier.get();
+  }
+}
