@@ -12,9 +12,9 @@ import org.ramtech.frc2026.Constants.FlywheelConstants;
 public class FlywheelIOTalonFX implements FlywheelIO {
   // Motors
   private final TalonFX leftFlywheelMotor =
-      new TalonFX(FlywheelConstants.leftMotorId, Constants.CANBus);
+      new TalonFX(FlywheelConstants.leftMotorId, Constants.Canivore);
   private final TalonFX rightFlywheelMotor =
-      new TalonFX(FlywheelConstants.rightMotorId, Constants.CANBus);
+      new TalonFX(FlywheelConstants.rightMotorId, Constants.Canivore);
 
   // Configuration
   private final TalonFXConfiguration leftSideConfig = new TalonFXConfiguration();

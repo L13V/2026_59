@@ -53,7 +53,7 @@ public class Flywheel extends ShooterSubsystem {
   }
 
   @Override
-  public void shooterMotorPeriodic(double dt) {
+  public void shooterPeriodic(double dt) {
     var shotCalculation = ShotCalculator.getInstance().getLatest();
     synchronized (outputsLock) {
       if (outputs.setpointSource == FlywheelIOSetpointSource.SHOT_CALCULATOR) {
