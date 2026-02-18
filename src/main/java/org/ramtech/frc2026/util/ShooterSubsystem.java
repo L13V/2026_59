@@ -27,11 +27,11 @@ public abstract class ShooterSubsystem extends FullSubsystem {
     instances.add(this);
   }
 
-  public abstract void shooterMotorPeriodic(double dt);
+  public abstract void shooterPeriodic(double dt);
 
   public static void runAllShooterMotorPeriodics(double dt) {
     for (ShooterSubsystem instance : instances) {
-      instance.shooterMotorPeriodic(dt);
+      instance.shooterPeriodic(dt);
     }
   }
 }
