@@ -12,8 +12,8 @@ import org.ramtech.frc2026.Constants.IndexerConstants;
 public class IndexerIOTalonFX implements IndexerIO {
   // Motors
   private final TalonFX spindexerMotor =
-      new TalonFX(IndexerConstants.spindexerMotorID, Constants.CANBus);
-  private final TalonFXS starMotor = new TalonFXS(IndexerConstants.starMotorID, Constants.CANBus);
+      new TalonFX(IndexerConstants.spindexerMotorID, Constants.Canivore);
+  private final TalonFXS starMotor = new TalonFXS(IndexerConstants.starMotorID, Constants.Canivore);
 
   // Configuration
   private final TalonFXConfiguration spindexerConfig = new TalonFXConfiguration();

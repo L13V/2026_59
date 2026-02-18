@@ -62,8 +62,7 @@ public class IndexerIOSim implements IndexerIO {
         Units.radiansToRotations(spindexerSim.getAngularVelocityRadPerSec()));
 
     starSimState.setRawRotorPosition(Units.radiansToRotations(starSim.getAngularPositionRad()));
-    starSimState.setRotorVelocity(
-        Units.radiansToRotations(starSim.getAngularVelocityRadPerSec()));
+    starSimState.setRotorVelocity(Units.radiansToRotations(starSim.getAngularVelocityRadPerSec()));
 
     // 3. Update Inputs
     inputs.spindexerConnected = true;
