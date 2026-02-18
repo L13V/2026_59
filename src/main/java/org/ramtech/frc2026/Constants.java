@@ -8,6 +8,8 @@
 package org.ramtech.frc2026;
 
 import com.ctre.phoenix6.CANBus;
+import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.wpilibj.RobotBase;
 
 /**
@@ -39,8 +41,8 @@ public final class Constants {
   }
 
   public static final class IndexerConstants {
-    public static final int indexerIntakeSideMotorID = 50;
-    public static final int indexerTurretSideMotorID = 51;
+    public static final int starMotorID = 50;
+    public static final int spindexerMotorID = 51;
   }
 
   public static final class TowerConstants {
@@ -70,6 +72,11 @@ public final class Constants {
     public static final Double kG_Slot0 = 0.0;
     public static final Double peakForwardVoltage = 16.0;
     public static final Double peakReverseVoltage = 1.0;
+  }
+
+  public static final class targetPoses {
+    public static Pose3d redHub = new Pose3d(1.0, 1.0, 1.0, new Rotation3d(0, 0, 0));
+    public static Pose3d blueHub = new Pose3d(1.0, 1.0, 1.0, new Rotation3d(0, 0, 0));
   }
 
   public static final class ClimbConstants {
