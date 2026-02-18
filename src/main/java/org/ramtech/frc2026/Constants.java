@@ -20,7 +20,7 @@ import edu.wpi.first.wpilibj.RobotBase;
 public final class Constants {
   public static final Mode simMode = Mode.SIM;
   public static final Mode currentMode = RobotBase.isReal() ? Mode.REAL : simMode;
-  public static final CANBus CANBus = new CANBus("RT Canivore");
+  public static final CANBus Canivore = new CANBus("RT Canivore");
 
   public static enum Mode {
     /** Running on a real robot. */
