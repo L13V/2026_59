@@ -12,10 +12,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * A standard subsystem that includes an extra periodic callback which runs
- * after the command
- * scheduler. Allows outputs to be published after all other periodic code has
- * finished.
+ * A standard subsystem that includes an extra periodic callback which runs after the command
+ * scheduler. Allows outputs to be published after all other periodic code has finished.
  */
 public abstract class FullSubsystem extends SubsystemBase {
   private static List<FullSubsystem> instances = new ArrayList<>();
@@ -31,8 +29,7 @@ public abstract class FullSubsystem extends SubsystemBase {
   }
 
   /**
-   * This method is called periodically after the command scheduler, and should be
-   * used for applying
+   * This method is called periodically after the command scheduler, and should be used for applying
    * outputs.
    */
   public abstract void periodicAfterScheduler();

@@ -1,4 +1,4 @@
-package org.ramtech.frc2026.subsystems.tower;
+package org.ramtech.frc2026.subsystems.shooter.tower;
 
 import org.littletonrobotics.junction.AutoLog;
 
@@ -14,14 +14,22 @@ public interface TowerIO {
     public double towerSupplyCurrentAmps = 0.0;
   }
 
+  public static enum TowerIOSetpointSource {
+    MANUAL,
+    SHOT_CALCULATOR
+  }
+
   public static enum TowerIOOutputMode {
-    COAST,
-    VOLTAGE
+    OFF,
+    VOLTAGE,
+    VELOCITY
   }
 
   public static class TowerIOOutputs {
-    public TowerIOOutputMode mode = TowerIOOutputMode.COAST;
+    public TowerIOSetpointSource setpointSource = TowerIOSetpointSource.SHOT_CALCULATOR;
+    public TowerIOOutputMode mode = TowerIOOutputMode.OFF;
     public double voltage = 0.0;
+    public double velocity = 0.0;
   }
 
   default void updateInputs(TowerIOInputs inputs) {}

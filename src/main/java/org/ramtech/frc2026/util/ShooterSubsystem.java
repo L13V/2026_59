@@ -7,15 +7,12 @@
 
 package org.ramtech.frc2026.util;
 
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * A standard subsystem that includes an extra periodic callback which runs
- * after the command
- * scheduler. Allows outputs to be published after all other periodic code has
- * finished.
+ * A standard subsystem that includes an extra periodic callback which runs after the command
+ * scheduler. Allows outputs to be published after all other periodic code has finished.
  */
 public abstract class ShooterSubsystem extends FullSubsystem {
   private static List<ShooterSubsystem> instances = new ArrayList<>();

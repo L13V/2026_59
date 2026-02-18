@@ -40,9 +40,7 @@ public interface FlywheelIO {
     public double velocitySetpoint = 0.0;
   }
 
-  default void updateInputs(FlywheelIOInputs inputs) {
-  }
+  default void updateInputs(FlywheelIOInputs inputs) {}
 
-  default void applyOutputs(FlywheelIOOutputs outputs) {
-  }
+  default void applyOutputs(FlywheelIOOutputs outputs) {}
 }
