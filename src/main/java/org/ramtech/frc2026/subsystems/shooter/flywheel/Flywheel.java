@@ -5,10 +5,9 @@ import edu.wpi.first.wpilibj.Alert;
 import org.littletonrobotics.junction.Logger;
 import org.ramtech.frc2026.Robot;
 import org.ramtech.frc2026.subsystems.shooter.ShotCalculator;
-import org.ramtech.frc2026.subsystems.shooter.flywheel.FlywheelIO.FlywheelIOSetpointSource;
 import org.ramtech.frc2026.subsystems.shooter.flywheel.FlywheelIO.FlywheelIOOutputMode;
 import org.ramtech.frc2026.subsystems.shooter.flywheel.FlywheelIO.FlywheelIOOutputs;
-import org.ramtech.frc2026.util.FullSubsystem;
+import org.ramtech.frc2026.subsystems.shooter.flywheel.FlywheelIO.FlywheelIOSetpointSource;
 import org.ramtech.frc2026.util.ShooterSubsystem;
 
 public class Flywheel extends ShooterSubsystem {
@@ -16,14 +15,17 @@ public class Flywheel extends ShooterSubsystem {
 
   // IO
   private final FlywheelIO io; // the different values and possiblities relating to the subsystem.
-  private final FlywheelIOInputsAutoLogged inputs = new FlywheelIOInputsAutoLogged(); // the truth: what the motor sees
+  private final FlywheelIOInputsAutoLogged inputs =
+      new FlywheelIOInputsAutoLogged(); // the truth: what the motor sees
   private final FlywheelIOOutputs outputs = new FlywheelIOOutputs(); // the targets
   // Alerts
   private final Debouncer leftSideDebouncer = new Debouncer(0.5, Debouncer.DebounceType.kFalling);
   private final Debouncer rightSideDebouncer = new Debouncer(0.5, Debouncer.DebounceType.kFalling);
 
-  private final Alert leftSideDisconnected = new Alert("Left Flywheel Motor Disconnected", Alert.AlertType.kWarning);
-  private final Alert rightSideDisconnected = new Alert("Right Flywheel Motor Disconnected", Alert.AlertType.kWarning);
+  private final Alert leftSideDisconnected =
+      new Alert("Left Flywheel Motor Disconnected", Alert.AlertType.kWarning);
+  private final Alert rightSideDisconnected =
+      new Alert("Right Flywheel Motor Disconnected", Alert.AlertType.kWarning);
 
   public Flywheel(FlywheelIO io) {
     this.io = io;
@@ -48,7 +50,6 @@ public class Flywheel extends ShooterSubsystem {
       Logger.recordOutput("Shooter/Flywheel/VoltageSetpoint", outputs.voltageSetpoint);
       Logger.recordOutput("Shooter/Flywheel/VelocitySetpoint", outputs.velocitySetpoint);
     }
-
   }
 
   @Override
@@ -63,7 +64,6 @@ public class Flywheel extends ShooterSubsystem {
       }
       io.applyOutputs(outputs); // Set the targets for the motor
     }
-
   }
 
   public void enableCalculation() {
@@ -71,12 +71,12 @@ public class Flywheel extends ShooterSubsystem {
       outputs.setpointSource = FlywheelIOSetpointSource.SHOT_CALCULATOR;
     }
   }
-    public void disableCalculation() {
+
+  public void disableCalculation() {
     synchronized (outputsLock) {
       outputs.setpointSource = FlywheelIOSetpointSource.MANUAL;
     }
   }
-
 
   public void setVoltage(double voltage) {
     synchronized (outputsLock) {

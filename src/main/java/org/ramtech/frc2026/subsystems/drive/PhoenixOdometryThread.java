@@ -40,7 +40,7 @@ public class PhoenixOdometryThread extends Thread {
   private static boolean isCANFD = TunerConstants.kCANBus.isNetworkFD();
   private static PhoenixOdometryThread instance = null;
 
-  public static PhoenixOdometryThread getInstance() {
+  public static synchronized PhoenixOdometryThread getInstance() {
     if (instance == null) {
       instance = new PhoenixOdometryThread();
     }
