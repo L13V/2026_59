@@ -12,7 +12,7 @@ import org.ramtech.frc2026.Constants.TowerConstants;
 public class TowerIOTalonFX implements TowerIO {
   // Motors
   private final TalonFX towerMotor =
-      new TalonFX(TowerConstants.towerMotorId, Constants.CANBus); // Main Motor
+      new TalonFX(TowerConstants.towerMotorId, Constants.Canivore); // Main Motor
 
   // Configuration
   private final TalonFXConfiguration towerConfig = new TalonFXConfiguration();
