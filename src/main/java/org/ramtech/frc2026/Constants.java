@@ -20,7 +20,7 @@ import edu.wpi.first.wpilibj.RobotBase;
 public final class Constants {
   public static final Mode simMode = Mode.SIM;
   public static final Mode currentMode = RobotBase.isReal() ? Mode.REAL : simMode;
-  public static final CANBus Canivore = new CANBus("RT Canivore");
+  public static final CANBus CANivore = new CANBus("RT Canivore");
 
   public static enum Mode {
     /** Running on a real robot. */
@@ -37,12 +37,11 @@ public final class Constants {
     public static final int intakePivotMotorId = 45;
     public static final int intakeWheelsMotorId = 47;
     public static final int intakeEncoderId = 0;
-    ;
   }
 
   public static final class IndexerConstants {
     public static final int starMotorID = 50;
-    public static final int spindexerMotorID = 51;
+    public static final int ballTunnelMotorID = 51;
   }
 
   public static final class TowerConstants {
@@ -57,6 +56,13 @@ public final class Constants {
 
   public static final class HoodConstants {
     public static final int hoodMotorId = 57;
+    public static final Double kP_Slot0 = 0.0;
+    public static final Double kI_Slot0 = 0.0;
+    public static final Double kD_Slot0 = 0.0;
+    public static final Double kS_Slot0 = 0.0;
+    public static final Double kV_Slot0 = 0.0;
+    public static final Double kA_Slot0 = 0.0;
+    public static final Double kG_Slot0 = 0.0;
   }
 
   public static final class FlywheelConstants {

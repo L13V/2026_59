@@ -5,6 +5,7 @@
 package org.ramtech.frc2026.subsystems.shooter;
 
 import java.util.concurrent.atomic.AtomicReference;
+import org.littletonrobotics.junction.Logger;
 
 /** Add your docs here. */
 public class ShotCalculator {
@@ -27,5 +28,10 @@ public class ShotCalculator {
 
   public ShotParameters getLatest() {
     return latest.get();
+  }
+
+  public void publishShotParameters() {
+    var params = getLatest();
+    Logger.recordOutput("ShotCalculator/ShotParameters", params);
   }
 }

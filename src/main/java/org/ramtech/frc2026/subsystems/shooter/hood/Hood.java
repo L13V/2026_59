@@ -6,7 +6,6 @@ package org.ramtech.frc2026.subsystems.shooter.hood;
 
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.wpilibj.Alert;
-
 import org.littletonrobotics.junction.Logger;
 import org.ramtech.frc2026.Robot;
 import org.ramtech.frc2026.subsystems.shooter.ShotCalculator;
@@ -24,7 +23,8 @@ public class Hood extends ShooterSubsystem {
   private final HoodIOOutputs outputs = new HoodIOOutputs();
   // Alerts
   private final Debouncer hoodDebouncer = new Debouncer(0.5, Debouncer.DebounceType.kFalling);
-  private final Alert hoodDisconnected = new Alert("Hood Angle Motor Disconnected!", Alert.AlertType.kWarning);
+  private final Alert hoodDisconnected =
+      new Alert("Hood Angle Motor Disconnected!", Alert.AlertType.kWarning);
 
   /** Creates a new Hood. */
   public Hood(HoodIO io) {
@@ -61,7 +61,6 @@ public class Hood extends ShooterSubsystem {
       }
       io.applyOutputs(outputs); // Set the targets for the motor
     }
-
   }
 
   public void enableCalculation() {
@@ -73,7 +72,6 @@ public class Hood extends ShooterSubsystem {
   public void disableCalculation() {
     synchronized (outputsLock) {
       outputs.setpointSource = HoodIOSetpointSource.MANUAL;
-
     }
   }
 

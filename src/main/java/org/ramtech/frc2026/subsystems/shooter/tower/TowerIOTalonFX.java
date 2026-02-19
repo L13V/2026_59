@@ -12,7 +12,7 @@ import org.ramtech.frc2026.Constants.TowerConstants;
 public class TowerIOTalonFX implements TowerIO {
   // Motors
   private final TalonFX towerMotor =
-      new TalonFX(TowerConstants.towerMotorId, Constants.Canivore); // Main Motor
+      new TalonFX(TowerConstants.towerMotorId, Constants.CANivore); // Main Motor
 
   // Configuration
   private final TalonFXConfiguration towerConfig = new TalonFXConfiguration();
@@ -26,6 +26,12 @@ public class TowerIOTalonFX implements TowerIO {
     // Complete the config
     towerConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
     towerConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+    towerConfig.CurrentLimits.StatorCurrentLimit = 120;
+    towerConfig.CurrentLimits.StatorCurrentLimitEnable = true;
+    towerConfig.CurrentLimits.SupplyCurrentLimit = 120;
+    towerConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
+    towerConfig.CurrentLimits.SupplyCurrentLowerLimit = 70;
+    towerConfig.CurrentLimits.SupplyCurrentLowerTime = 3;
   }
 
   @Override
@@ -39,11 +45,11 @@ public class TowerIOTalonFX implements TowerIO {
 
     inputs.towerConfigured = towerConfigured;
 
-    inputs.towerAppliedVoltage = towerMotor.getMotorVoltage().getValueAsDouble();
+    inputs.towerMotorVoltage = towerMotor.getMotorVoltage().getValueAsDouble();
 
     inputs.towerVelocity = towerMotor.getVelocity().getValueAsDouble();
 
-    inputs.towerSupplyCurrentAmps = towerMotor.getSupplyCurrent().getValueAsDouble();
+    inputs.towerSupplyCurrent = towerMotor.getSupplyCurrent().getValueAsDouble();
   }
 
   @Override
@@ -54,10 +60,10 @@ public class TowerIOTalonFX implements TowerIO {
         break;
 
       case VOLTAGE:
-        towerMotor.setControl(voltageOut.withOutput(outputs.voltage));
+        towerMotor.setControl(voltageOut.withOutput(outputs.voltageSetpoint).withEnableFOC(true));
         break;
       case VELOCITY:
-        towerMotor.setControl(velocityVoltage.withVelocity(outputs.velocity));
+        towerMotor.setControl(velocityVoltage.withVelocity(outputs.velocitySetpoint));
     }
   }
 }

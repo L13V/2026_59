@@ -9,14 +9,15 @@ public interface HoodIO {
     public boolean hoodConnected = false;
     public boolean hoodConfigured = false;
 
-    public double hoodAppliedVoltage = 0.0;
+    public double hoodMotorVoltage = 0.0;
+    public double hoodSupplyCurrent = 0.0;
     public double hoodPosition = 0.0;
-    public double hoodSupplyCurrentAmps = 0.0;
+    public double hoodVelocity = 0.0;
   }
 
   public static enum HoodIOSetpointSource {
-    MANUAL,
-    SHOT_CALCULATOR
+    SHOT_CALCULATOR,
+    MANUAL
   }
 
   public static enum HoodIOOutputMode {
@@ -25,16 +26,15 @@ public interface HoodIO {
     POSITION
   }
 
+  @AutoLog
   public static class HoodIOOutputs {
+    public HoodIOOutputMode mode = HoodIOOutputMode.POSITION;
     public HoodIOSetpointSource setpointSource = HoodIOSetpointSource.SHOT_CALCULATOR;
-    public HoodIOOutputMode mode = HoodIOOutputMode.OFF;
     public double voltageSetpoint = 0.0;
     public double positionSetpoint = 0.0;
   }
 
-  default void updateInputs(HoodIOInputs inputs) {
-  }
+  default void updateInputs(HoodIOInputs inputs) {}
 
-  default void applyOutputs(HoodIOOutputs outputs) {
-  }
+  default void applyOutputs(HoodIOOutputs outputs) {}
 }

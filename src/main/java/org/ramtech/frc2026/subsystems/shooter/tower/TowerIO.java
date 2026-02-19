@@ -9,9 +9,9 @@ public interface TowerIO {
     public boolean towerConnected = false;
     public boolean towerConfigured = false;
 
-    public double towerAppliedVoltage = 0.0;
+    public double towerMotorVoltage = 0.0;
     public double towerVelocity = 0.0;
-    public double towerSupplyCurrentAmps = 0.0;
+    public double towerSupplyCurrent = 0.0;
   }
 
   public static enum TowerIOSetpointSource {
@@ -25,11 +25,12 @@ public interface TowerIO {
     VELOCITY
   }
 
+  @AutoLog
   public static class TowerIOOutputs {
     public TowerIOSetpointSource setpointSource = TowerIOSetpointSource.SHOT_CALCULATOR;
     public TowerIOOutputMode mode = TowerIOOutputMode.OFF;
-    public double voltage = 0.0;
-    public double velocity = 0.0;
+    public double voltageSetpoint = 0.0;
+    public double velocitySetpoint = 0.0;
   }
 
   default void updateInputs(TowerIOInputs inputs) {}

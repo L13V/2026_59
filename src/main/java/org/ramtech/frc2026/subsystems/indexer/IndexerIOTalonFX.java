@@ -11,18 +11,18 @@ import org.ramtech.frc2026.Constants.IndexerConstants;
 
 public class IndexerIOTalonFX implements IndexerIO {
   // Motors
-  private final TalonFX spindexerMotor =
-      new TalonFX(IndexerConstants.spindexerMotorID, Constants.Canivore);
-  private final TalonFXS starMotor = new TalonFXS(IndexerConstants.starMotorID, Constants.Canivore);
+  private final TalonFX ballTunnelMotor =
+      new TalonFX(IndexerConstants.ballTunnelMotorID, Constants.CANivore);
+  private final TalonFXS starMotor = new TalonFXS(IndexerConstants.starMotorID, Constants.CANivore);
 
   // Configuration
-  private final TalonFXConfiguration spindexerConfig = new TalonFXConfiguration();
+  private final TalonFXConfiguration ballTunnelConfig = new TalonFXConfiguration();
   private final TalonFXSConfiguration starConfig = new TalonFXSConfiguration();
-  private boolean spindexerConfigured = false;
+  private boolean ballTunnelConfigured = false;
   private boolean starConfigured = false;
 
   // Control Methods
-  private final VoltageOut spindexerVoltageOut = new VoltageOut(0);
+  private final VoltageOut ballTunnelVoltageOut = new VoltageOut(0);
   private final VoltageOut starVoltageOut = new VoltageOut(0);
 
   // private final StrictFollower follower = new
@@ -30,9 +30,16 @@ public class IndexerIOTalonFX implements IndexerIO {
 
   public IndexerIOTalonFX() {
     // Complete the config
-    // Turret Side
-    spindexerConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
-    spindexerConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+    // Ball Tunnel
+    ballTunnelConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+    ballTunnelConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+    ballTunnelConfig.CurrentLimits.StatorCurrentLimit = 120;
+    ballTunnelConfig.CurrentLimits.StatorCurrentLimitEnable = true;
+    ballTunnelConfig.CurrentLimits.SupplyCurrentLimit = 120;
+    ballTunnelConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
+    ballTunnelConfig.CurrentLimits.SupplyCurrentLowerLimit = 70;
+    ballTunnelConfig.CurrentLimits.SupplyCurrentLowerTime = 3;
+
     // Intake Side
     starConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
     starConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
@@ -42,42 +49,43 @@ public class IndexerIOTalonFX implements IndexerIO {
   @Override
   public void updateInputs(IndexerIOInputs inputs) {
     // Configuration
-    inputs.spindexerConnected = spindexerMotor.isConnected();
+    inputs.ballTunnelConnected = ballTunnelMotor.isConnected();
     inputs.starsConnected = starMotor.isConnected();
 
-    if (!spindexerConfigured && inputs.spindexerConnected) {
-      spindexerMotor.getConfigurator().apply(spindexerConfig);
-      spindexerConfigured = true;
+    if (!ballTunnelConfigured && inputs.ballTunnelConnected) {
+      ballTunnelMotor.getConfigurator().apply(ballTunnelConfig);
+      ballTunnelConfigured = true;
     }
     if (!starConfigured && inputs.starsConnected) {
       starMotor.getConfigurator().apply(starConfig);
       starConfigured = true;
     }
 
-    inputs.spindexerConfigured = spindexerConfigured;
+    inputs.ballTunnelConfigured = ballTunnelConfigured;
     inputs.starsConfigured = starConfigured;
 
-    inputs.spindexerAppliedVoltage = spindexerMotor.getMotorVoltage().getValueAsDouble();
-    inputs.starAppliedVoltage = starMotor.getMotorVoltage().getValueAsDouble();
+    inputs.ballTunnelMotorVoltage = ballTunnelMotor.getMotorVoltage().getValueAsDouble();
+    inputs.starMotorVoltage = starMotor.getMotorVoltage().getValueAsDouble();
 
-    inputs.spindexerVelocity = spindexerMotor.getVelocity().getValueAsDouble();
+    inputs.ballTunnelVelocity = ballTunnelMotor.getVelocity().getValueAsDouble();
     inputs.starVelocity = starMotor.getVelocity().getValueAsDouble();
 
-    inputs.spindexerSupplyCurrentAmps = spindexerMotor.getSupplyCurrent().getValueAsDouble();
-    inputs.starSupplyCurrentAmps = starMotor.getSupplyCurrent().getValueAsDouble();
+    inputs.ballTunnelSupplyCurrent = ballTunnelMotor.getSupplyCurrent().getValueAsDouble();
+    inputs.starSupplyCurrent = starMotor.getSupplyCurrent().getValueAsDouble();
   }
 
   @Override
   public void applyOutputs(IndexerIOOutputs outputs) {
     switch (outputs.mode) {
-      case COAST:
-        spindexerMotor.stopMotor();
+      case OFF:
+        ballTunnelMotor.stopMotor();
         starMotor.stopMotor();
         break;
 
       case VOLTAGE:
-        spindexerMotor.setControl(spindexerVoltageOut.withOutput(outputs.spindexerVoltage));
-        starMotor.setControl(starVoltageOut.withOutput(outputs.starVoltage));
+        ballTunnelMotor.setControl(
+            ballTunnelVoltageOut.withOutput(outputs.ballTunnelVoltageSetpoint).withEnableFOC(true));
+        starMotor.setControl(starVoltageOut.withOutput(outputs.starVoltageSetpoint));
         break;
     }
   }

@@ -7,11 +7,13 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import org.ramtech.frc2026.Constants;
+import org.ramtech.frc2026.Constants.FlywheelConstants;
 import org.ramtech.frc2026.Constants.HoodConstants;
 
 public class HoodIOTalonFX implements HoodIO {
   // Motors
-  private final TalonFX hoodMotor = new TalonFX(HoodConstants.hoodMotorId, Constants.Canivore); // Main Motor
+  private final TalonFX hoodMotor =
+      new TalonFX(HoodConstants.hoodMotorId, Constants.CANivore); // Main Motor
 
   // Configuration
   private final TalonFXConfiguration hoodConfig = new TalonFXConfiguration();
@@ -25,6 +27,13 @@ public class HoodIOTalonFX implements HoodIO {
     // Complete the config
     hoodConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
     hoodConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+    hoodConfig.Slot0.kP = FlywheelConstants.kP_Slot0;
+    hoodConfig.Slot0.kI = FlywheelConstants.kI_Slot0;
+    hoodConfig.Slot0.kD = FlywheelConstants.kD_Slot0;
+    hoodConfig.Slot0.kS = FlywheelConstants.kS_Slot0;
+    hoodConfig.Slot0.kV = FlywheelConstants.kV_Slot0;
+    hoodConfig.Slot0.kA = FlywheelConstants.kA_Slot0;
+    hoodConfig.Slot0.kG = FlywheelConstants.kG_Slot0;
   }
 
   @Override
@@ -38,11 +47,11 @@ public class HoodIOTalonFX implements HoodIO {
 
     inputs.hoodConfigured = hoodConfigured;
 
-    inputs.hoodAppliedVoltage = hoodMotor.getMotorVoltage().getValueAsDouble();
+    inputs.hoodMotorVoltage = hoodMotor.getMotorVoltage().getValueAsDouble();
 
     inputs.hoodPosition = hoodMotor.getPosition().getValueAsDouble();
-
-    inputs.hoodSupplyCurrentAmps = hoodMotor.getSupplyCurrent().getValueAsDouble();
+    inputs.hoodVelocity = hoodMotor.getVelocity().getValueAsDouble();
+    inputs.hoodSupplyCurrent = hoodMotor.getSupplyCurrent().getValueAsDouble();
   }
 
   @Override

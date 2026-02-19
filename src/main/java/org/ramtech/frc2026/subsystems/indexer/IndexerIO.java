@@ -1,36 +1,40 @@
 package org.ramtech.frc2026.subsystems.indexer;
 
+import com.ctre.phoenix6.StatusCode;
 import org.littletonrobotics.junction.AutoLog;
 
 public interface IndexerIO {
 
   @AutoLog
   public static class IndexerIOInputs {
-    public boolean spindexerConnected = false;
-    public boolean spindexerConfigured = false;
+    public StatusCode signalsOk = StatusCode.NodeIsInvalid;
+
+    public boolean ballTunnelConnected = false;
+    public boolean ballTunnelConfigured = false;
 
     public boolean starsConnected = false;
     public boolean starsConfigured = false;
 
-    public double spindexerAppliedVoltage = 0.0;
-    public double starAppliedVoltage = 0.0;
+    public double ballTunnelMotorVoltage = 0.0;
+    public double starMotorVoltage = 0.0;
 
-    public double spindexerVelocity = 0.0;
+    public double ballTunnelVelocity = 0.0;
     public double starVelocity = 0.0;
 
-    public double spindexerSupplyCurrentAmps = 0.0;
-    public double starSupplyCurrentAmps = 0.0;
+    public double ballTunnelSupplyCurrent = 0.0;
+    public double starSupplyCurrent = 0.0;
   }
 
   public static enum IndexerIOOutputMode {
-    COAST,
+    OFF,
     VOLTAGE
   }
 
+  @AutoLog
   public static class IndexerIOOutputs {
-    public IndexerIOOutputMode mode = IndexerIOOutputMode.COAST;
-    public double spindexerVoltage = 0.0;
-    public double starVoltage = 0.0;
+    public IndexerIOOutputMode mode = IndexerIOOutputMode.OFF;
+    public double ballTunnelVoltageSetpoint = 0.0;
+    public double starVoltageSetpoint = 0.0;
   }
 
   default void updateInputs(IndexerIOInputs inputs) {}

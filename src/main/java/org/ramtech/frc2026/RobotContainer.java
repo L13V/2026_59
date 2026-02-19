@@ -16,7 +16,6 @@ import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
@@ -28,22 +27,7 @@ import org.ramtech.frc2026.subsystems.drive.GyroIOPigeon2;
 import org.ramtech.frc2026.subsystems.drive.ModuleIO;
 import org.ramtech.frc2026.subsystems.drive.ModuleIOSim;
 import org.ramtech.frc2026.subsystems.drive.ModuleIOTalonFX;
-import org.ramtech.frc2026.subsystems.indexer.Indexer;
-import org.ramtech.frc2026.subsystems.indexer.IndexerIO;
-import org.ramtech.frc2026.subsystems.indexer.IndexerIOTalonFX;
 // import org.ramtech.frc2026.subsystems.indexer.IndexerIOSim;
-import org.ramtech.frc2026.subsystems.shooter.flywheel.Flywheel;
-import org.ramtech.frc2026.subsystems.shooter.flywheel.FlywheelIO;
-import org.ramtech.frc2026.subsystems.shooter.flywheel.FlywheelIOSim;
-import org.ramtech.frc2026.subsystems.shooter.flywheel.FlywheelIOTalonFX;
-import org.ramtech.frc2026.subsystems.shooter.tower.Tower;
-import org.ramtech.frc2026.subsystems.shooter.tower.TowerIO;
-import org.ramtech.frc2026.subsystems.shooter.tower.TowerIOSim;
-import org.ramtech.frc2026.subsystems.shooter.tower.TowerIOTalonFX;
-import org.ramtech.frc2026.subsystems.vision.Vision;
-import org.ramtech.frc2026.subsystems.vision.VisionIO;
-import org.ramtech.frc2026.subsystems.vision.VisionIOPhotonVision;
-import org.ramtech.frc2026.subsystems.vision.VisionIOPhotonVisionSim;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -54,13 +38,13 @@ import org.ramtech.frc2026.subsystems.vision.VisionIOPhotonVisionSim;
 public class RobotContainer {
   // Subsystems
   @SuppressWarnings("unused")
-  private final Vision vision;
-  // private final IndexerOld indexerold = new IndexerOld();
-  // TODO integrate into sim and default logic
-  private final Indexer indexer;
-  private final Tower tower;
-  private final Flywheel flywheel;
   private final Drive drive;
+
+  //   private final Vision vision;
+  //   private final Indexer indexer;
+  //   private final Tower tower;
+  // private final Hood hood;
+  // private final Flywheel flywheel;
 
   // Controller
   private final CommandXboxController controller = new CommandXboxController(0);
@@ -83,16 +67,17 @@ public class RobotContainer {
                 new ModuleIOTalonFX(TunerConstants.BackLeft),
                 new ModuleIOTalonFX(TunerConstants.BackRight));
 
-        vision =
-            new Vision(
-                drive::addVisionMeasurement,
-                new VisionIOPhotonVision(FLRamCam, robotToFL),
-                new VisionIOPhotonVision(FRRamCam, robotToFR),
-                new VisionIOPhotonVision(BLRamCam, robotToBL),
-                new VisionIOPhotonVision(BRRamCam, robotToBR));
-        indexer = new Indexer(new IndexerIOTalonFX());
-        tower = new Tower(new TowerIOTalonFX());
-        flywheel = new Flywheel(new FlywheelIOTalonFX());
+        // vision =
+        //     new Vision(
+        //         drive::addVisionMeasurement,
+        //         new VisionIOPhotonVision(FLRamCam, robotToFL),
+        //         new VisionIOPhotonVision(FRRamCam, robotToFR),
+        //         new VisionIOPhotonVision(BLRamCam, robotToBL),
+        //         new VisionIOPhotonVision(BRRamCam, robotToBR));
+        // indexer = new Indexer(new IndexerIOTalonFX());
+        // tower = new Tower(new TowerIOTalonFX());
+        // flywheel = new Flywheel(new FlywheelIOTalonFX());
+        // hood = new Hood(new HoodIOTalonFX());
         break;
 
       case SIM:
@@ -105,16 +90,17 @@ public class RobotContainer {
                 new ModuleIOSim(TunerConstants.BackLeft),
                 new ModuleIOSim(TunerConstants.BackRight));
 
-        vision =
-            new Vision(
-                drive::addVisionMeasurement,
-                new VisionIOPhotonVisionSim(FLRamCam, robotToFL, drive::getPose),
-                new VisionIOPhotonVisionSim(FRRamCam, robotToFR, drive::getPose),
-                new VisionIOPhotonVisionSim(BLRamCam, robotToBL, drive::getPose),
-                new VisionIOPhotonVisionSim(BRRamCam, robotToBR, drive::getPose));
-        indexer = new Indexer(new IndexerIOTalonFX());
-        tower = new Tower(new TowerIOSim());
-        flywheel = new Flywheel(new FlywheelIOSim());
+        // vision =
+        //     new Vision(
+        //         drive::addVisionMeasurement,
+        //         new VisionIOPhotonVisionSim(FLRamCam, robotToFL, drive::getPose),
+        //         new VisionIOPhotonVisionSim(FRRamCam, robotToFR, drive::getPose),
+        //         new VisionIOPhotonVisionSim(BLRamCam, robotToBL, drive::getPose),
+        //         new VisionIOPhotonVisionSim(BRRamCam, robotToBR, drive::getPose));
+        // indexer = new Indexer(new IndexerIOSim() {});
+        // tower = new Tower(new TowerIOSim());
+        // flywheel = new Flywheel(new FlywheelIOSim());
+        // hood = new Hood(new HoodIOSim());
         break;
 
       default:
@@ -126,17 +112,21 @@ public class RobotContainer {
                 new ModuleIO() {},
                 new ModuleIO() {},
                 new ModuleIO() {});
-        vision = new Vision(drive::addVisionMeasurement, new VisionIO() {}, new VisionIO() {});
-        tower = new Tower(new TowerIO() {});
-        indexer = new Indexer(new IndexerIO() {});
-        flywheel = new Flywheel(new FlywheelIO() {});
+        // vision = new Vision(drive::addVisionMeasurement, new VisionIO() {}, new VisionIO() {});
+        // tower = new Tower(new TowerIO() {});
+        // indexer = new Indexer(new IndexerIO() {});
+        // flywheel = new Flywheel(new FlywheelIO() {
+        // });
+        // hood = new Hood(new HoodIO() {
+        // });
 
         break;
     }
-    RobotState.getInstance().setPoseSupplier(drive::getPose);
-    RobotState.getInstance().setSpeedSupplier(drive::getChassisSpeeds);
-    RobotState.getInstance().setModuleStateSupplier(drive::getModuleStates);
+    // RobotState.getInstance().setPoseSupplier(drive::getPose); TODO: ENABLE
+    // RobotState.getInstance().setSpeedSupplier(drive::getChassisSpeeds);
+    // RobotState.getInstance().setModuleStateSupplier(drive::getModuleStates);
 
+    // Continuously publish ShotCalculator parameters
     // Set up auto routines
     autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
 
@@ -186,14 +176,20 @@ public class RobotContainer {
                 () -> Rotation2d.kZero));
 
     // Switch to X pattern when X button is pressed
-    controller.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
+    // controller.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
 
-    controller
-        .y()
-        .onTrue(new InstantCommand(() -> indexer.setVoltages(12.0, 12.0)))
-        .onTrue(new InstantCommand(() -> tower.setVoltage(12.0)))
-        .onFalse(new InstantCommand(() -> indexer.stop()))
-        .onFalse(new InstantCommand(() -> tower.setVoltage(0.0)));
+    // controller
+    //     .y()
+    //     .onTrue(new InstantCommand(() -> indexer.setVoltages(12.0, 12.0)))
+    //     .onTrue(new InstantCommand(() -> tower.setVoltage(6.0)))
+    //     .onFalse(new InstantCommand(() -> indexer.stop()))
+    //     .onFalse(new InstantCommand(() -> tower.setVoltage(0.0)));
+    // controller
+    //     .x()
+    //     .onTrue(new InstantCommand(() -> indexer.setVoltages(6.0, 6.0)))
+    //     .onTrue(new InstantCommand(() -> tower.setVoltage(6.0)))
+    //     .onFalse(new InstantCommand(() -> indexer.stop()))
+    //     .onFalse(new InstantCommand(() -> tower.stop()));
 
     // Reset gyro to 0° when B button is pressed
     controller

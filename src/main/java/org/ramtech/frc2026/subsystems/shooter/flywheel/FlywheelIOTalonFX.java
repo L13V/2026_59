@@ -12,9 +12,9 @@ import org.ramtech.frc2026.Constants.FlywheelConstants;
 public class FlywheelIOTalonFX implements FlywheelIO {
   // Motors
   private final TalonFX leftFlywheelMotor =
-      new TalonFX(FlywheelConstants.leftMotorId, Constants.Canivore);
+      new TalonFX(FlywheelConstants.leftMotorId, Constants.CANivore);
   private final TalonFX rightFlywheelMotor =
-      new TalonFX(FlywheelConstants.rightMotorId, Constants.Canivore);
+      new TalonFX(FlywheelConstants.rightMotorId, Constants.CANivore);
 
   // Configuration
   private final TalonFXConfiguration leftSideConfig = new TalonFXConfiguration();
@@ -66,14 +66,14 @@ public class FlywheelIOTalonFX implements FlywheelIO {
     inputs.leftSideConfigured = leftSideConfigured;
     inputs.rightSideConfigured = rightSideConfigured;
 
-    inputs.leftSideAppliedVoltage = leftFlywheelMotor.getMotorVoltage().getValueAsDouble();
-    inputs.rightSideAppliedVoltage = rightFlywheelMotor.getMotorVoltage().getValueAsDouble();
+    inputs.leftSideMotorVoltage = leftFlywheelMotor.getMotorVoltage().getValueAsDouble();
+    inputs.rightSideMotorVoltage = rightFlywheelMotor.getMotorVoltage().getValueAsDouble();
 
     inputs.leftSideVelocity = leftFlywheelMotor.getVelocity().getValueAsDouble();
     inputs.rightSideVelocity = rightFlywheelMotor.getVelocity().getValueAsDouble();
 
-    inputs.leftSideSupplyCurrentAmps = leftFlywheelMotor.getSupplyCurrent().getValueAsDouble();
-    inputs.rightSideSupplyCurrentAmps = rightFlywheelMotor.getSupplyCurrent().getValueAsDouble();
+    inputs.leftSideSupplyCurrent = leftFlywheelMotor.getSupplyCurrent().getValueAsDouble();
+    inputs.rightSideSupplyCurrent = rightFlywheelMotor.getSupplyCurrent().getValueAsDouble();
   }
 
   @Override

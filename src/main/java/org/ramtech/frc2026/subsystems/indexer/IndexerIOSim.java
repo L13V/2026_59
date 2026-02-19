@@ -20,7 +20,7 @@ public class IndexerIOSim implements IndexerIO {
   private static final DCMotor GEARBOX = DCMotor.getKrakenX60(1);
 
   // Hardware (Simulated)
-  private final TalonFX spindexerMotor = new TalonFX(IndexerConstants.spindexerMotorID);
+  private final TalonFX spindexerMotor = new TalonFX(IndexerConstants.ballTunnelMotorID);
   private final TalonFX starMotor = new TalonFX(IndexerConstants.starMotorID);
   private final TalonFXSimState spindexerSimState = spindexerMotor.getSimState();
   private final TalonFXSimState starSimState = starMotor.getSimState();
@@ -65,15 +65,15 @@ public class IndexerIOSim implements IndexerIO {
     starSimState.setRotorVelocity(Units.radiansToRotations(starSim.getAngularVelocityRadPerSec()));
 
     // 3. Update Inputs
-    inputs.spindexerConnected = true;
+    inputs.ballTunnelConnected = true;
     inputs.starsConnected = true;
   }
 
   @Override
   public void applyOutputs(IndexerIOOutputs outputs) {
     if (outputs.mode == IndexerIOOutputMode.VOLTAGE) {
-      spindexerMotor.setControl(voltageOut.withOutput(outputs.spindexerVoltage));
-      starMotor.setControl(voltageOut.withOutput(outputs.starVoltage));
+      spindexerMotor.setControl(voltageOut.withOutput(outputs.ballTunnelVoltageSetpoint));
+      starMotor.setControl(voltageOut.withOutput(outputs.starVoltageSetpoint));
     } else {
       spindexerMotor.stopMotor();
       starMotor.stopMotor();

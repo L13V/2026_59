@@ -56,9 +56,9 @@ public class TowerIOSim implements TowerIO {
     // 3. Update Inputs (Bridge Talon -> IO)
     inputs.towerConnected = true;
     inputs.towerConfigured = true;
-    inputs.towerAppliedVoltage = towerMotor.getMotorVoltage().getValueAsDouble();
+    inputs.towerMotorVoltage = towerMotor.getMotorVoltage().getValueAsDouble();
     inputs.towerVelocity = towerMotor.getVelocity().getValueAsDouble();
-    inputs.towerSupplyCurrentAmps = sim.getCurrentDrawAmps();
+    inputs.towerSupplyCurrent = sim.getCurrentDrawAmps();
   }
 
   @Override
@@ -68,10 +68,10 @@ public class TowerIOSim implements TowerIO {
         towerMotor.stopMotor();
         break;
       case VOLTAGE:
-        towerMotor.setControl(voltageOut.withOutput(outputs.voltage));
+        towerMotor.setControl(voltageOut.withOutput(outputs.voltageSetpoint));
         break;
       case VELOCITY:
-        towerMotor.setControl(velocityVoltage.withVelocity(outputs.velocity));
+        towerMotor.setControl(velocityVoltage.withVelocity(outputs.velocitySetpoint));
         break;
     }
   }

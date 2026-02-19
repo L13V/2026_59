@@ -89,12 +89,12 @@ public class FlywheelIOSim implements FlywheelIO {
     inputs.leftSideConfigured = true;
     inputs.rightSideConfigured = true;
 
-    inputs.leftSideAppliedVoltage = leftMotor.getMotorVoltage().getValueAsDouble();
-    inputs.rightSideAppliedVoltage = rightMotor.getMotorVoltage().getValueAsDouble();
+    inputs.leftSideMotorVoltage = leftMotor.getMotorVoltage().getValueAsDouble();
+    inputs.rightSideMotorVoltage = rightMotor.getMotorVoltage().getValueAsDouble();
     inputs.leftSideVelocity = leftMotor.getVelocity().getValueAsDouble();
     inputs.rightSideVelocity = rightMotor.getVelocity().getValueAsDouble();
-    inputs.leftSideSupplyCurrentAmps = current;
-    inputs.rightSideSupplyCurrentAmps = current;
+    inputs.leftSideSupplyCurrent = current;
+    inputs.rightSideSupplyCurrent = current;
   }
 
   @Override

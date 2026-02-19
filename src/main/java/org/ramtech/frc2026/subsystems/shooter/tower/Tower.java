@@ -43,11 +43,11 @@ public class Tower extends FullSubsystem {
     var shotCalculation = ShotCalculator.getInstance().getLatest();
     if (outputs.setpointSource == TowerIOSetpointSource.SHOT_CALCULATOR) {
       outputs.mode = TowerIOOutputMode.VELOCITY;
-      outputs.velocity = shotCalculation.towerVelocity();
+      outputs.velocitySetpoint = shotCalculation.towerVelocity();
     }
     io.applyOutputs(outputs); // Set the targets for the motor
     Logger.recordOutput("Shooter/Tower/Mode", outputs.mode);
-    Logger.recordOutput("Shooter/Tower/Voltage", outputs.voltage);
+    Logger.recordOutput("Shooter/Tower/Voltage", outputs.voltageSetpoint);
   }
 
   public void enableCalculation() {
@@ -61,19 +61,19 @@ public class Tower extends FullSubsystem {
   public void setVoltage(double voltage) {
     outputs.setpointSource = TowerIOSetpointSource.MANUAL;
     outputs.mode = TowerIOOutputMode.VOLTAGE;
-    outputs.voltage = voltage;
+    outputs.voltageSetpoint = voltage;
   }
 
   public void setVelocity(double velocity) {
     outputs.setpointSource = TowerIOSetpointSource.MANUAL;
     outputs.mode = TowerIOOutputMode.VELOCITY;
-    outputs.velocity = velocity;
+    outputs.velocitySetpoint = velocity;
   }
 
   public void stop() {
     outputs.setpointSource = TowerIOSetpointSource.MANUAL;
     outputs.mode = TowerIOOutputMode.OFF;
-    outputs.voltage = 0.0;
-    outputs.velocity = 0.0;
+    outputs.voltageSetpoint = 0.0;
+    outputs.velocitySetpoint = 0.0;
   }
 }
