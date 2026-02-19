@@ -58,9 +58,9 @@ public class Robot extends LoggedRobot {
   public void robotInit() {
     lastCalcTs = Timer.getFPGATimestamp();
     lastShooterTs = Timer.getFPGATimestamp();
-    // Start 5ms periodic
-    CalculationLoop.startPeriodic(0.005);
-    shooterLoop.startPeriodic(0.005);
+    // Start 10ms periodic
+    CalculationLoop.startPeriodic(0.01);
+    shooterLoop.startPeriodic(0.01);
   }
 
   @Override
@@ -120,7 +120,7 @@ public class Robot extends LoggedRobot {
   public void robotPeriodic() {
     // Optionally switch the thread to high priority to improve loop
     // timing (see the template project documentation for details)
-    // Threads.setCurrentThreadPriority(true, 99);
+    // Threads.setCurrentThreadPriority(true, 99); // TODO: Possibly remove
 
     // Runs the Scheduler. This is responsible for polling buttons, adding
     // newly-scheduled commands, running already-scheduled commands, removing
@@ -130,12 +130,13 @@ public class Robot extends LoggedRobot {
     CommandScheduler.getInstance().run();
 
     // Call periodicAfterScheduler on FullSubsystems
-    // ShotCalculator.getInstance().publishShotParameters(); TODO: Add this back
+    ShotCalculator.getInstance().publishShotParameters();
     FullSubsystem.runAllPeriodicAfterScheduler();
   }
 
   // Return to non-RT thread priority (do not modify the first argument)
-  // Threads.setCurrentThreadPriority(false, 10);
+  // Threads.setCurrentThreadPriority(false, 10); // TODO: Possibly remove
+
 
   public static boolean showHardwareAlerts() {
     return Constants.currentMode != Mode.SIM && Timer.getTimestamp() > 30.0;

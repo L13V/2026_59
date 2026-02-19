@@ -99,6 +99,8 @@ public class IndexerIOTalonFX implements IndexerIO {
       starMotor.getConfigurator().apply(starConfig);
       starsConfigured = true;
     }
+    inputs.ballTunnelConfigured = true;
+    inputs.starsConfigured = true;
 
     inputs.ballTunnelConfigured = ballTunnelConfigured;
     inputs.starsConfigured = starsConfigured;
