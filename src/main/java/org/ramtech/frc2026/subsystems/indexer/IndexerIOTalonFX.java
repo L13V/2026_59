@@ -16,7 +16,8 @@ import org.ramtech.frc2026.Constants.IndexerConstants;
 
 public class IndexerIOTalonFX implements IndexerIO {
   // Motors
-  private final TalonFX ballTunnelMotor = new TalonFX(IndexerConstants.ballTunnelMotorID, Constants.CANivore);
+  private final TalonFX ballTunnelMotor =
+      new TalonFX(IndexerConstants.ballTunnelMotorID, Constants.CANivore);
   private final TalonFXS starMotor = new TalonFXS(IndexerConstants.starMotorID, Constants.CANivore);
 
   // Configuration
@@ -83,13 +84,14 @@ public class IndexerIOTalonFX implements IndexerIO {
     inputs.starsConnected = starMotor.isConnected();
 
     // Refresh all signals at once (efficient)
-    inputs.signalsOk = BaseStatusSignal.refreshAll(
-        ballTunnelVoltageSig,
-        ballTunnelVelocitySig,
-        ballTunnelCurrentSig,
-        starVoltageSig,
-        starVelocitySig,
-        starCurrentSig);
+    inputs.signalsOk =
+        BaseStatusSignal.refreshAll(
+            ballTunnelVoltageSig,
+            ballTunnelVelocitySig,
+            ballTunnelCurrentSig,
+            starVoltageSig,
+            starVelocitySig,
+            starCurrentSig);
 
     if (!ballTunnelConfigured && inputs.ballTunnelConnected) {
       ballTunnelMotor.getConfigurator().apply(ballTunnelConfig);
@@ -111,7 +113,6 @@ public class IndexerIOTalonFX implements IndexerIO {
     inputs.starVelocity = starVelocitySig.getValueAsDouble();
     inputs.ballTunnelSupplyCurrent = ballTunnelCurrentSig.getValueAsDouble();
     inputs.starSupplyCurrent = starCurrentSig.getValueAsDouble();
-
   }
 
   @Override

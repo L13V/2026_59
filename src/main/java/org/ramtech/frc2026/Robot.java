@@ -137,7 +137,6 @@ public class Robot extends LoggedRobot {
   // Return to non-RT thread priority (do not modify the first argument)
   // Threads.setCurrentThreadPriority(false, 10); // TODO: Possibly remove
 
-
   public static boolean showHardwareAlerts() {
     return Constants.currentMode != Mode.SIM && Timer.getTimestamp() > 30.0;
   }
