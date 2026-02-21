@@ -33,9 +33,9 @@ public final class Constants {
     REPLAY
   }
 
-  public static final class FloorIntakeConstants {
+  public static final class IntakeConstants {
     public static final int intakePivotMotorId = 45;
-    public static final int intakeWheelsMotorId = 47;
+    public static final int rollerMotorId = 47;
     public static final int intakeEncoderId = 0;
   }
 
