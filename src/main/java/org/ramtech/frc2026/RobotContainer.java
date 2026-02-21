@@ -51,12 +51,9 @@ import org.ramtech.frc2026.subsystems.vision.VisionIOPhotonVision;
 import org.ramtech.frc2026.subsystems.vision.VisionIOPhotonVisionSim;
 
 /**
- * This class is where the bulk of the robot should be declared. Since
- * Command-based is a
- * "declarative" paradigm, very little robot logic should actually be handled in
- * the {@link Robot}
- * periodic methods (other than the scheduler calls). Instead, the structure of
- * the robot (including
+ * This class is where the bulk of the robot should be declared. Since Command-based is a
+ * "declarative" paradigm, very little robot logic should actually be handled in the {@link Robot}
+ * periodic methods (other than the scheduler calls). Instead, the structure of the robot (including
  * subsystems, commands, and button mappings) should be declared here.
  */
 public class RobotContainer {
@@ -76,28 +73,28 @@ public class RobotContainer {
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> autoChooser;
 
-  /**
-   * The container for the robot. Contains subsystems, OI devices, and commands.
-   */
+  /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     switch (Constants.currentMode) {
       case REAL:
         // Real robot, instantiate hardware IO implementations
         // ModuleIOTalonFX is intended for modules with TalonFX drive, TalonFX turn, and
         // a CANcoder
-        drive = new Drive(
-            new GyroIOPigeon2(),
-            new ModuleIOTalonFX(TunerConstants.FrontLeft),
-            new ModuleIOTalonFX(TunerConstants.FrontRight),
-            new ModuleIOTalonFX(TunerConstants.BackLeft),
-            new ModuleIOTalonFX(TunerConstants.BackRight));
+        drive =
+            new Drive(
+                new GyroIOPigeon2(),
+                new ModuleIOTalonFX(TunerConstants.FrontLeft),
+                new ModuleIOTalonFX(TunerConstants.FrontRight),
+                new ModuleIOTalonFX(TunerConstants.BackLeft),
+                new ModuleIOTalonFX(TunerConstants.BackRight));
 
-        vision = new Vision(
-            drive::addVisionMeasurement,
-            new VisionIOPhotonVision(FLRamCam, robotToFL),
-            new VisionIOPhotonVision(FRRamCam, robotToFR),
-            new VisionIOPhotonVision(BLRamCam, robotToBL),
-            new VisionIOPhotonVision(BRRamCam, robotToBR));
+        vision =
+            new Vision(
+                drive::addVisionMeasurement,
+                new VisionIOPhotonVision(FLRamCam, robotToFL),
+                new VisionIOPhotonVision(FRRamCam, robotToFR),
+                new VisionIOPhotonVision(BLRamCam, robotToBL),
+                new VisionIOPhotonVision(BRRamCam, robotToBR));
         indexer = new Indexer(new IndexerIOTalonFX());
         tower = new Tower(new TowerIOTalonFX());
         flywheel = new Flywheel(new FlywheelIOTalonFX());
@@ -106,22 +103,22 @@ public class RobotContainer {
 
       case SIM:
         // Sim robot, instantiate physics sim IO implementations
-        drive = new Drive(
-            new GyroIO() {
-            },
-            new ModuleIOSim(TunerConstants.FrontLeft),
-            new ModuleIOSim(TunerConstants.FrontRight),
-            new ModuleIOSim(TunerConstants.BackLeft),
-            new ModuleIOSim(TunerConstants.BackRight));
+        drive =
+            new Drive(
+                new GyroIO() {},
+                new ModuleIOSim(TunerConstants.FrontLeft),
+                new ModuleIOSim(TunerConstants.FrontRight),
+                new ModuleIOSim(TunerConstants.BackLeft),
+                new ModuleIOSim(TunerConstants.BackRight));
 
-        vision = new Vision(
-            drive::addVisionMeasurement,
-            new VisionIOPhotonVisionSim(FLRamCam, robotToFL, drive::getPose),
-            new VisionIOPhotonVisionSim(FRRamCam, robotToFR, drive::getPose),
-            new VisionIOPhotonVisionSim(BLRamCam, robotToBL, drive::getPose),
-            new VisionIOPhotonVisionSim(BRRamCam, robotToBR, drive::getPose));
-        indexer = new Indexer(new IndexerIOSim() {
-        });
+        vision =
+            new Vision(
+                drive::addVisionMeasurement,
+                new VisionIOPhotonVisionSim(FLRamCam, robotToFL, drive::getPose),
+                new VisionIOPhotonVisionSim(FRRamCam, robotToFR, drive::getPose),
+                new VisionIOPhotonVisionSim(BLRamCam, robotToBL, drive::getPose),
+                new VisionIOPhotonVisionSim(BRRamCam, robotToBR, drive::getPose));
+        indexer = new Indexer(new IndexerIOSim() {});
         tower = new Tower(new TowerIOSim());
         flywheel = new Flywheel(new FlywheelIOSim());
         hood = new Hood(new HoodIOSim());
@@ -129,28 +126,18 @@ public class RobotContainer {
 
       default:
         // Replayed robot, disable IO implementations
-        drive = new Drive(
-            new GyroIO() {
-            },
-            new ModuleIO() {
-            },
-            new ModuleIO() {
-            },
-            new ModuleIO() {
-            },
-            new ModuleIO() {
-            });
-        vision = new Vision(drive::addVisionMeasurement, new VisionIO() {
-        }, new VisionIO() {
-        });
-        tower = new Tower(new TowerIO() {
-        });
-        indexer = new Indexer(new IndexerIO() {
-        });
-        flywheel = new Flywheel(new FlywheelIO() {
-        });
-        hood = new Hood(new HoodIO() {
-        });
+        drive =
+            new Drive(
+                new GyroIO() {},
+                new ModuleIO() {},
+                new ModuleIO() {},
+                new ModuleIO() {},
+                new ModuleIO() {});
+        vision = new Vision(drive::addVisionMeasurement, new VisionIO() {}, new VisionIO() {});
+        tower = new Tower(new TowerIO() {});
+        indexer = new Indexer(new IndexerIO() {});
+        flywheel = new Flywheel(new FlywheelIO() {});
+        hood = new Hood(new HoodIO() {});
 
         break;
     }
@@ -183,11 +170,9 @@ public class RobotContainer {
   }
 
   /**
-   * Use this method to define your button->command mappings. Buttons can be
-   * created by
+   * Use this method to define your button->command mappings. Buttons can be created by
    * instantiating a {@link GenericHID} or one of its subclasses ({@link
-   * edu.wpi.first.wpilibj.Joystick} or {@link XboxController}), and then passing
-   * it to a {@link
+   * edu.wpi.first.wpilibj.Joystick} or {@link XboxController}), and then passing it to a {@link
    * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
   private void configureButtonBindings() {
@@ -230,9 +215,10 @@ public class RobotContainer {
         .b()
         .onTrue(
             Commands.runOnce(
-                () -> drive.setPose(
-                    new Pose2d(drive.getPose().getTranslation(), Rotation2d.kZero)),
-                drive)
+                    () ->
+                        drive.setPose(
+                            new Pose2d(drive.getPose().getTranslation(), Rotation2d.kZero)),
+                    drive)
                 .ignoringDisable(true));
   }
 
