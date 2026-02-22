@@ -19,7 +19,7 @@ import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 import org.littletonrobotics.junction.Logger;
 import org.ramtech.frc2026.subsystems.vision.VisionIO.PoseObservationType;
@@ -29,12 +29,12 @@ public class Vision extends SubsystemBase {
   private final VisionIO[] io;
   private final VisionIOInputsAutoLogged[] inputs;
   private final Alert[] disconnectedAlerts;
-  private static final int DEBUG_LOG_PERIOD_CYCLES = 5;
-  private int periodicCounter = 0;
+  private final Pose3d[] fieldTagPoseCache;
 
   public Vision(VisionConsumer consumer, VisionIO... io) {
     this.consumer = consumer;
     this.io = io;
+    this.fieldTagPoseCache = buildFieldTagPoseCache();
 
     // Initialize inputs
     this.inputs = new VisionIOInputsAutoLogged[io.length];
@@ -63,38 +63,33 @@ public class Vision extends SubsystemBase {
 
   @Override
   public void periodic() {
-    periodicCounter++;
-    boolean logDebugPoses = periodicCounter % DEBUG_LOG_PERIOD_CYCLES == 0;
-
     for (int i = 0; i < io.length; i++) {
       io[i].updateInputs(inputs[i]);
       Logger.processInputs("Vision/" + cameraName(i), inputs[i]);
     }
 
-    // Initialize logging values only when recording debug pose arrays
-    List<Pose3d> allTagPoses = logDebugPoses ? new LinkedList<>() : null;
-    List<Pose3d> allRobotPoses = logDebugPoses ? new LinkedList<>() : null;
-    List<Pose3d> allRobotPosesAccepted = logDebugPoses ? new LinkedList<>() : null;
-    List<Pose3d> allRobotPosesRejected = logDebugPoses ? new LinkedList<>() : null;
+    // Debug visualization logs for AdvantageScope
+    List<Pose3d> allTagPoses = new ArrayList<>();
+    List<Pose3d> allRobotPoses = new ArrayList<>();
+    List<Pose3d> allRobotPosesAccepted = new ArrayList<>();
+    List<Pose3d> allRobotPosesRejected = new ArrayList<>();
 
     // Loop over cameras
     for (int cameraIndex = 0; cameraIndex < io.length; cameraIndex++) {
       // Update disconnected alert
       disconnectedAlerts[cameraIndex].set(!inputs[cameraIndex].connected);
 
-      // Initialize logging values only when recording debug pose arrays
-      List<Pose3d> tagPoses = logDebugPoses ? new LinkedList<>() : null;
-      List<Pose3d> robotPoses = logDebugPoses ? new LinkedList<>() : null;
-      List<Pose3d> robotPosesAccepted = logDebugPoses ? new LinkedList<>() : null;
-      List<Pose3d> robotPosesRejected = logDebugPoses ? new LinkedList<>() : null;
+      List<Pose3d> tagPoses = new ArrayList<>(inputs[cameraIndex].tagIds.length);
+      List<Pose3d> robotPoses = new ArrayList<>(inputs[cameraIndex].poseObservations.length);
+      List<Pose3d> robotPosesAccepted =
+          new ArrayList<>(inputs[cameraIndex].poseObservations.length);
+      List<Pose3d> robotPosesRejected =
+          new ArrayList<>(inputs[cameraIndex].poseObservations.length);
 
-      // Add tag poses (debug logging only)
-      if (logDebugPoses) {
-        for (int tagId : inputs[cameraIndex].tagIds) {
-          var tagPose = aprilTagLayout.getTagPose(tagId);
-          if (tagPose.isPresent()) {
-            tagPoses.add(tagPose.get());
-          }
+      for (int tagId : inputs[cameraIndex].tagIds) {
+        Pose3d tagPose = getCachedTagPose(tagId);
+        if (tagPose != null) {
+          tagPoses.add(tagPose);
         }
       }
 
@@ -114,14 +109,11 @@ public class Vision extends SubsystemBase {
                 || observation.pose().getY() < 0.0
                 || observation.pose().getY() > aprilTagLayout.getFieldWidth();
 
-        // Add pose to debug logs
-        if (logDebugPoses) {
-          robotPoses.add(observation.pose());
-          if (rejectPose) {
-            robotPosesRejected.add(observation.pose());
-          } else {
-            robotPosesAccepted.add(observation.pose());
-          }
+        robotPoses.add(observation.pose());
+        if (rejectPose) {
+          robotPosesRejected.add(observation.pose());
+        } else {
+          robotPosesAccepted.add(observation.pose());
         }
 
         // Skip if rejected
@@ -150,34 +142,29 @@ public class Vision extends SubsystemBase {
             VecBuilder.fill(linearStdDev, linearStdDev, angularStdDev));
       }
 
-      if (logDebugPoses) {
-        // Log camera metadata
-        Logger.recordOutput(
-            "Vision/" + cameraName(cameraIndex) + "/TagPoses", tagPoses.toArray(new Pose3d[0]));
-        Logger.recordOutput(
-            "Vision/" + cameraName(cameraIndex) + "/RobotPoses", robotPoses.toArray(new Pose3d[0]));
-        Logger.recordOutput(
-            "Vision/" + cameraName(cameraIndex) + "/RobotPosesAccepted",
-            robotPosesAccepted.toArray(new Pose3d[0]));
-        Logger.recordOutput(
-            "Vision/" + cameraName(cameraIndex) + "/RobotPosesRejected",
-            robotPosesRejected.toArray(new Pose3d[0]));
-        allTagPoses.addAll(tagPoses);
-        allRobotPoses.addAll(robotPoses);
-        allRobotPosesAccepted.addAll(robotPosesAccepted);
-        allRobotPosesRejected.addAll(robotPosesRejected);
-      }
+      Logger.recordOutput(
+          "Vision/" + cameraName(cameraIndex) + "/TagPoses", tagPoses.toArray(Pose3d[]::new));
+      Logger.recordOutput(
+          "Vision/" + cameraName(cameraIndex) + "/RobotPoses", robotPoses.toArray(Pose3d[]::new));
+      Logger.recordOutput(
+          "Vision/" + cameraName(cameraIndex) + "/RobotPosesAccepted",
+          robotPosesAccepted.toArray(Pose3d[]::new));
+      Logger.recordOutput(
+          "Vision/" + cameraName(cameraIndex) + "/RobotPosesRejected",
+          robotPosesRejected.toArray(Pose3d[]::new));
+
+      allTagPoses.addAll(tagPoses);
+      allRobotPoses.addAll(robotPoses);
+      allRobotPosesAccepted.addAll(robotPosesAccepted);
+      allRobotPosesRejected.addAll(robotPosesRejected);
     }
 
-    if (logDebugPoses) {
-      // Log summary data
-      Logger.recordOutput("Vision/Summary/TagPoses", allTagPoses.toArray(new Pose3d[0]));
-      Logger.recordOutput("Vision/Summary/RobotPoses", allRobotPoses.toArray(new Pose3d[0]));
-      Logger.recordOutput(
-          "Vision/Summary/RobotPosesAccepted", allRobotPosesAccepted.toArray(new Pose3d[0]));
-      Logger.recordOutput(
-          "Vision/Summary/RobotPosesRejected", allRobotPosesRejected.toArray(new Pose3d[0]));
-    }
+    Logger.recordOutput("Vision/Summary/TagPoses", allTagPoses.toArray(Pose3d[]::new));
+    Logger.recordOutput("Vision/Summary/RobotPoses", allRobotPoses.toArray(Pose3d[]::new));
+    Logger.recordOutput(
+        "Vision/Summary/RobotPosesAccepted", allRobotPosesAccepted.toArray(Pose3d[]::new));
+    Logger.recordOutput(
+        "Vision/Summary/RobotPosesRejected", allRobotPosesRejected.toArray(Pose3d[]::new));
   }
 
   @FunctionalInterface
@@ -190,5 +177,25 @@ public class Vision extends SubsystemBase {
 
   private String cameraName(int index) {
     return io[index].getName();
+  }
+
+  private static Pose3d[] buildFieldTagPoseCache() {
+    int maxTagId = 0;
+    for (var tag : aprilTagLayout.getTags()) {
+      maxTagId = Math.max(maxTagId, tag.ID);
+    }
+
+    Pose3d[] cache = new Pose3d[maxTagId + 1];
+    for (var tag : aprilTagLayout.getTags()) {
+      cache[tag.ID] = tag.pose;
+    }
+    return cache;
+  }
+
+  private Pose3d getCachedTagPose(int tagId) {
+    if (tagId < 0 || tagId >= fieldTagPoseCache.length) {
+      return null;
+    }
+    return fieldTagPoseCache[tagId];
   }
 }

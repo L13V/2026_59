@@ -86,8 +86,6 @@ public class Drive extends SubsystemBase {
   private final Alert gyroDisconnectedAlert =
       new Alert("Disconnected gyro, using kinematics as fallback.", AlertType.kError);
 
-  private int periodicCounter = 0;
-
   private SwerveDriveKinematics kinematics = new SwerveDriveKinematics(getModuleTranslations());
   private Rotation2d rawGyroRotation = Rotation2d.kZero;
   private SwerveModulePosition[] lastModulePositions = // For delta tracking
@@ -153,7 +151,6 @@ public class Drive extends SubsystemBase {
 
   @Override
   public void periodic() {
-    periodicCounter++;
     odometryLock.lock(); // Prevents odometry updates while reading data
     gyroIO.updateInputs(gyroInputs);
     Logger.processInputs("Drive/Gyro", gyroInputs);
@@ -179,17 +176,19 @@ public class Drive extends SubsystemBase {
     double[] sampleTimestamps =
         modules[0].getOdometryTimestamps(); // All signals are sampled together
     int sampleCount = sampleTimestamps.length;
+    SwerveModulePosition[] modulePositions = new SwerveModulePosition[4];
+    SwerveModulePosition[] moduleDeltas = new SwerveModulePosition[4];
+    for (int i = 0; i < 4; i++) {
+      moduleDeltas[i] = new SwerveModulePosition();
+    }
     for (int i = 0; i < sampleCount; i++) {
       // Read wheel positions and deltas from each module
-      SwerveModulePosition[] modulePositions = new SwerveModulePosition[4];
-      SwerveModulePosition[] moduleDeltas = new SwerveModulePosition[4];
       for (int moduleIndex = 0; moduleIndex < 4; moduleIndex++) {
         modulePositions[moduleIndex] = modules[moduleIndex].getOdometryPositions()[i];
-        moduleDeltas[moduleIndex] =
-            new SwerveModulePosition(
-                modulePositions[moduleIndex].distanceMeters
-                    - lastModulePositions[moduleIndex].distanceMeters,
-                modulePositions[moduleIndex].angle);
+        moduleDeltas[moduleIndex].distanceMeters =
+            modulePositions[moduleIndex].distanceMeters
+                - lastModulePositions[moduleIndex].distanceMeters;
+        moduleDeltas[moduleIndex].angle = modulePositions[moduleIndex].angle;
         lastModulePositions[moduleIndex] = modulePositions[moduleIndex];
       }
 
@@ -222,21 +221,17 @@ public class Drive extends SubsystemBase {
     SwerveModuleState[] setpointStates = kinematics.toSwerveModuleStates(discreteSpeeds);
     SwerveDriveKinematics.desaturateWheelSpeeds(setpointStates, TunerConstants.kSpeedAt12Volts);
 
-    if (periodicCounter % 10 == 0) {
-      // Log unoptimized setpoints and setpoint speeds
-      Logger.recordOutput("SwerveStates/Setpoints", setpointStates);
-      Logger.recordOutput("SwerveChassisSpeeds/Setpoints", discreteSpeeds);
-    }
+    // Log unoptimized setpoints and setpoint speeds
+    Logger.recordOutput("SwerveStates/Setpoints", setpointStates);
+    Logger.recordOutput("SwerveChassisSpeeds/Setpoints", discreteSpeeds);
 
     // Send setpoints to modules
     for (int i = 0; i < 4; i++) {
       modules[i].runSetpoint(setpointStates[i]);
     }
 
-    if (periodicCounter % 10 == 0) {
-      // Log optimized setpoints (runSetpoint mutates each state)
-      Logger.recordOutput("SwerveStates/SetpointsOptimized", setpointStates);
-    }
+    // Log optimized setpoints (runSetpoint mutates each state)
+    Logger.recordOutput("SwerveStates/SetpointsOptimized", setpointStates);
   }
 
   /** Runs the drive in a straight line with the specified drive output. */

@@ -12,8 +12,8 @@ import static org.ramtech.frc2026.subsystems.vision.VisionConstants.*;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform3d;
+import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import org.photonvision.PhotonCamera;
@@ -41,9 +41,10 @@ public class VisionIOPhotonVision implements VisionIO {
     inputs.connected = camera.isConnected();
 
     // Read new camera observations
+    var unreadResults = camera.getAllUnreadResults();
     Set<Short> tagIds = new HashSet<>();
-    List<PoseObservation> poseObservations = new LinkedList<>();
-    for (var result : camera.getAllUnreadResults()) {
+    List<PoseObservation> poseObservations = new ArrayList<>(unreadResults.size());
+    for (var result : unreadResults) {
       // Update latest target observation
       if (result.hasTargets()) {
         inputs.latestTargetObservation =

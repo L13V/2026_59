@@ -34,6 +34,7 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
+import java.util.Arrays;
 import java.util.Queue;
 import org.ramtech.frc2026.generated.TunerConstants;
 
@@ -209,19 +210,9 @@ public class ModuleIOTalonFX implements ModuleIO {
     inputs.turnCurrentAmps = turnCurrent.getValueAsDouble();
 
     // Update odometry inputs
-    inputs.odometryTimestamps =
-        timestampQueue.stream().mapToDouble((Double value) -> value).toArray();
-    inputs.odometryDrivePositionsRad =
-        drivePositionQueue.stream()
-            .mapToDouble((Double value) -> Units.rotationsToRadians(value))
-            .toArray();
-    inputs.odometryTurnPositions =
-        turnPositionQueue.stream()
-            .map((Double value) -> Rotation2d.fromRotations(value))
-            .toArray(Rotation2d[]::new);
-    timestampQueue.clear();
-    drivePositionQueue.clear();
-    turnPositionQueue.clear();
+    inputs.odometryTimestamps = drainDoubleQueue(timestampQueue);
+    inputs.odometryDrivePositionsRad = drainRotationsQueueToRadians(drivePositionQueue);
+    inputs.odometryTurnPositions = drainRotationsQueue(turnPositionQueue);
   }
 
   @Override
@@ -260,5 +251,47 @@ public class ModuleIOTalonFX implements ModuleIO {
           case TorqueCurrentFOC -> positionTorqueCurrentRequest.withPosition(
               rotation.getRotations());
         });
+  }
+
+  private static double[] drainDoubleQueue(Queue<Double> queue) {
+    int expectedSize = queue.size();
+    double[] values = new double[expectedSize];
+    int count = 0;
+    for (; count < expectedSize; count++) {
+      Double value = queue.poll();
+      if (value == null) {
+        break;
+      }
+      values[count] = value;
+    }
+    return count == expectedSize ? values : Arrays.copyOf(values, count);
+  }
+
+  private static double[] drainRotationsQueueToRadians(Queue<Double> queue) {
+    int expectedSize = queue.size();
+    double[] values = new double[expectedSize];
+    int count = 0;
+    for (; count < expectedSize; count++) {
+      Double value = queue.poll();
+      if (value == null) {
+        break;
+      }
+      values[count] = Units.rotationsToRadians(value);
+    }
+    return count == expectedSize ? values : Arrays.copyOf(values, count);
+  }
+
+  private static Rotation2d[] drainRotationsQueue(Queue<Double> queue) {
+    int expectedSize = queue.size();
+    Rotation2d[] values = new Rotation2d[expectedSize];
+    int count = 0;
+    for (; count < expectedSize; count++) {
+      Double value = queue.poll();
+      if (value == null) {
+        break;
+      }
+      values[count] = Rotation2d.fromRotations(value);
+    }
+    return count == expectedSize ? values : Arrays.copyOf(values, count);
   }
 }
