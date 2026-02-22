@@ -13,8 +13,7 @@ public class IntakeIOTalonFX implements IntakeIO {
   // private final TalonFX wheelMotor = new
   // TalonFX(IntakeConstants.intakeWheelsMotorId, Constants.CANivore); // Main
   // Motor
-  private final TalonFX rollerMotor =
-      new TalonFX(IntakeConstants.rollerMotorId); // Main Motor
+  private final TalonFX rollerMotor = new TalonFX(IntakeConstants.rollerMotorId); // Main Motor
 
   // Configuration
   private final TalonFXConfiguration rollerConfig = new TalonFXConfiguration();

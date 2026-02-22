@@ -15,15 +15,85 @@ public class ShotCalculator {
     return instance;
   }
 
-  public record ShotParameters(
-      boolean isValid, double hoodAngle, double flywheelVelocity, double towerVelocity) {}
+  public static class ShotParameters {
+    private boolean isValid;
+    private double hoodAngle;
+    private double flywheelVelocity;
+    private double towerVelocity;
+    private double turretAngle;
 
-  private final AtomicReference<ShotParameters> latest =
-      new AtomicReference<>(new ShotParameters(false, 0.0, 0.0, 0.0));
+    public ShotParameters(
+        boolean isValid,
+        double hoodAngle,
+        double flywheelVelocity,
+        double towerVelocity,
+        double turretAngle) {
+      this.isValid = isValid;
+      this.hoodAngle = hoodAngle;
+      this.flywheelVelocity = flywheelVelocity;
+      this.towerVelocity = towerVelocity;
+      this.turretAngle = turretAngle;
+    }
+
+    public void set(
+        boolean isValid,
+        double hoodAngle,
+        double flywheelVelocity,
+        double towerVelocity,
+        double turretAngle) {
+      this.isValid = isValid;
+      this.hoodAngle = hoodAngle;
+      this.flywheelVelocity = flywheelVelocity;
+      this.towerVelocity = towerVelocity;
+      this.turretAngle = turretAngle;
+    }
+
+    public boolean isValid() {
+      return isValid;
+    }
+
+    public double hoodAngle() {
+      return hoodAngle;
+    }
+
+    public double flywheelVelocity() {
+      return flywheelVelocity;
+    }
+
+    public double towerVelocity() {
+      return towerVelocity;
+    }
+
+    public double turretAngle() {
+      return turretAngle;
+    }
+
+    @Override
+    public String toString() {
+      return "ShotParameters{"
+          + "isValid="
+          + isValid
+          + ", hoodAngle="
+          + hoodAngle
+          + ", flywheelVelocity="
+          + flywheelVelocity
+          + ", towerVelocity="
+          + towerVelocity
+          + ", turretAngle="
+          + turretAngle
+          + '}';
+    }
+  }
+
+  private final ShotParameters params1 = new ShotParameters(false, 0, 0, 0, 0);
+  private final ShotParameters params2 = new ShotParameters(false, 0, 0, 0, 0);
+
+  private final AtomicReference<ShotParameters> latest = new AtomicReference<>(params1);
 
   public void update(double loopTime) {
-    ShotParameters params = new ShotParameters(false, 0.0, 0.0, 0.0);
-    latest.set(params);
+    ShotParameters newParams = latest.get() == params1 ? params2 : params1;
+    newParams.set(false, 0.0, 0.0, 0.0, 0.0);
+    latest.set(newParams);
   }
 
   public ShotParameters getLatest() {
@@ -32,6 +102,11 @@ public class ShotCalculator {
 
   public void publishShotParameters() {
     var params = getLatest();
-    Logger.recordOutput("ShotCalculator/ShotParameters", params);
+    Logger.recordOutput("ShotCalculator/ShotParameters/IsValid", params.isValid());
+    Logger.recordOutput("ShotCalculator/ShotParameters/HoodAngle", params.hoodAngle());
+    Logger.recordOutput(
+        "ShotCalculator/ShotParameters/FlywheelVelocity", params.flywheelVelocity());
+    Logger.recordOutput("ShotCalculator/ShotParameters/TowerVelocity", params.towerVelocity());
+    Logger.recordOutput("ShotCalculator/ShotParameters/TurretAngle", params.turretAngle());
   }
 }

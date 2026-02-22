@@ -54,7 +54,7 @@ public class IndexerIOTalonFX implements IndexerIO {
     ballTunnelConfig.CurrentLimits.SupplyCurrentLowerTime = 3;
 
     // Intake Side
-    starConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+    starConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
     starConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
     starConfig.Commutation.MotorArrangement = MotorArrangementValue.NEO_JST;
 

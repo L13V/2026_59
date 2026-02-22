@@ -23,6 +23,8 @@ public class Indexer extends FullSubsystem {
   private final Alert starsDisconnected =
       new Alert("Star Motor Disconnected", Alert.AlertType.kWarning);
 
+  private int periodicCounter = 0;
+
   public Indexer(IndexerIO io) {
     this.io = io;
   }
@@ -30,7 +32,9 @@ public class Indexer extends FullSubsystem {
   @Override
   public void periodic() {
     io.updateInputs(inputs); // Grab new values from motor
-    Logger.processInputs("Indexer", inputs); // Put values in the log
+    if (periodicCounter++ % 10 == 0) {
+      Logger.processInputs("Indexer", inputs); // Put values in the log
+    }
     // Alerts
     ballTunnelDisconnected.set(
         Robot.showHardwareAlerts() && !ballTunnelDebouncer.calculate(inputs.ballTunnelConnected));
@@ -42,9 +46,11 @@ public class Indexer extends FullSubsystem {
   @Override
   public void periodicAfterScheduler() {
     io.applyOutputs(outputs); // Set the targets for the motor
-    Logger.recordOutput("Indexer/Mode", outputs.mode);
-    Logger.recordOutput("Indexer/Ball Voltage Setpoint", outputs.ballTunnelVoltageSetpoint);
-    Logger.recordOutput("Indexer/Star Voltage Setpoint", outputs.starVoltageSetpoint);
+    if (periodicCounter % 10 == 0) {
+      Logger.recordOutput("Indexer/Mode", outputs.mode);
+      Logger.recordOutput("Indexer/Ball Voltage Setpoint", outputs.ballTunnelVoltageSetpoint);
+      Logger.recordOutput("Indexer/Star Voltage Setpoint", outputs.starVoltageSetpoint);
+    }
   }
 
   public void setVoltages(double spinVoltage, double starVoltage) {

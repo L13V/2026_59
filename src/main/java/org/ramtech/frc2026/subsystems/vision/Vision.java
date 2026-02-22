@@ -29,6 +29,8 @@ public class Vision extends SubsystemBase {
   private final VisionIO[] io;
   private final VisionIOInputsAutoLogged[] inputs;
   private final Alert[] disconnectedAlerts;
+  private static final int DEBUG_LOG_PERIOD_CYCLES = 5;
+  private int periodicCounter = 0;
 
   public Vision(VisionConsumer consumer, VisionIO... io) {
     this.consumer = consumer;
@@ -61,33 +63,38 @@ public class Vision extends SubsystemBase {
 
   @Override
   public void periodic() {
+    periodicCounter++;
+    boolean logDebugPoses = periodicCounter % DEBUG_LOG_PERIOD_CYCLES == 0;
+
     for (int i = 0; i < io.length; i++) {
       io[i].updateInputs(inputs[i]);
       Logger.processInputs("Vision/" + cameraName(i), inputs[i]);
     }
 
-    // Initialize logging values
-    List<Pose3d> allTagPoses = new LinkedList<>();
-    List<Pose3d> allRobotPoses = new LinkedList<>();
-    List<Pose3d> allRobotPosesAccepted = new LinkedList<>();
-    List<Pose3d> allRobotPosesRejected = new LinkedList<>();
+    // Initialize logging values only when recording debug pose arrays
+    List<Pose3d> allTagPoses = logDebugPoses ? new LinkedList<>() : null;
+    List<Pose3d> allRobotPoses = logDebugPoses ? new LinkedList<>() : null;
+    List<Pose3d> allRobotPosesAccepted = logDebugPoses ? new LinkedList<>() : null;
+    List<Pose3d> allRobotPosesRejected = logDebugPoses ? new LinkedList<>() : null;
 
     // Loop over cameras
     for (int cameraIndex = 0; cameraIndex < io.length; cameraIndex++) {
       // Update disconnected alert
       disconnectedAlerts[cameraIndex].set(!inputs[cameraIndex].connected);
 
-      // Initialize logging values
-      List<Pose3d> tagPoses = new LinkedList<>();
-      List<Pose3d> robotPoses = new LinkedList<>();
-      List<Pose3d> robotPosesAccepted = new LinkedList<>();
-      List<Pose3d> robotPosesRejected = new LinkedList<>();
+      // Initialize logging values only when recording debug pose arrays
+      List<Pose3d> tagPoses = logDebugPoses ? new LinkedList<>() : null;
+      List<Pose3d> robotPoses = logDebugPoses ? new LinkedList<>() : null;
+      List<Pose3d> robotPosesAccepted = logDebugPoses ? new LinkedList<>() : null;
+      List<Pose3d> robotPosesRejected = logDebugPoses ? new LinkedList<>() : null;
 
-      // Add tag poses
-      for (int tagId : inputs[cameraIndex].tagIds) {
-        var tagPose = aprilTagLayout.getTagPose(tagId);
-        if (tagPose.isPresent()) {
-          tagPoses.add(tagPose.get());
+      // Add tag poses (debug logging only)
+      if (logDebugPoses) {
+        for (int tagId : inputs[cameraIndex].tagIds) {
+          var tagPose = aprilTagLayout.getTagPose(tagId);
+          if (tagPose.isPresent()) {
+            tagPoses.add(tagPose.get());
+          }
         }
       }
 
@@ -107,12 +114,14 @@ public class Vision extends SubsystemBase {
                 || observation.pose().getY() < 0.0
                 || observation.pose().getY() > aprilTagLayout.getFieldWidth();
 
-        // Add pose to log
-        robotPoses.add(observation.pose());
-        if (rejectPose) {
-          robotPosesRejected.add(observation.pose());
-        } else {
-          robotPosesAccepted.add(observation.pose());
+        // Add pose to debug logs
+        if (logDebugPoses) {
+          robotPoses.add(observation.pose());
+          if (rejectPose) {
+            robotPosesRejected.add(observation.pose());
+          } else {
+            robotPosesAccepted.add(observation.pose());
+          }
         }
 
         // Skip if rejected
@@ -141,30 +150,34 @@ public class Vision extends SubsystemBase {
             VecBuilder.fill(linearStdDev, linearStdDev, angularStdDev));
       }
 
-      // Log camera metadata
-      Logger.recordOutput(
-          "Vision/" + cameraName(cameraIndex) + "/TagPoses", tagPoses.toArray(new Pose3d[0]));
-      Logger.recordOutput(
-          "Vision/" + cameraName(cameraIndex) + "/RobotPoses", robotPoses.toArray(new Pose3d[0]));
-      Logger.recordOutput(
-          "Vision/" + cameraName(cameraIndex) + "/RobotPosesAccepted",
-          robotPosesAccepted.toArray(new Pose3d[0]));
-      Logger.recordOutput(
-          "Vision/" + cameraName(cameraIndex) + "/RobotPosesRejected",
-          robotPosesRejected.toArray(new Pose3d[0]));
-      allTagPoses.addAll(tagPoses);
-      allRobotPoses.addAll(robotPoses);
-      allRobotPosesAccepted.addAll(robotPosesAccepted);
-      allRobotPosesRejected.addAll(robotPosesRejected);
+      if (logDebugPoses) {
+        // Log camera metadata
+        Logger.recordOutput(
+            "Vision/" + cameraName(cameraIndex) + "/TagPoses", tagPoses.toArray(new Pose3d[0]));
+        Logger.recordOutput(
+            "Vision/" + cameraName(cameraIndex) + "/RobotPoses", robotPoses.toArray(new Pose3d[0]));
+        Logger.recordOutput(
+            "Vision/" + cameraName(cameraIndex) + "/RobotPosesAccepted",
+            robotPosesAccepted.toArray(new Pose3d[0]));
+        Logger.recordOutput(
+            "Vision/" + cameraName(cameraIndex) + "/RobotPosesRejected",
+            robotPosesRejected.toArray(new Pose3d[0]));
+        allTagPoses.addAll(tagPoses);
+        allRobotPoses.addAll(robotPoses);
+        allRobotPosesAccepted.addAll(robotPosesAccepted);
+        allRobotPosesRejected.addAll(robotPosesRejected);
+      }
     }
 
-    // Log summary data
-    Logger.recordOutput("Vision/Summary/TagPoses", allTagPoses.toArray(new Pose3d[0]));
-    Logger.recordOutput("Vision/Summary/RobotPoses", allRobotPoses.toArray(new Pose3d[0]));
-    Logger.recordOutput(
-        "Vision/Summary/RobotPosesAccepted", allRobotPosesAccepted.toArray(new Pose3d[0]));
-    Logger.recordOutput(
-        "Vision/Summary/RobotPosesRejected", allRobotPosesRejected.toArray(new Pose3d[0]));
+    if (logDebugPoses) {
+      // Log summary data
+      Logger.recordOutput("Vision/Summary/TagPoses", allTagPoses.toArray(new Pose3d[0]));
+      Logger.recordOutput("Vision/Summary/RobotPoses", allRobotPoses.toArray(new Pose3d[0]));
+      Logger.recordOutput(
+          "Vision/Summary/RobotPosesAccepted", allRobotPosesAccepted.toArray(new Pose3d[0]));
+      Logger.recordOutput(
+          "Vision/Summary/RobotPosesRejected", allRobotPosesRejected.toArray(new Pose3d[0]));
+    }
   }
 
   @FunctionalInterface

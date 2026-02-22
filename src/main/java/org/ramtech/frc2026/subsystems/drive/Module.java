@@ -58,17 +58,11 @@ public class Module {
 
     // Calculate positions for odometry
     int sampleCount = inputs.odometryTimestamps.length; // All signals are sampled together
-    if (odometryPositions.length != sampleCount) {
-      odometryPositions = new SwerveModulePosition[sampleCount];
-      for (int i = 0; i < sampleCount; i++) {
-        odometryPositions[i] = new SwerveModulePosition();
-      }
-    }
+    odometryPositions = new SwerveModulePosition[sampleCount];
     for (int i = 0; i < sampleCount; i++) {
       double positionMeters = inputs.odometryDrivePositionsRad[i] * constants.WheelRadius;
       Rotation2d angle = inputs.odometryTurnPositions[i];
-      odometryPositions[i].distanceMeters = positionMeters;
-      odometryPositions[i].angle = angle;
+      odometryPositions[i] = new SwerveModulePosition(positionMeters, angle);
     }
 
     // Update alerts

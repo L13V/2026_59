@@ -50,8 +50,8 @@ public final class Constants {
 
   public static final class TurretConstants {
     public static final int turretMotorId = 54;
-    public static final int turretLowEncoderId = 55;
-    public static final int turretHighEncoderId = 56;
+    public static final int turretEncoderAId = 55;
+    public static final int turretEncoderBId = 56;
   }
 
   public static final class HoodConstants {

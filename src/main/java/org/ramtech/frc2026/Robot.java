@@ -33,6 +33,8 @@ public class Robot extends LoggedRobot {
   private RobotContainer robotContainer;
   private double lastCalcTs;
   private double lastShooterTs;
+  private volatile double lastCalcDt;
+  private volatile double lastShooterDt;
 
   private final Notifier CalculationLoop =
       new Notifier(
@@ -40,7 +42,7 @@ public class Robot extends LoggedRobot {
             double now = Timer.getFPGATimestamp();
             double dt = now - lastCalcTs;
             lastCalcTs = now;
-            Logger.recordOutput("CalculationLoop/dt", dt);
+            lastCalcDt = dt;
             ShotCalculator.getInstance().update(dt);
           });
 
@@ -50,7 +52,7 @@ public class Robot extends LoggedRobot {
             double now = Timer.getFPGATimestamp();
             double dt = now - lastShooterTs;
             lastShooterTs = now;
-            Logger.recordOutput("ShooterLoop/dt", dt);
+            lastShooterDt = dt;
             ShooterSubsystem.runAllShooterMotorPeriodics(dt);
           });
 
@@ -128,6 +130,10 @@ public class Robot extends LoggedRobot {
     // This must be called from the robot's periodic block in order for anything in
     // the Command-based framework to work.
     CommandScheduler.getInstance().run();
+
+    // Log loop timings
+    Logger.recordOutput("CalculationLoop/dt", lastCalcDt);
+    Logger.recordOutput("ShooterLoop/dt", lastShooterDt);
 
     // Call periodicAfterScheduler on FullSubsystems
     ShotCalculator.getInstance().publishShotParameters();

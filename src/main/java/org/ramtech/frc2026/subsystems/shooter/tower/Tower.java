@@ -12,9 +12,9 @@ import org.ramtech.frc2026.subsystems.shooter.ShotCalculator;
 import org.ramtech.frc2026.subsystems.shooter.tower.TowerIO.TowerIOOutputMode;
 import org.ramtech.frc2026.subsystems.shooter.tower.TowerIO.TowerIOOutputs;
 import org.ramtech.frc2026.subsystems.shooter.tower.TowerIO.TowerIOSetpointSource;
-import org.ramtech.frc2026.util.FullSubsystem;
+import org.ramtech.frc2026.util.ShooterSubsystem;
 
-public class Tower extends FullSubsystem {
+public class Tower extends ShooterSubsystem {
   // IO
   private final TowerIO io;
   private final TowerIOInputsAutoLogged inputs = new TowerIOInputsAutoLogged();
@@ -29,7 +29,6 @@ public class Tower extends FullSubsystem {
     this.io = io;
   }
 
-  @Override
   public void periodic() {
     // This method will be called once per scheduler run
     io.updateInputs(inputs);
@@ -40,14 +39,18 @@ public class Tower extends FullSubsystem {
 
   @Override
   public void periodicAfterScheduler() {
+    Logger.recordOutput("Shooter/Tower/Mode", outputs.mode);
+    Logger.recordOutput("Shooter/Tower/Voltage", outputs.voltageSetpoint);
+  }
+
+  @Override
+  public void shooterPeriodic(double dt) {
     var shotCalculation = ShotCalculator.getInstance().getLatest();
     if (outputs.setpointSource == TowerIOSetpointSource.SHOT_CALCULATOR) {
       outputs.mode = TowerIOOutputMode.VELOCITY;
       outputs.velocitySetpoint = shotCalculation.towerVelocity();
     }
     io.applyOutputs(outputs); // Set the targets for the motor
-    Logger.recordOutput("Shooter/Tower/Mode", outputs.mode);
-    Logger.recordOutput("Shooter/Tower/Voltage", outputs.voltageSetpoint);
   }
 
   public void enableCalculation() {
