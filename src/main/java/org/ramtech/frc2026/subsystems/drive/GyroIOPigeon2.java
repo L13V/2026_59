@@ -7,8 +7,6 @@
 
 package org.ramtech.frc2026.subsystems.drive;
 
-import com.ctre.phoenix6.BaseStatusSignal;
-import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.Pigeon2Configuration;
 import com.ctre.phoenix6.hardware.Pigeon2;
@@ -16,7 +14,6 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
-import java.util.Arrays;
 import java.util.Queue;
 import org.ramtech.frc2026.generated.TunerConstants;
 
@@ -46,39 +43,23 @@ public class GyroIOPigeon2 implements GyroIO {
 
   @Override
   public void updateInputs(GyroIOInputs inputs) {
-    inputs.connected = BaseStatusSignal.refreshAll(yaw, yawVelocity).equals(StatusCode.OK);
+    inputs.connected = yaw.getStatus().isOK() && yawVelocity.getStatus().isOK();
     inputs.yawPosition = Rotation2d.fromDegrees(yaw.getValueAsDouble());
     inputs.yawVelocityRadPerSec = Units.degreesToRadians(yawVelocity.getValueAsDouble());
 
-    inputs.odometryYawTimestamps = drainDoubleQueue(yawTimestampQueue);
-    inputs.odometryYawPositions = drainDegreesQueue(yawPositionQueue);
-  }
-
-  private static double[] drainDoubleQueue(Queue<Double> queue) {
-    int expectedSize = queue.size();
-    double[] values = new double[expectedSize];
-    int count = 0;
-    for (; count < expectedSize; count++) {
-      Double value = queue.poll();
-      if (value == null) {
+    int queueSize = yawTimestampQueue.size();
+    if (inputs.odometryYawTimestamps.length != queueSize) {
+      inputs.odometryYawTimestamps = new double[queueSize];
+      inputs.odometryYawPositions = new Rotation2d[queueSize];
+    }
+    for (int i = 0; i < queueSize; i++) {
+      Double timestamp = yawTimestampQueue.poll();
+      Double yawValue = yawPositionQueue.poll();
+      if (timestamp == null || yawValue == null) {
         break;
       }
-      values[count] = value;
+      inputs.odometryYawTimestamps[i] = timestamp;
+      inputs.odometryYawPositions[i] = Rotation2d.fromDegrees(yawValue);
     }
-    return count == expectedSize ? values : Arrays.copyOf(values, count);
-  }
-
-  private static Rotation2d[] drainDegreesQueue(Queue<Double> queue) {
-    int expectedSize = queue.size();
-    Rotation2d[] values = new Rotation2d[expectedSize];
-    int count = 0;
-    for (; count < expectedSize; count++) {
-      Double value = queue.poll();
-      if (value == null) {
-        break;
-      }
-      values[count] = Rotation2d.fromDegrees(value);
-    }
-    return count == expectedSize ? values : Arrays.copyOf(values, count);
   }
 }

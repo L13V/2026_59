@@ -186,23 +186,17 @@ public class ModuleIOTalonFX implements ModuleIO {
 
   @Override
   public void updateInputs(ModuleIOInputs inputs) {
-    // Refresh all signals
-    var driveStatus =
-        BaseStatusSignal.refreshAll(drivePosition, driveVelocity, driveAppliedVolts, driveCurrent);
-    var turnStatus =
-        BaseStatusSignal.refreshAll(turnPosition, turnVelocity, turnAppliedVolts, turnCurrent);
-    var turnEncoderStatus = BaseStatusSignal.refreshAll(turnAbsolutePosition);
-
     // Update drive inputs
-    inputs.driveConnected = driveConnectedDebounce.calculate(driveStatus.isOK());
+    inputs.driveConnected = driveConnectedDebounce.calculate(drivePosition.getStatus().isOK());
     inputs.drivePositionRad = Units.rotationsToRadians(drivePosition.getValueAsDouble());
     inputs.driveVelocityRadPerSec = Units.rotationsToRadians(driveVelocity.getValueAsDouble());
     inputs.driveAppliedVolts = driveAppliedVolts.getValueAsDouble();
     inputs.driveCurrentAmps = driveCurrent.getValueAsDouble();
 
     // Update turn inputs
-    inputs.turnConnected = turnConnectedDebounce.calculate(turnStatus.isOK());
-    inputs.turnEncoderConnected = turnEncoderConnectedDebounce.calculate(turnEncoderStatus.isOK());
+    inputs.turnConnected = turnConnectedDebounce.calculate(turnPosition.getStatus().isOK());
+    inputs.turnEncoderConnected =
+        turnEncoderConnectedDebounce.calculate(turnAbsolutePosition.getStatus().isOK());
     inputs.turnAbsolutePosition = Rotation2d.fromRotations(turnAbsolutePosition.getValueAsDouble());
     inputs.turnPosition = Rotation2d.fromRotations(turnPosition.getValueAsDouble());
     inputs.turnVelocityRadPerSec = Units.rotationsToRadians(turnVelocity.getValueAsDouble());
@@ -210,9 +204,23 @@ public class ModuleIOTalonFX implements ModuleIO {
     inputs.turnCurrentAmps = turnCurrent.getValueAsDouble();
 
     // Update odometry inputs
-    inputs.odometryTimestamps = drainDoubleQueue(timestampQueue);
-    inputs.odometryDrivePositionsRad = drainRotationsQueueToRadians(drivePositionQueue);
-    inputs.odometryTurnPositions = drainRotationsQueue(turnPositionQueue);
+    int queueSize = timestampQueue.size();
+    if (inputs.odometryTimestamps.length != queueSize) {
+      inputs.odometryTimestamps = new double[queueSize];
+      inputs.odometryDrivePositionsRad = new double[queueSize];
+      inputs.odometryTurnPositions = new Rotation2d[queueSize];
+    }
+    for (int i = 0; i < queueSize; i++) {
+      Double timestamp = timestampQueue.poll();
+      Double drivePos = drivePositionQueue.poll();
+      Double turnPos = turnPositionQueue.poll();
+      if (timestamp == null || drivePos == null || turnPos == null) {
+        break;
+      }
+      inputs.odometryTimestamps[i] = timestamp;
+      inputs.odometryDrivePositionsRad[i] = Units.rotationsToRadians(drivePos);
+      inputs.odometryTurnPositions[i] = Rotation2d.fromRotations(turnPos);
+    }
   }
 
   @Override
