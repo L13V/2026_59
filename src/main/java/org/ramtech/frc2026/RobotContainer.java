@@ -19,6 +19,10 @@ import org.ramtech.frc2026.subsystems.drive.GyroIOPigeon2;
 import org.ramtech.frc2026.subsystems.drive.ModuleIO;
 import org.ramtech.frc2026.subsystems.drive.ModuleIOSim;
 import org.ramtech.frc2026.subsystems.drive.ModuleIOTalonFX;
+import org.ramtech.frc2026.subsystems.vision.Vision;
+import org.ramtech.frc2026.subsystems.vision.VisionIO;
+import org.ramtech.frc2026.subsystems.vision.VisionIOPhotonVision;
+import org.ramtech.frc2026.subsystems.vision.VisionIOPhotonVisionSim;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -31,7 +35,7 @@ public class RobotContainer {
   @SuppressWarnings("unused")
   private final Drive drive;
 
-  //   private final Vision vision;
+    private final Vision vision;
   //   private final Intake intake;
   //   private final Indexer indexer;
   // private final Tower tower;
@@ -59,13 +63,13 @@ public class RobotContainer {
                 new ModuleIOTalonFX(TunerConstants.BackLeft),
                 new ModuleIOTalonFX(TunerConstants.BackRight));
 
-        // vision =
-        //     new Vision(
-        //         drive::addVisionMeasurement,
-        //         new VisionIOPhotonVision(FLRamCam, robotToFL),
-        //         new VisionIOPhotonVision(FRRamCam, robotToFR),
-        //         new VisionIOPhotonVision(BLRamCam, robotToBL),
-        //         new VisionIOPhotonVision(BRRamCam, robotToBR));
+        vision =
+            new Vision(
+                drive::addVisionMeasurement,
+                new VisionIOPhotonVision(FLRamCam, robotToFL),
+                new VisionIOPhotonVision(FRRamCam, robotToFR),
+                new VisionIOPhotonVision(BLRamCam, robotToBL),
+                new VisionIOPhotonVision(BRRamCam, robotToBR));
         // intake = new Intake(new IntakeIOTalonFX());
         // indexer = new Indexer(new IndexerIOTalonFX());
         // tower = new Tower(new TowerIOTalonFX());
@@ -83,13 +87,13 @@ public class RobotContainer {
                 new ModuleIOSim(TunerConstants.BackLeft),
                 new ModuleIOSim(TunerConstants.BackRight));
 
-        // vision =
-        //     new Vision(
-        //         drive::addVisionMeasurement,
-        //         new VisionIOPhotonVisionSim(FLRamCam, robotToFL, drive::getPose),
-        //         new VisionIOPhotonVisionSim(FRRamCam, robotToFR, drive::getPose),
-        //         new VisionIOPhotonVisionSim(BLRamCam, robotToBL, drive::getPose),
-        //         new VisionIOPhotonVisionSim(BRRamCam, robotToBR, drive::getPose));
+        vision =
+            new Vision(
+                drive::addVisionMeasurement,
+                new VisionIOPhotonVisionSim(FLRamCam, robotToFL, drive::getPose),
+                new VisionIOPhotonVisionSim(FRRamCam, robotToFR, drive::getPose),
+                new VisionIOPhotonVisionSim(BLRamCam, robotToBL, drive::getPose),
+                new VisionIOPhotonVisionSim(BRRamCam, robotToBR, drive::getPose));
         // intake = new Intake(new IntakeIOSim());
         // indexer = new Indexer(new IndexerIOSim() {});
         // tower = new Tower(new TowerIOSim());
@@ -106,7 +110,7 @@ public class RobotContainer {
                 new ModuleIO() {},
                 new ModuleIO() {},
                 new ModuleIO() {});
-        // vision = new Vision(drive::addVisionMeasurement, new VisionIO() {}, new VisionIO() {});
+        vision = new Vision(drive::addVisionMeasurement, new VisionIO() {}, new VisionIO() {});
         // intake = new Intake(new IntakeIO() {});
         // indexer = new Indexer(new IndexerIO() {});
         // tower = new Tower(new TowerIO() {});
