@@ -30,20 +30,13 @@ public class GyroIONavX implements GyroIO {
     inputs.yawPosition = Rotation2d.fromDegrees(-navX.getYaw());
     inputs.yawVelocityRadPerSec = Units.degreesToRadians(-navX.getRawGyroZ());
 
-    int queueSize = yawTimestampQueue.size();
-    double[] timestamps = new double[queueSize];
-    Rotation2d[] yaws = new Rotation2d[queueSize];
-    for (int i = 0; i < queueSize; i++) {
-      Double timestamp = yawTimestampQueue.poll();
-      Double yaw = yawPositionQueue.poll();
-      if (timestamp == null || yaw == null) {
-        // Should not happen if queues are synchronized
-        break;
-      }
-      timestamps[i] = timestamp;
-      yaws[i] = Rotation2d.fromDegrees(-yaw);
-    }
-    inputs.odometryYawTimestamps = timestamps;
-    inputs.odometryYawPositions = yaws;
+    inputs.odometryYawTimestamps =
+        yawTimestampQueue.stream().mapToDouble((Double value) -> value).toArray();
+    inputs.odometryYawPositions =
+        yawPositionQueue.stream()
+            .map((Double value) -> Rotation2d.fromDegrees(-value))
+            .toArray(Rotation2d[]::new);
+    yawTimestampQueue.clear();
+    yawPositionQueue.clear();
   }
 }

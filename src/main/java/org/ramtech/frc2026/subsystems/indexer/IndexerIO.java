@@ -30,7 +30,6 @@ public interface IndexerIO {
     VOLTAGE
   }
 
-  @AutoLog
   public static class IndexerIOOutputs {
     public IndexerIOOutputMode mode = IndexerIOOutputMode.OFF;
     public double ballTunnelVoltageSetpoint = 0.0;

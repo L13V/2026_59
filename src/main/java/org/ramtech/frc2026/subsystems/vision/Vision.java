@@ -18,6 +18,7 @@ import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import java.util.ArrayList;
 import java.util.List;
@@ -25,16 +26,17 @@ import org.littletonrobotics.junction.Logger;
 import org.ramtech.frc2026.subsystems.vision.VisionIO.PoseObservationType;
 
 public class Vision extends SubsystemBase {
+  private static final double LOG_PERIOD_SEC = 0.1;
+
   private final VisionConsumer consumer;
   private final VisionIO[] io;
   private final VisionIOInputsAutoLogged[] inputs;
   private final Alert[] disconnectedAlerts;
-  private final Pose3d[] fieldTagPoseCache;
+  private double lastLogTimestamp = Double.NEGATIVE_INFINITY;
 
   public Vision(VisionConsumer consumer, VisionIO... io) {
     this.consumer = consumer;
     this.io = io;
-    this.fieldTagPoseCache = buildFieldTagPoseCache();
 
     // Initialize inputs
     this.inputs = new VisionIOInputsAutoLogged[io.length];
@@ -47,8 +49,7 @@ public class Vision extends SubsystemBase {
     for (int i = 0; i < inputs.length; i++) {
       disconnectedAlerts[i] =
           new Alert(
-              "Vision camera " + Integer.toString(i) + " (" + cameraName(i) + ") is disconnected.",
-              AlertType.kWarning);
+              "Vision camera " + Integer.toString(i) + " is disconnected.", AlertType.kWarning);
     }
   }
 
@@ -63,33 +64,40 @@ public class Vision extends SubsystemBase {
 
   @Override
   public void periodic() {
-    for (int i = 0; i < io.length; i++) {
-      io[i].updateInputs(inputs[i]);
-      Logger.processInputs("Vision/" + cameraName(i), inputs[i]);
+    boolean logThisCycle = (Timer.getFPGATimestamp() - lastLogTimestamp) >= LOG_PERIOD_SEC;
+    if (logThisCycle) {
+      lastLogTimestamp = Timer.getFPGATimestamp();
     }
 
-    // Debug visualization logs for AdvantageScope
-    List<Pose3d> allTagPoses = new ArrayList<>();
-    List<Pose3d> allRobotPoses = new ArrayList<>();
-    List<Pose3d> allRobotPosesAccepted = new ArrayList<>();
-    List<Pose3d> allRobotPosesRejected = new ArrayList<>();
+    for (int i = 0; i < io.length; i++) {
+      io[i].updateInputs(inputs[i]);
+      Logger.processInputs("Vision/Camera" + Integer.toString(i), inputs[i]);
+    }
+
+    // Initialize logging values
+    List<Pose3d> allTagPoses = logThisCycle ? new ArrayList<>() : null;
+    List<Pose3d> allRobotPoses = logThisCycle ? new ArrayList<>() : null;
+    List<Pose3d> allRobotPosesAccepted = logThisCycle ? new ArrayList<>() : null;
+    List<Pose3d> allRobotPosesRejected = logThisCycle ? new ArrayList<>() : null;
 
     // Loop over cameras
     for (int cameraIndex = 0; cameraIndex < io.length; cameraIndex++) {
       // Update disconnected alert
       disconnectedAlerts[cameraIndex].set(!inputs[cameraIndex].connected);
 
-      List<Pose3d> tagPoses = new ArrayList<>(inputs[cameraIndex].tagIds.length);
-      List<Pose3d> robotPoses = new ArrayList<>(inputs[cameraIndex].poseObservations.length);
-      List<Pose3d> robotPosesAccepted =
-          new ArrayList<>(inputs[cameraIndex].poseObservations.length);
-      List<Pose3d> robotPosesRejected =
-          new ArrayList<>(inputs[cameraIndex].poseObservations.length);
+      // Initialize logging values
+      List<Pose3d> tagPoses = logThisCycle ? new ArrayList<>() : null;
+      List<Pose3d> robotPoses = logThisCycle ? new ArrayList<>() : null;
+      List<Pose3d> robotPosesAccepted = logThisCycle ? new ArrayList<>() : null;
+      List<Pose3d> robotPosesRejected = logThisCycle ? new ArrayList<>() : null;
 
-      for (int tagId : inputs[cameraIndex].tagIds) {
-        Pose3d tagPose = getCachedTagPose(tagId);
-        if (tagPose != null) {
-          tagPoses.add(tagPose);
+      // Add tag poses
+      if (logThisCycle) {
+        for (int tagId : inputs[cameraIndex].tagIds) {
+          var tagPose = aprilTagLayout.getTagPose(tagId);
+          if (tagPose.isPresent()) {
+            tagPoses.add(tagPose.get());
+          }
         }
       }
 
@@ -109,11 +117,14 @@ public class Vision extends SubsystemBase {
                 || observation.pose().getY() < 0.0
                 || observation.pose().getY() > aprilTagLayout.getFieldWidth();
 
-        robotPoses.add(observation.pose());
-        if (rejectPose) {
-          robotPosesRejected.add(observation.pose());
-        } else {
-          robotPosesAccepted.add(observation.pose());
+        // Add pose to log
+        if (logThisCycle) {
+          robotPoses.add(observation.pose());
+          if (rejectPose) {
+            robotPosesRejected.add(observation.pose());
+          } else {
+            robotPosesAccepted.add(observation.pose());
+          }
         }
 
         // Skip if rejected
@@ -142,29 +153,36 @@ public class Vision extends SubsystemBase {
             VecBuilder.fill(linearStdDev, linearStdDev, angularStdDev));
       }
 
-      Logger.recordOutput(
-          "Vision/" + cameraName(cameraIndex) + "/TagPoses", tagPoses.toArray(Pose3d[]::new));
-      Logger.recordOutput(
-          "Vision/" + cameraName(cameraIndex) + "/RobotPoses", robotPoses.toArray(Pose3d[]::new));
-      Logger.recordOutput(
-          "Vision/" + cameraName(cameraIndex) + "/RobotPosesAccepted",
-          robotPosesAccepted.toArray(Pose3d[]::new));
-      Logger.recordOutput(
-          "Vision/" + cameraName(cameraIndex) + "/RobotPosesRejected",
-          robotPosesRejected.toArray(Pose3d[]::new));
-
-      allTagPoses.addAll(tagPoses);
-      allRobotPoses.addAll(robotPoses);
-      allRobotPosesAccepted.addAll(robotPosesAccepted);
-      allRobotPosesRejected.addAll(robotPosesRejected);
+      // Log camera metadata
+      if (logThisCycle) {
+        Logger.recordOutput(
+            "Vision/Camera" + Integer.toString(cameraIndex) + "/TagPoses",
+            tagPoses.toArray(new Pose3d[0]));
+        Logger.recordOutput(
+            "Vision/Camera" + Integer.toString(cameraIndex) + "/RobotPoses",
+            robotPoses.toArray(new Pose3d[0]));
+        Logger.recordOutput(
+            "Vision/Camera" + Integer.toString(cameraIndex) + "/RobotPosesAccepted",
+            robotPosesAccepted.toArray(new Pose3d[0]));
+        Logger.recordOutput(
+            "Vision/Camera" + Integer.toString(cameraIndex) + "/RobotPosesRejected",
+            robotPosesRejected.toArray(new Pose3d[0]));
+        allTagPoses.addAll(tagPoses);
+        allRobotPoses.addAll(robotPoses);
+        allRobotPosesAccepted.addAll(robotPosesAccepted);
+        allRobotPosesRejected.addAll(robotPosesRejected);
+      }
     }
 
-    Logger.recordOutput("Vision/Summary/TagPoses", allTagPoses.toArray(Pose3d[]::new));
-    Logger.recordOutput("Vision/Summary/RobotPoses", allRobotPoses.toArray(Pose3d[]::new));
-    Logger.recordOutput(
-        "Vision/Summary/RobotPosesAccepted", allRobotPosesAccepted.toArray(Pose3d[]::new));
-    Logger.recordOutput(
-        "Vision/Summary/RobotPosesRejected", allRobotPosesRejected.toArray(Pose3d[]::new));
+    // Log summary data
+    if (logThisCycle) {
+      Logger.recordOutput("Vision/Summary/TagPoses", allTagPoses.toArray(new Pose3d[0]));
+      Logger.recordOutput("Vision/Summary/RobotPoses", allRobotPoses.toArray(new Pose3d[0]));
+      Logger.recordOutput(
+          "Vision/Summary/RobotPosesAccepted", allRobotPosesAccepted.toArray(new Pose3d[0]));
+      Logger.recordOutput(
+          "Vision/Summary/RobotPosesRejected", allRobotPosesRejected.toArray(new Pose3d[0]));
+    }
   }
 
   @FunctionalInterface
@@ -173,29 +191,5 @@ public class Vision extends SubsystemBase {
         Pose2d visionRobotPoseMeters,
         double timestampSeconds,
         Matrix<N3, N1> visionMeasurementStdDevs);
-  }
-
-  private String cameraName(int index) {
-    return io[index].getName();
-  }
-
-  private static Pose3d[] buildFieldTagPoseCache() {
-    int maxTagId = 0;
-    for (var tag : aprilTagLayout.getTags()) {
-      maxTagId = Math.max(maxTagId, tag.ID);
-    }
-
-    Pose3d[] cache = new Pose3d[maxTagId + 1];
-    for (var tag : aprilTagLayout.getTags()) {
-      cache[tag.ID] = tag.pose;
-    }
-    return cache;
-  }
-
-  private Pose3d getCachedTagPose(int tagId) {
-    if (tagId < 0 || tagId >= fieldTagPoseCache.length) {
-      return null;
-    }
-    return fieldTagPoseCache[tagId];
   }
 }

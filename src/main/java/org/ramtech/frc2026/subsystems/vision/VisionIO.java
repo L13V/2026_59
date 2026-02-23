@@ -39,9 +39,5 @@ public interface VisionIO {
     PHOTONVISION
   }
 
-  public default String getName() {
-    return "UnknownCamera";
-  }
-
   public default void updateInputs(VisionIOInputs inputs) {}
 }

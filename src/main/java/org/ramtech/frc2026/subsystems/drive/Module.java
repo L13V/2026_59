@@ -54,6 +54,7 @@ public class Module {
 
   public void periodic() {
     io.updateInputs(inputs);
+    Logger.processInputs("Drive/Module" + Integer.toString(index), inputs);
 
     // Calculate positions for odometry
     int sampleCount = inputs.odometryTimestamps.length; // All signals are sampled together
@@ -68,10 +69,6 @@ public class Module {
     driveDisconnectedAlert.set(!inputs.driveConnected);
     turnDisconnectedAlert.set(!inputs.turnConnected);
     turnEncoderDisconnectedAlert.set(!inputs.turnEncoderConnected);
-  }
-
-  public void log() {
-    Logger.processInputs("Drive/Module" + Integer.toString(index), inputs);
   }
 
   /** Runs the module with the specified setpoint state. Mutates the state to optimize it. */

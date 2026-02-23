@@ -12,8 +12,8 @@ import static org.ramtech.frc2026.subsystems.vision.VisionConstants.*;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform3d;
-import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import org.photonvision.PhotonCamera;
@@ -22,7 +22,6 @@ import org.photonvision.PhotonCamera;
 public class VisionIOPhotonVision implements VisionIO {
   protected final PhotonCamera camera;
   protected final Transform3d robotToCamera;
-  private final String name;
 
   /**
    * Creates a new VisionIOPhotonVision.
@@ -31,7 +30,6 @@ public class VisionIOPhotonVision implements VisionIO {
    * @param robotToCamera The 3D position of the camera relative to the robot.
    */
   public VisionIOPhotonVision(String name, Transform3d robotToCamera) {
-    this.name = name;
     camera = new PhotonCamera(name);
     this.robotToCamera = robotToCamera;
   }
@@ -41,10 +39,9 @@ public class VisionIOPhotonVision implements VisionIO {
     inputs.connected = camera.isConnected();
 
     // Read new camera observations
-    var unreadResults = camera.getAllUnreadResults();
     Set<Short> tagIds = new HashSet<>();
-    List<PoseObservation> poseObservations = new ArrayList<>(unreadResults.size());
-    for (var result : unreadResults) {
+    List<PoseObservation> poseObservations = new LinkedList<>();
+    for (var result : camera.getAllUnreadResults()) {
       // Update latest target observation
       if (result.hasTargets()) {
         inputs.latestTargetObservation =
@@ -124,10 +121,5 @@ public class VisionIOPhotonVision implements VisionIO {
     for (int id : tagIds) {
       inputs.tagIds[i++] = id;
     }
-  }
-
-  @Override
-  public String getName() {
-    return name;
   }
 }

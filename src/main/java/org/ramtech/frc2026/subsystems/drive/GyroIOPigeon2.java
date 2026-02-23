@@ -7,6 +7,8 @@
 
 package org.ramtech.frc2026.subsystems.drive;
 
+import com.ctre.phoenix6.BaseStatusSignal;
+import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.Pigeon2Configuration;
 import com.ctre.phoenix6.hardware.Pigeon2;
@@ -35,7 +37,7 @@ public class GyroIOPigeon2 implements GyroIO {
 
     pigeon.getConfigurator().setYaw(0.0);
     yaw.setUpdateFrequency(Drive.ODOMETRY_FREQUENCY);
-    yawVelocity.setUpdateFrequency(50.0);
+    yawVelocity.setUpdateFrequency(Drive.ODOMETRY_FREQUENCY); // TODO: Use this somewhere
     pigeon.optimizeBusUtilization();
     yawTimestampQueue = PhoenixOdometryThread.getInstance().makeTimestampQueue();
     yawPositionQueue = PhoenixOdometryThread.getInstance().registerSignal(yaw.clone());
@@ -43,23 +45,17 @@ public class GyroIOPigeon2 implements GyroIO {
 
   @Override
   public void updateInputs(GyroIOInputs inputs) {
-    inputs.connected = yaw.getStatus().isOK() && yawVelocity.getStatus().isOK();
+    inputs.connected = BaseStatusSignal.refreshAll(yaw, yawVelocity).equals(StatusCode.OK);
     inputs.yawPosition = Rotation2d.fromDegrees(yaw.getValueAsDouble());
     inputs.yawVelocityRadPerSec = Units.degreesToRadians(yawVelocity.getValueAsDouble());
 
-    int queueSize = yawTimestampQueue.size();
-    if (inputs.odometryYawTimestamps.length != queueSize) {
-      inputs.odometryYawTimestamps = new double[queueSize];
-      inputs.odometryYawPositions = new Rotation2d[queueSize];
-    }
-    for (int i = 0; i < queueSize; i++) {
-      Double timestamp = yawTimestampQueue.poll();
-      Double yawValue = yawPositionQueue.poll();
-      if (timestamp == null || yawValue == null) {
-        break;
-      }
-      inputs.odometryYawTimestamps[i] = timestamp;
-      inputs.odometryYawPositions[i] = Rotation2d.fromDegrees(yawValue);
-    }
+    inputs.odometryYawTimestamps =
+        yawTimestampQueue.stream().mapToDouble((Double value) -> value).toArray();
+    inputs.odometryYawPositions =
+        yawPositionQueue.stream()
+            .map((Double value) -> Rotation2d.fromDegrees(value))
+            .toArray(Rotation2d[]::new);
+    yawTimestampQueue.clear();
+    yawPositionQueue.clear();
   }
 }

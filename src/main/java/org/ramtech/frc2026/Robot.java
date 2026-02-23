@@ -17,7 +17,6 @@ import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 import org.ramtech.frc2026.Constants.Mode;
-import org.ramtech.frc2026.util.FullSubsystem;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -28,10 +27,10 @@ import org.ramtech.frc2026.util.FullSubsystem;
 public class Robot extends LoggedRobot {
   private Command autonomousCommand;
   private RobotContainer robotContainer;
-  private double lastCalcTs;
-  private double lastShooterTs;
-  private volatile double lastCalcDt;
-  private volatile double lastShooterDt;
+  // private double lastCalcTs;
+  // private double lastShooterTs;
+  // private volatile double lastCalcDt;
+  // private volatile double lastShooterDt;
 
   // private final Notifier CalculationLoop =
   //     new Notifier(
@@ -57,9 +56,9 @@ public class Robot extends LoggedRobot {
   public void robotInit() {
     // lastCalcTs = Timer.getFPGATimestamp();
     // lastShooterTs = Timer.getFPGATimestamp();
-    // // Start 10ms periodic
-    // CalculationLoop.startPeriodic(0.01);
-    // shooterLoop.startPeriodic(0.01);
+    // // // Start 10ms periodic
+    // CalculationLoop.startPeriodic(0.005);
+    // shooterLoop.startPeriodic(0.005);
   }
 
   @Override
@@ -129,12 +128,12 @@ public class Robot extends LoggedRobot {
     CommandScheduler.getInstance().run();
 
     // Log loop timings
-    Logger.recordOutput("CalculationLoop/dt", lastCalcDt); // TODO: PUT THIS BACK
-    Logger.recordOutput("ShooterLoop/dt", lastShooterDt);
+    // Logger.recordOutput("CalculationLoop/dt", lastCalcDt); // TODO: PUT THIS BACK
+    // Logger.recordOutput("ShooterLoop/dt", lastShooterDt);
 
     // Call periodicAfterScheduler on FullSubsystems
     // ShotCalculator.getInstance().publishShotParameters();
-    FullSubsystem.runAllPeriodicAfterScheduler();
+    // FullSubsystem.runAllPeriodicAfterScheduler();
   }
 
   // Return to non-RT thread priority (do not modify the first argument)

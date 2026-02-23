@@ -34,7 +34,6 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
-import java.util.Arrays;
 import java.util.Queue;
 import org.ramtech.frc2026.generated.TunerConstants;
 
@@ -172,8 +171,8 @@ public class ModuleIOTalonFX implements ModuleIO {
     // Configure periodic frames
     BaseStatusSignal.setUpdateFrequencyForAll(
         Drive.ODOMETRY_FREQUENCY, drivePosition, turnPosition);
-    BaseStatusSignal.setUpdateFrequencyForAll(
-        50.0,
+    BaseStatusSignal.setUpdateFrequencyForAll( // Was at 50hz trying 250hz
+        250.0, 
         driveVelocity,
         driveAppliedVolts,
         driveCurrent,
@@ -186,17 +185,23 @@ public class ModuleIOTalonFX implements ModuleIO {
 
   @Override
   public void updateInputs(ModuleIOInputs inputs) {
+    // Refresh all signals
+    var driveStatus =
+        BaseStatusSignal.refreshAll(drivePosition, driveVelocity, driveAppliedVolts, driveCurrent);
+    var turnStatus =
+        BaseStatusSignal.refreshAll(turnPosition, turnVelocity, turnAppliedVolts, turnCurrent);
+    var turnEncoderStatus = BaseStatusSignal.refreshAll(turnAbsolutePosition);
+
     // Update drive inputs
-    inputs.driveConnected = driveConnectedDebounce.calculate(drivePosition.getStatus().isOK());
+    inputs.driveConnected = driveConnectedDebounce.calculate(driveStatus.isOK());
     inputs.drivePositionRad = Units.rotationsToRadians(drivePosition.getValueAsDouble());
     inputs.driveVelocityRadPerSec = Units.rotationsToRadians(driveVelocity.getValueAsDouble());
     inputs.driveAppliedVolts = driveAppliedVolts.getValueAsDouble();
     inputs.driveCurrentAmps = driveCurrent.getValueAsDouble();
 
     // Update turn inputs
-    inputs.turnConnected = turnConnectedDebounce.calculate(turnPosition.getStatus().isOK());
-    inputs.turnEncoderConnected =
-        turnEncoderConnectedDebounce.calculate(turnAbsolutePosition.getStatus().isOK());
+    inputs.turnConnected = turnConnectedDebounce.calculate(turnStatus.isOK());
+    inputs.turnEncoderConnected = turnEncoderConnectedDebounce.calculate(turnEncoderStatus.isOK());
     inputs.turnAbsolutePosition = Rotation2d.fromRotations(turnAbsolutePosition.getValueAsDouble());
     inputs.turnPosition = Rotation2d.fromRotations(turnPosition.getValueAsDouble());
     inputs.turnVelocityRadPerSec = Units.rotationsToRadians(turnVelocity.getValueAsDouble());
@@ -204,23 +209,19 @@ public class ModuleIOTalonFX implements ModuleIO {
     inputs.turnCurrentAmps = turnCurrent.getValueAsDouble();
 
     // Update odometry inputs
-    int queueSize = timestampQueue.size();
-    if (inputs.odometryTimestamps.length != queueSize) {
-      inputs.odometryTimestamps = new double[queueSize];
-      inputs.odometryDrivePositionsRad = new double[queueSize];
-      inputs.odometryTurnPositions = new Rotation2d[queueSize];
-    }
-    for (int i = 0; i < queueSize; i++) {
-      Double timestamp = timestampQueue.poll();
-      Double drivePos = drivePositionQueue.poll();
-      Double turnPos = turnPositionQueue.poll();
-      if (timestamp == null || drivePos == null || turnPos == null) {
-        break;
-      }
-      inputs.odometryTimestamps[i] = timestamp;
-      inputs.odometryDrivePositionsRad[i] = Units.rotationsToRadians(drivePos);
-      inputs.odometryTurnPositions[i] = Rotation2d.fromRotations(turnPos);
-    }
+    inputs.odometryTimestamps =
+        timestampQueue.stream().mapToDouble((Double value) -> value).toArray();
+    inputs.odometryDrivePositionsRad =
+        drivePositionQueue.stream()
+            .mapToDouble((Double value) -> Units.rotationsToRadians(value))
+            .toArray();
+    inputs.odometryTurnPositions =
+        turnPositionQueue.stream()
+            .map((Double value) -> Rotation2d.fromRotations(value))
+            .toArray(Rotation2d[]::new);
+    timestampQueue.clear();
+    drivePositionQueue.clear();
+    turnPositionQueue.clear();
   }
 
   @Override
@@ -259,47 +260,5 @@ public class ModuleIOTalonFX implements ModuleIO {
           case TorqueCurrentFOC -> positionTorqueCurrentRequest.withPosition(
               rotation.getRotations());
         });
-  }
-
-  private static double[] drainDoubleQueue(Queue<Double> queue) {
-    int expectedSize = queue.size();
-    double[] values = new double[expectedSize];
-    int count = 0;
-    for (; count < expectedSize; count++) {
-      Double value = queue.poll();
-      if (value == null) {
-        break;
-      }
-      values[count] = value;
-    }
-    return count == expectedSize ? values : Arrays.copyOf(values, count);
-  }
-
-  private static double[] drainRotationsQueueToRadians(Queue<Double> queue) {
-    int expectedSize = queue.size();
-    double[] values = new double[expectedSize];
-    int count = 0;
-    for (; count < expectedSize; count++) {
-      Double value = queue.poll();
-      if (value == null) {
-        break;
-      }
-      values[count] = Units.rotationsToRadians(value);
-    }
-    return count == expectedSize ? values : Arrays.copyOf(values, count);
-  }
-
-  private static Rotation2d[] drainRotationsQueue(Queue<Double> queue) {
-    int expectedSize = queue.size();
-    Rotation2d[] values = new Rotation2d[expectedSize];
-    int count = 0;
-    for (; count < expectedSize; count++) {
-      Double value = queue.poll();
-      if (value == null) {
-        break;
-      }
-      values[count] = Rotation2d.fromRotations(value);
-    }
-    return count == expectedSize ? values : Arrays.copyOf(values, count);
   }
 }
