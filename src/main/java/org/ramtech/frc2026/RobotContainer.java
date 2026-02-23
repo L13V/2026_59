@@ -35,7 +35,7 @@ public class RobotContainer {
   @SuppressWarnings("unused")
   private final Drive drive;
 
-    private final Vision vision;
+  private final Vision vision;
   //   private final Intake intake;
   //   private final Indexer indexer;
   // private final Tower tower;

@@ -15,16 +15,14 @@ public class PhoenixUtil {
   public static void tryUntilOk(int maxAttempts, Supplier<StatusCode> command) {
     for (int i = 0; i < maxAttempts; i++) {
       var error = command.get();
-      if (error.isOK())
-        break;
+      if (error.isOK()) break;
     }
   }
 
   public static boolean tryUntilOkWithStatus(int maxAttempts, Supplier<StatusCode> command) {
     for (int i = 0; i < maxAttempts; i++) {
       var error = command.get();
-      if (error.isOK())
-        return error.isOK();
+      if (error.isOK()) return error.isOK();
     }
     return false;
   }

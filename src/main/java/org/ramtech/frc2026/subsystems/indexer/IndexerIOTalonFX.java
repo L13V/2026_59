@@ -1,5 +1,7 @@
 package org.ramtech.frc2026.subsystems.indexer;
 
+import static org.ramtech.frc2026.util.PhoenixUtil.*;
+
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -9,15 +11,13 @@ import com.ctre.phoenix6.signals.*;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
-
-import static org.ramtech.frc2026.util.PhoenixUtil.*;
-
 import org.ramtech.frc2026.Constants;
 import org.ramtech.frc2026.Constants.IndexerConstants;
 
 public class IndexerIOTalonFX implements IndexerIO {
   // Motors
-  private final TalonFX ballTunnelMotor = new TalonFX(IndexerConstants.ballTunnelMotorID, Constants.CANivore);
+  private final TalonFX ballTunnelMotor =
+      new TalonFX(IndexerConstants.ballTunnelMotorID, Constants.CANivore);
   private final TalonFX starMotor = new TalonFX(IndexerConstants.starMotorID, Constants.CANivore);
 
   // Configuration
@@ -42,7 +42,7 @@ public class IndexerIOTalonFX implements IndexerIO {
   public IndexerIOTalonFX() {
     // Build Configs
     // Ball Tunnel
-   ballTunnelConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+    ballTunnelConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
     ballTunnelConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
     ballTunnelConfig.CurrentLimits.StatorCurrentLimit = 120;
     ballTunnelConfig.CurrentLimits.StatorCurrentLimitEnable = true;
@@ -56,8 +56,11 @@ public class IndexerIOTalonFX implements IndexerIO {
     starConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
 
     // Configure Motors
-    ballTunnelConfigured = tryUntilOkWithStatus(5, () -> ballTunnelMotor.getConfigurator().apply(ballTunnelConfig, 0.25));
-    starsConfigured = tryUntilOkWithStatus(5, () -> starMotor.getConfigurator().apply(starConfig, 0.25));
+    ballTunnelConfigured =
+        tryUntilOkWithStatus(
+            5, () -> ballTunnelMotor.getConfigurator().apply(ballTunnelConfig, 0.25));
+    starsConfigured =
+        tryUntilOkWithStatus(5, () -> starMotor.getConfigurator().apply(starConfig, 0.25));
 
     // Initialize signals
     ballTunnelVoltageSig = ballTunnelMotor.getMotorVoltage();
@@ -79,23 +82,24 @@ public class IndexerIOTalonFX implements IndexerIO {
 
     ballTunnelMotor.optimizeBusUtilization();
     starMotor.optimizeBusUtilization();
-
   }
 
   @Override
   public void updateInputs(IndexerIOInputs inputs) {
 
     // Refresh all signals at once (efficient)
-    inputs.signalsOk = BaseStatusSignal.refreshAll(
-        ballTunnelVoltageSig,
-        ballTunnelVelocitySig,
-        ballTunnelCurrentSig,
-        starVoltageSig,
-        starVelocitySig,
-        starCurrentSig);
-        
+    inputs.signalsOk =
+        BaseStatusSignal.refreshAll(
+            ballTunnelVoltageSig,
+            ballTunnelVelocitySig,
+            ballTunnelCurrentSig,
+            starVoltageSig,
+            starVelocitySig,
+            starCurrentSig);
+
     // Ball Tunnel
-    inputs.ballTunnelConnected = BaseStatusSignal.isAllGood(ballTunnelVoltageSig); // True if connected
+    inputs.ballTunnelConnected =
+        BaseStatusSignal.isAllGood(ballTunnelVoltageSig); // True if connected
     inputs.ballTunnelConfigured = ballTunnelConfigured;
     inputs.ballTunnelMotorVoltage = ballTunnelVoltageSig.getValueAsDouble();
     inputs.ballTunnelVelocity = ballTunnelVelocitySig.getValueAsDouble();
@@ -106,7 +110,6 @@ public class IndexerIOTalonFX implements IndexerIO {
     inputs.starMotorVoltage = starVoltageSig.getValueAsDouble();
     inputs.starVelocity = starVelocitySig.getValueAsDouble();
     inputs.starSupplyCurrent = starCurrentSig.getValueAsDouble();
-
   }
 
   @Override
