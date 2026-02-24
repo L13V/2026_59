@@ -36,12 +36,12 @@ public class IntakeIOTalonFX implements IntakeIO {
     // Complete the config
     rollerConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
     rollerConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
-    // intakeWheelsConfig.CurrentLimits.StatorCurrentLimit = 120;
-    // intakeWheelsConfig.CurrentLimits.StatorCurrentLimitEnable = true;
-    // intakeWheelsConfig.CurrentLimits.SupplyCurrentLimit = 120;
-    // intakeWheelsConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-    // intakeWheelsConfig.CurrentLimits.SupplyCurrentLowerLimit = 70;
-    // intakeWheelsConfig.CurrentLimits.SupplyCurrentLowerTime = 3;
+    rollerConfig.CurrentLimits.StatorCurrentLimit = 120;
+    rollerConfig.CurrentLimits.StatorCurrentLimitEnable = true;
+    rollerConfig.CurrentLimits.SupplyCurrentLimit = 120;
+    rollerConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
+    rollerConfig.CurrentLimits.SupplyCurrentLowerLimit = 70;
+    rollerConfig.CurrentLimits.SupplyCurrentLowerTime = 3;
 
     // Configure Motors
     rollerConfigured =

@@ -132,9 +132,9 @@ public class RobotContainer {
 
         break;
     }
-    // RobotState.getInstance().setPoseSupplier(drive::getPose);
-    // RobotState.getInstance().setSpeedSupplier(drive::getChassisSpeeds);
-    // RobotState.getInstance().setModuleStateSupplier(drive::getModuleStates);
+    RobotState.getInstance().setPoseSupplier(drive::getPose);
+    RobotState.getInstance().setSpeedSupplier(drive::getChassisSpeeds);
+    RobotState.getInstance().setModuleStateSupplier(drive::getModuleStates);
 
     // Set up auto routines
     // autoChooser = new LoggedDashboardChooser<>("Auto Choices",

@@ -1,9 +1,7 @@
 package org.ramtech.frc2026.subsystems.shooter.tower;
 
-import org.littletonrobotics.junction.AutoLog;
-
 import com.ctre.phoenix6.StatusCode;
-import com.ctre.phoenix6.StatusSignal;
+import org.littletonrobotics.junction.AutoLog;
 
 public interface TowerIO {
 

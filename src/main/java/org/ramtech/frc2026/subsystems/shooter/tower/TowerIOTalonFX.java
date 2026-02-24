@@ -1,5 +1,7 @@
 package org.ramtech.frc2026.subsystems.shooter.tower;
 
+import static org.ramtech.frc2026.util.PhoenixUtil.tryUntilOkWithStatus;
+
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -8,19 +10,16 @@ import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
-
-import static org.ramtech.frc2026.util.PhoenixUtil.tryUntilOkWithStatus;
-
 import org.ramtech.frc2026.Constants;
 import org.ramtech.frc2026.Constants.TowerConstants;
 
 public class TowerIOTalonFX implements TowerIO {
   // Motors
-  private final TalonFX towerMotor = new TalonFX(TowerConstants.towerMotorId, Constants.CANivore); // Main Motor
+  private final TalonFX towerMotor =
+      new TalonFX(TowerConstants.towerMotorId, Constants.CANivore); // Main Motor
 
   // Configuration
   private final TalonFXConfiguration towerConfig = new TalonFXConfiguration();
@@ -45,14 +44,16 @@ public class TowerIOTalonFX implements TowerIO {
     towerConfig.CurrentLimits.SupplyCurrentLowerLimit = 70;
     towerConfig.CurrentLimits.SupplyCurrentLowerTime = 3;
 
-    towerConfigured = tryUntilOkWithStatus(5, () -> towerMotor.getConfigurator().apply(towerConfig));
+    towerConfigured =
+        tryUntilOkWithStatus(5, () -> towerMotor.getConfigurator().apply(towerConfig));
 
     // Initialize signals
     towerVoltageSig = towerMotor.getMotorVoltage();
     towerVelocitySig = towerMotor.getVelocity();
     towerCurrentSig = towerMotor.getSupplyCurrent();
 
-    BaseStatusSignal.setUpdateFrequencyForAll(50.0, towerVoltageSig, towerVelocitySig, towerCurrentSig);
+    BaseStatusSignal.setUpdateFrequencyForAll(
+        50.0, towerVoltageSig, towerVelocitySig, towerCurrentSig);
 
     towerMotor.optimizeBusUtilization();
   }
@@ -60,10 +61,13 @@ public class TowerIOTalonFX implements TowerIO {
   @Override
   public void updateInputs(TowerIOInputs inputs) {
 
-    inputs.signalsOk = BaseStatusSignal.refreshAll(towerVoltageSig, towerVelocitySig, towerCurrentSig);
+    inputs.signalsOk =
+        BaseStatusSignal.refreshAll(towerVoltageSig, towerVelocitySig, towerCurrentSig);
 
     // Configuration
+    inputs.towerConnected = BaseStatusSignal.isAllGood(towerVoltageSig);
     inputs.towerConfigured = towerConfigured;
+
     inputs.towerMotorVoltage = towerMotor.getMotorVoltage().getValueAsDouble();
     inputs.towerVelocity = towerMotor.getVelocity().getValueAsDouble();
     inputs.towerSupplyCurrent = towerMotor.getSupplyCurrent().getValueAsDouble();

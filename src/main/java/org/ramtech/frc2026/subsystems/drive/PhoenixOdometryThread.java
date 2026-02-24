@@ -110,7 +110,9 @@ public class PhoenixOdometryThread extends Thread {
       // Wait for updates from all signals
       signalsLock.lock();
       try {
-        if (isCANFD && phoenixSignals.length > 0) {
+        // if (isCANFD && phoenixSignals.length > 0) {
+        if (isCANFD) {
+
           BaseStatusSignal.waitForAll(
               2.0 / Drive.ODOMETRY_FREQUENCY,
               phoenixSignals); // TODO: Figure out if 1.5 over 2.0 fixes anything. Less forgiving so
