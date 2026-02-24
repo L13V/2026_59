@@ -18,8 +18,8 @@ public interface IndexerIO {
     public double ballTunnelMotorVoltage = 0.0;
     public double starMotorVoltage = 0.0;
 
-    public double ballTunnelVelocity = 0.0;
-    public double starVelocity = 0.0;
+    public double ballTunnelRps = 0.0;
+    public double starRps = 0.0;
 
     public double ballTunnelSupplyCurrent = 0.0;
     public double starSupplyCurrent = 0.0;

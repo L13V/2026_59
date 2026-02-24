@@ -9,6 +9,7 @@ package org.ramtech.frc2026;
 
 import static org.ramtech.frc2026.subsystems.vision.VisionConstants.*;
 
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 // import org.ramtech.frc2026.subsystems.indexer.IndexerIOSim;
 import org.ramtech.frc2026.commands.DriveCommands;
@@ -19,6 +20,18 @@ import org.ramtech.frc2026.subsystems.drive.GyroIOPigeon2;
 import org.ramtech.frc2026.subsystems.drive.ModuleIO;
 import org.ramtech.frc2026.subsystems.drive.ModuleIOSim;
 import org.ramtech.frc2026.subsystems.drive.ModuleIOTalonFX;
+import org.ramtech.frc2026.subsystems.indexer.Indexer;
+import org.ramtech.frc2026.subsystems.indexer.IndexerIO;
+import org.ramtech.frc2026.subsystems.indexer.IndexerIOSim;
+import org.ramtech.frc2026.subsystems.indexer.IndexerIOTalonFX;
+import org.ramtech.frc2026.subsystems.intake.Intake;
+import org.ramtech.frc2026.subsystems.intake.IntakeIO;
+import org.ramtech.frc2026.subsystems.intake.IntakeIOSim;
+import org.ramtech.frc2026.subsystems.intake.IntakeIOTalonFX;
+import org.ramtech.frc2026.subsystems.shooter.tower.Tower;
+import org.ramtech.frc2026.subsystems.shooter.tower.TowerIO;
+import org.ramtech.frc2026.subsystems.shooter.tower.TowerIOSim;
+import org.ramtech.frc2026.subsystems.shooter.tower.TowerIOTalonFX;
 import org.ramtech.frc2026.subsystems.vision.Vision;
 import org.ramtech.frc2026.subsystems.vision.VisionIO;
 import org.ramtech.frc2026.subsystems.vision.VisionIOPhotonVision;
@@ -36,9 +49,9 @@ public class RobotContainer {
   private final Drive drive;
 
   private final Vision vision;
-  //   private final Intake intake;
-  //   private final Indexer indexer;
-  // private final Tower tower;
+  private final Intake intake;
+  private final Indexer indexer;
+  private final Tower tower;
   // private final Hood hood;
   // private final Flywheel flywheel;
 
@@ -70,9 +83,9 @@ public class RobotContainer {
                 new VisionIOPhotonVision(FRRamCam, robotToFR),
                 new VisionIOPhotonVision(BLRamCam, robotToBL),
                 new VisionIOPhotonVision(BRRamCam, robotToBR));
-        // intake = new Intake(new IntakeIOTalonFX());
-        // indexer = new Indexer(new IndexerIOTalonFX());
-        // tower = new Tower(new TowerIOTalonFX());
+        intake = new Intake(new IntakeIOTalonFX());
+        indexer = new Indexer(new IndexerIOTalonFX());
+        tower = new Tower(new TowerIOTalonFX());
         // flywheel = new Flywheel(new FlywheelIOTalonFX());
         // hood = new Hood(new HoodIOTalonFX());
         break;
@@ -94,9 +107,9 @@ public class RobotContainer {
                 new VisionIOPhotonVisionSim(FRRamCam, robotToFR, drive::getPose),
                 new VisionIOPhotonVisionSim(BLRamCam, robotToBL, drive::getPose),
                 new VisionIOPhotonVisionSim(BRRamCam, robotToBR, drive::getPose));
-        // intake = new Intake(new IntakeIOSim());
-        // indexer = new Indexer(new IndexerIOSim() {});
-        // tower = new Tower(new TowerIOSim());
+        intake = new Intake(new IntakeIOSim());
+        indexer = new Indexer(new IndexerIOSim() {});
+        tower = new Tower(new TowerIOSim());
         // flywheel = new Flywheel(new FlywheelIOSim());
         // hood = new Hood(new HoodIOSim());
         break;
@@ -111,9 +124,9 @@ public class RobotContainer {
                 new ModuleIO() {},
                 new ModuleIO() {});
         vision = new Vision(drive::addVisionMeasurement, new VisionIO() {}, new VisionIO() {});
-        // intake = new Intake(new IntakeIO() {});
-        // indexer = new Indexer(new IndexerIO() {});
-        // tower = new Tower(new TowerIO() {});
+        intake = new Intake(new IntakeIO() {});
+        indexer = new Indexer(new IndexerIO() {});
+        tower = new Tower(new TowerIO() {});
         // flywheel = new Flywheel(new FlywheelIO() {});
         // hood = new Hood(new HoodIO() {});
 
@@ -179,16 +192,16 @@ public class RobotContainer {
     // Switch to X pattern when X button is pressed
     // controller.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
 
-    // controller
-    // .a()
-    // .onTrue(new InstantCommand(() -> intake.setVoltage(12.0)))
-    // .onFalse(new InstantCommand(() -> intake.stop()));
-    // controller
-    // .y()
-    // .onTrue(new InstantCommand(() -> indexer.setVoltages(12.0, -6.0)))
-    // .onTrue(new InstantCommand(() -> tower.setVoltage(12)))
-    // .onFalse(new InstantCommand(() -> indexer.stop()))
-    // .onFalse(new InstantCommand(() -> tower.stop()));
+    controller
+        .a()
+        .onTrue(new InstantCommand(() -> intake.setVoltage(12.0)))
+        .onFalse(new InstantCommand(() -> intake.stop()));
+    controller
+        .y()
+        .onTrue(new InstantCommand(() -> indexer.setVoltages(12.0, 12.0)))
+        .onTrue(new InstantCommand(() -> tower.setVoltage(12)))
+        .onFalse(new InstantCommand(() -> indexer.stop()))
+        .onFalse(new InstantCommand(() -> tower.stop()));
     // controller
     // .x()
     // .onTrue(new InstantCommand(() -> indexer.setVoltages(6.0, 6.0)))

@@ -7,6 +7,7 @@
 
 package org.ramtech.frc2026;
 
+import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -17,6 +18,9 @@ import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 import org.ramtech.frc2026.Constants.Mode;
+import org.ramtech.frc2026.subsystems.shooter.ShotCalculator;
+import org.ramtech.frc2026.util.FullSubsystem;
+import org.ramtech.frc2026.util.ShooterSubsystem;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -27,30 +31,30 @@ import org.ramtech.frc2026.Constants.Mode;
 public class Robot extends LoggedRobot {
   private Command autonomousCommand;
   private RobotContainer robotContainer;
-  // private double lastCalcTs;
-  // private double lastShooterTs;
-  // private volatile double lastCalcDt;
-  // private volatile double lastShooterDt;
+  private double lastCalcTs;
+  private double lastShooterTs;
+  private volatile double lastCalcDt;
+  private volatile double lastShooterDt;
 
-  // private final Notifier CalculationLoop =
-  //     new Notifier(
-  //         () -> {
-  //           double now = Timer.getFPGATimestamp();
-  //           double dt = now - lastCalcTs;
-  //           lastCalcTs = now;
-  //           lastCalcDt = dt;
-  //           ShotCalculator.getInstance().update(dt);
-  //         });
+  private final Notifier CalculationLoop =
+      new Notifier(
+          () -> {
+            double now = Timer.getFPGATimestamp();
+            double dt = now - lastCalcTs;
+            lastCalcTs = now;
+            lastCalcDt = dt;
+            ShotCalculator.getInstance().update(dt);
+          });
 
-  // private final Notifier shooterLoop =
-  //     new Notifier(
-  //         () -> {
-  //           double now = Timer.getFPGATimestamp();
-  //           double dt = now - lastShooterTs;
-  //           lastShooterTs = now;
-  //           lastShooterDt = dt;
-  //           ShooterSubsystem.runAllShooterMotorPeriodics(dt);
-  //         });
+  private final Notifier shooterLoop =
+      new Notifier(
+          () -> {
+            double now = Timer.getFPGATimestamp();
+            double dt = now - lastShooterTs;
+            lastShooterTs = now;
+            lastShooterDt = dt;
+            ShooterSubsystem.runAllShooterMotorPeriodics(dt);
+          });
 
   @Override
   public void robotInit() {
@@ -58,7 +62,7 @@ public class Robot extends LoggedRobot {
     // lastShooterTs = Timer.getFPGATimestamp();
     // // // Start 10ms periodic
     // CalculationLoop.startPeriodic(0.005);
-    // shooterLoop.startPeriodic(0.005);
+    shooterLoop.startPeriodic(0.005);
   }
 
   @Override
@@ -133,7 +137,7 @@ public class Robot extends LoggedRobot {
 
     // Call periodicAfterScheduler on FullSubsystems
     // ShotCalculator.getInstance().publishShotParameters();
-    // FullSubsystem.runAllPeriodicAfterScheduler();
+    FullSubsystem.runAllPeriodicAfterScheduler();
   }
 
   // Return to non-RT thread priority (do not modify the first argument)

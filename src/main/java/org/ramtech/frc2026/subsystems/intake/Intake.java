@@ -22,8 +22,6 @@ public class Intake extends FullSubsystem {
   private final Alert rollerDisconnected =
       new Alert("Intake Roller Disconnected!", Alert.AlertType.kWarning);
 
-  private int periodicCounter = 0;
-
   /** Creates a new Tower. */
   public Intake(IntakeIO io) {
     this.io = io;
@@ -33,9 +31,7 @@ public class Intake extends FullSubsystem {
   public void periodic() {
     // This method will be called once per scheduler run
     io.updateInputs(inputs);
-    if (periodicCounter++ % 10 == 0) {
-      Logger.processInputs("Intake", inputs);
-    }
+    Logger.processInputs("Intake", inputs);
     rollerDisconnected.set(
         Robot.showHardwareAlerts() && !rollerDebouncer.calculate(inputs.rollerConnected));
   }
@@ -43,10 +39,8 @@ public class Intake extends FullSubsystem {
   @Override
   public void periodicAfterScheduler() {
     io.applyOutputs(outputs); // Set the targets for the motor
-    if (periodicCounter % 10 == 0) {
-      Logger.recordOutput("Intake/Roller/Mode", outputs.mode);
-      Logger.recordOutput("Intake/Roller/Voltage", outputs.voltageSetpoint);
-    }
+    Logger.recordOutput("Intake/Roller/Mode", outputs.mode);
+    Logger.recordOutput("Intake/Roller/Voltage", outputs.voltageSetpoint);
   }
 
   public void setVoltage(double voltage) {

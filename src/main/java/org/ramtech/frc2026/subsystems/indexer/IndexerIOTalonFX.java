@@ -102,13 +102,13 @@ public class IndexerIOTalonFX implements IndexerIO {
         BaseStatusSignal.isAllGood(ballTunnelVoltageSig); // True if connected
     inputs.ballTunnelConfigured = ballTunnelConfigured;
     inputs.ballTunnelMotorVoltage = ballTunnelVoltageSig.getValueAsDouble();
-    inputs.ballTunnelVelocity = ballTunnelVelocitySig.getValueAsDouble();
+    inputs.ballTunnelRps = ballTunnelVelocitySig.getValueAsDouble();
     inputs.ballTunnelSupplyCurrent = ballTunnelCurrentSig.getValueAsDouble();
     // Stars
     inputs.starsConnected = BaseStatusSignal.isAllGood(starVoltageSig); // True if connected
     inputs.starsConfigured = starsConfigured;
     inputs.starMotorVoltage = starVoltageSig.getValueAsDouble();
-    inputs.starVelocity = starVelocitySig.getValueAsDouble();
+    inputs.starRps = starVelocitySig.getValueAsDouble();
     inputs.starSupplyCurrent = starCurrentSig.getValueAsDouble();
   }
 

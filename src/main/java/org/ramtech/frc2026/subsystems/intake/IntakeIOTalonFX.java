@@ -1,31 +1,40 @@
 package org.ramtech.frc2026.subsystems.intake;
 
+import static org.ramtech.frc2026.util.PhoenixUtil.*;
+
+import com.ctre.phoenix6.BaseStatusSignal;
+import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Current;
+import edu.wpi.first.units.measure.Voltage;
 import org.ramtech.frc2026.Constants.IntakeConstants;
 
 public class IntakeIOTalonFX implements IntakeIO {
   // Motors
-  // private final TalonFX wheelMotor = new
-  // TalonFX(IntakeConstants.intakeWheelsMotorId, Constants.CANivore); // Main
-  // Motor
   private final TalonFX rollerMotor = new TalonFX(IntakeConstants.rollerMotorId); // Main Motor
 
   // Configuration
   private final TalonFXConfiguration rollerConfig = new TalonFXConfiguration();
   private boolean rollerConfigured = false;
 
+  // Status Signals (Cached to prevent allocation in loop)
+  private final StatusSignal<Voltage> rollerVoltageSig;
+  private final StatusSignal<AngularVelocity> rollerVelocitySig;
+  private final StatusSignal<Current> rollerCurrentSig;
+
   // Control Methods
-  private final VoltageOut rollerVoltageOut = new VoltageOut(0); // Control Method
+  private final VoltageOut voltageOut = new VoltageOut(0); // Control Method
   private final VelocityVoltage velocityVoltage = new VelocityVoltage(0);
 
   public IntakeIOTalonFX() {
     // Complete the config
-    rollerConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+    rollerConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
     rollerConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
     // intakeWheelsConfig.CurrentLimits.StatorCurrentLimit = 120;
     // intakeWheelsConfig.CurrentLimits.StatorCurrentLimitEnable = true;
@@ -33,24 +42,33 @@ public class IntakeIOTalonFX implements IntakeIO {
     // intakeWheelsConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
     // intakeWheelsConfig.CurrentLimits.SupplyCurrentLowerLimit = 70;
     // intakeWheelsConfig.CurrentLimits.SupplyCurrentLowerTime = 3;
+
+    // Configure Motors
+    rollerConfigured =
+        tryUntilOkWithStatus(5, () -> rollerMotor.getConfigurator().apply(rollerConfig, 0.25));
+
+    // Initialize signals
+    rollerVoltageSig = rollerMotor.getMotorVoltage();
+    rollerVelocitySig = rollerMotor.getVelocity();
+    rollerCurrentSig = rollerMotor.getSupplyCurrent();
+
+    BaseStatusSignal.setUpdateFrequencyForAll(
+        50.0, rollerVoltageSig, rollerVelocitySig, rollerCurrentSig);
+
+    rollerMotor.optimizeBusUtilization();
   }
 
   @Override
   public void updateInputs(IntakeIOInputs inputs) {
+    inputs.signalsOk =
+        BaseStatusSignal.refreshAll(rollerVoltageSig, rollerVelocitySig, rollerCurrentSig);
+
     // Configuration
-    inputs.rollerConnected = rollerMotor.isConnected(); // Detect connected
-    if (!rollerConfigured && inputs.rollerConnected) { // Configure motor
-      rollerMotor.getConfigurator().apply(rollerConfig);
-      rollerConfigured = true;
-    }
-
+    inputs.rollerConnected = BaseStatusSignal.isAllGood(rollerVoltageSig);
     inputs.rollerConfigured = rollerConfigured;
-
-    inputs.rollerVoltage = rollerMotor.getMotorVoltage().getValueAsDouble();
-
-    inputs.rollerVelocity = rollerMotor.getVelocity().getValueAsDouble();
-
-    inputs.rollerSupplyCurrent = rollerMotor.getSupplyCurrent().getValueAsDouble();
+    inputs.rollerVoltage = rollerVoltageSig.getValueAsDouble();
+    inputs.rollerRps = rollerVelocitySig.getValueAsDouble();
+    inputs.rollerSupplyCurrent = rollerCurrentSig.getValueAsDouble();
   }
 
   @Override
@@ -60,8 +78,7 @@ public class IntakeIOTalonFX implements IntakeIO {
         rollerMotor.stopMotor();
         break;
       case VOLTAGE:
-        rollerMotor.setControl(
-            rollerVoltageOut.withOutput(outputs.voltageSetpoint).withEnableFOC(true));
+        rollerMotor.setControl(voltageOut.withOutput(outputs.voltageSetpoint).withEnableFOC(true));
         break;
       case VELOCITY:
         rollerMotor.setControl(velocityVoltage.withVelocity(outputs.velocitySetpoint));

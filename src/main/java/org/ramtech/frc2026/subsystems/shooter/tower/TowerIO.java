@@ -2,10 +2,15 @@ package org.ramtech.frc2026.subsystems.shooter.tower;
 
 import org.littletonrobotics.junction.AutoLog;
 
+import com.ctre.phoenix6.StatusCode;
+import com.ctre.phoenix6.StatusSignal;
+
 public interface TowerIO {
 
   @AutoLog
   public static class TowerIOInputs {
+    public StatusCode signalsOk = StatusCode.NodeIsInvalid;
+
     public boolean towerConnected = false;
     public boolean towerConfigured = false;
 

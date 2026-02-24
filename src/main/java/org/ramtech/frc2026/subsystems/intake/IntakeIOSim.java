@@ -57,7 +57,7 @@ public class IntakeIOSim implements IntakeIO {
     inputs.rollerConnected = true;
     inputs.rollerConfigured = true;
     inputs.rollerVoltage = rollerMotor.getMotorVoltage().getValueAsDouble();
-    inputs.rollerVelocity = rollerMotor.getVelocity().getValueAsDouble();
+    inputs.rollerRps = rollerMotor.getVelocity().getValueAsDouble();
     inputs.rollerSupplyCurrent = sim.getCurrentDrawAmps();
   }
 
