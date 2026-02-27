@@ -30,8 +30,8 @@ public interface TowerIO {
 
   @AutoLog
   public static class TowerIOOutputs {
-    public TowerIOSetpointSource setpointSource = TowerIOSetpointSource.SHOT_CALCULATOR;
     public TowerIOOutputMode mode = TowerIOOutputMode.OFF;
+    public TowerIOSetpointSource setpointSource = TowerIOSetpointSource.SHOT_CALCULATOR;
     public double voltageSetpoint = 0.0;
     public double velocitySetpoint = 0.0;
   }

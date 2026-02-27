@@ -15,14 +15,15 @@ import org.ramtech.frc2026.subsystems.shooter.tower.TowerIO.TowerIOSetpointSourc
 import org.ramtech.frc2026.util.ShooterSubsystem;
 
 public class Tower extends ShooterSubsystem {
+  private final Object outputsLock = new Object();
+
   // IO
   private final TowerIO io;
   private final TowerIOInputsAutoLogged inputs = new TowerIOInputsAutoLogged();
   private final TowerIOOutputs outputs = new TowerIOOutputs();
   // Alerts
   private final Debouncer towerDebouncer = new Debouncer(0.5, Debouncer.DebounceType.kFalling);
-  private final Alert towerDisconnected =
-      new Alert("Tower Motor Disconnected!", Alert.AlertType.kWarning);
+  private final Alert towerDisconnected = new Alert("Tower Motor Disconnected!", Alert.AlertType.kWarning);
 
   /** Creates a new Tower. */
   public Tower(TowerIO io) {
@@ -39,44 +40,59 @@ public class Tower extends ShooterSubsystem {
 
   @Override
   public void periodicAfterScheduler() {
-    Logger.recordOutput("Shooter/Tower/Mode", outputs.mode);
-    Logger.recordOutput("Shooter/Tower/Voltage", outputs.voltageSetpoint);
+    synchronized (outputsLock) {
+      Logger.recordOutput("Shooter/Tower/Mode", outputs.mode);
+      Logger.recordOutput("Shooter/Tower/VoltageSetpoint", outputs.voltageSetpoint);
+      Logger.recordOutput("Shoter/Tower/VelocitySetpoint", outputs.velocitySetpoint);
+    }
   }
 
   @Override
   public void shooterPeriodic(double dt) {
     var shotCalculation = ShotCalculator.getInstance().getLatest();
-    if (outputs.setpointSource == TowerIOSetpointSource.SHOT_CALCULATOR) {
-      outputs.mode = TowerIOOutputMode.VELOCITY;
-      outputs.velocitySetpoint = shotCalculation.towerVelocity();
+    synchronized (outputsLock) {
+      if (outputs.setpointSource == TowerIOSetpointSource.SHOT_CALCULATOR & shotCalculation.isValid()) {
+        outputs.mode = TowerIOOutputMode.VELOCITY;
+        outputs.velocitySetpoint = shotCalculation.towerVelocity();
+      }
+      io.applyOutputs(outputs); // Set the targets for the motor
     }
-    io.applyOutputs(outputs); // Set the targets for the motor
   }
 
   public void enableCalculation() {
-    outputs.setpointSource = TowerIOSetpointSource.SHOT_CALCULATOR;
+    synchronized (outputsLock) {
+      outputs.setpointSource = TowerIOSetpointSource.SHOT_CALCULATOR;
+    }
   }
 
   public void disableCalculation() {
-    outputs.setpointSource = TowerIOSetpointSource.MANUAL;
+    synchronized (outputsLock) {
+      outputs.setpointSource = TowerIOSetpointSource.MANUAL;
+    }
   }
 
   public void setVoltage(double voltage) {
-    outputs.setpointSource = TowerIOSetpointSource.MANUAL;
-    outputs.mode = TowerIOOutputMode.VOLTAGE;
-    outputs.voltageSetpoint = voltage;
+    synchronized (outputsLock) {
+      outputs.setpointSource = TowerIOSetpointSource.MANUAL;
+      outputs.mode = TowerIOOutputMode.VOLTAGE;
+      outputs.voltageSetpoint = voltage;
+    }
   }
 
   public void setVelocity(double velocity) {
-    outputs.setpointSource = TowerIOSetpointSource.MANUAL;
-    outputs.mode = TowerIOOutputMode.VELOCITY;
-    outputs.velocitySetpoint = velocity;
+    synchronized (outputsLock) {
+      outputs.setpointSource = TowerIOSetpointSource.MANUAL;
+      outputs.mode = TowerIOOutputMode.VELOCITY;
+      outputs.velocitySetpoint = velocity;
+    }
   }
 
   public void stop() {
-    outputs.setpointSource = TowerIOSetpointSource.MANUAL;
-    outputs.mode = TowerIOOutputMode.OFF;
-    outputs.voltageSetpoint = 0.0;
-    outputs.velocitySetpoint = 0.0;
+    synchronized (outputsLock) {
+      outputs.setpointSource = TowerIOSetpointSource.MANUAL;
+      outputs.mode = TowerIOOutputMode.OFF;
+      outputs.voltageSetpoint = 0.0;
+      outputs.velocitySetpoint = 0.0;
+    }
   }
 }

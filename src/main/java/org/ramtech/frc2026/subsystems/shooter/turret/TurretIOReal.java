@@ -2,7 +2,7 @@ package org.ramtech.frc2026.subsystems.shooter.turret;
 
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.PositionVoltage;
+import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -27,7 +27,7 @@ public class TurretIOReal implements TurretIO {
       new CANcoder(TurretConstants.turretEncoderBId, Constants.CANivore);
 
   // Configuration
-  private final TalonFXConfiguration hoodConfig = new TalonFXConfiguration();
+  private final TalonFXConfiguration turretConfig = new TalonFXConfiguration();
   private final CANcoderConfiguration encoderAConfig = new CANcoderConfiguration();
   private final CANcoderConfiguration encoderBConfig = new CANcoderConfiguration();
 
@@ -39,19 +39,20 @@ public class TurretIOReal implements TurretIO {
 
   // Control Methods
   private final VoltageOut voltageOut = new VoltageOut(0); // Control Method
-  private final PositionVoltage positionVoltage = new PositionVoltage(0);
+  private final MotionMagicVoltage motionMagicVoltage = new MotionMagicVoltage(0);
+
 
   public TurretIOReal() {
     // Complete the config
-    hoodConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
-    hoodConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
-    hoodConfig.Slot0.kP = FlywheelConstants.kP_Slot0;
-    hoodConfig.Slot0.kI = FlywheelConstants.kI_Slot0;
-    hoodConfig.Slot0.kD = FlywheelConstants.kD_Slot0;
-    hoodConfig.Slot0.kS = FlywheelConstants.kS_Slot0;
-    hoodConfig.Slot0.kV = FlywheelConstants.kV_Slot0;
-    hoodConfig.Slot0.kA = FlywheelConstants.kA_Slot0;
-    hoodConfig.Slot0.kG = FlywheelConstants.kG_Slot0;
+    turretConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+    turretConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+    turretConfig.Slot0.kP = FlywheelConstants.kP_Slot0;
+    turretConfig.Slot0.kI = FlywheelConstants.kI_Slot0;
+    turretConfig.Slot0.kD = FlywheelConstants.kD_Slot0;
+    turretConfig.Slot0.kS = FlywheelConstants.kS_Slot0;
+    turretConfig.Slot0.kV = FlywheelConstants.kV_Slot0;
+    turretConfig.Slot0.kA = FlywheelConstants.kA_Slot0;
+    turretConfig.Slot0.kG = FlywheelConstants.kG_Slot0;
 
     encoderAConfig.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
     encoderAConfig.MagnetSensor.MagnetOffset = 0.0;
@@ -65,7 +66,7 @@ public class TurretIOReal implements TurretIO {
   public void configureDevices(TurretIOInputs inputs) {
     // Turret Motor
     if (!turretMotorConfigured && inputs.turretMotorConnected) { // Configure turret motor
-      turretMotor.getConfigurator().apply(hoodConfig);
+      turretMotor.getConfigurator().apply(turretConfig);
       turretMotorConfigured = true;
     }
     inputs.turretMotorConfigured = turretMotorConfigured; // Update status on TurretIO
@@ -136,7 +137,7 @@ public class TurretIOReal implements TurretIO {
         turretMotor.setControl(voltageOut.withOutput(outputs.voltageSetpoint));
         break;
       case POSITION:
-        turretMotor.setControl(positionVoltage.withVelocity(outputs.positionSetpoint));
+        turretMotor.setControl(motionMagicVoltage.withPosition(outputs.positionSetpoint));
     }
   }
 }

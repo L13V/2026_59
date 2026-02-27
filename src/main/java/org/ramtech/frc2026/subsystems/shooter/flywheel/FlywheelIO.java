@@ -2,10 +2,15 @@ package org.ramtech.frc2026.subsystems.shooter.flywheel;
 
 import org.littletonrobotics.junction.AutoLog;
 
+import com.ctre.phoenix6.StatusCode;
+
 public interface FlywheelIO {
 
   @AutoLog
   public static class FlywheelIOInputs {
+    public StatusCode leftSignalsOk = StatusCode.NodeIsInvalid;
+    public StatusCode rightSignalsOk = StatusCode.NodeIsInvalid;
+
     public boolean leftSideConnected = false;
     public boolean leftSideConfigured = false;
 
@@ -23,8 +28,8 @@ public interface FlywheelIO {
   }
 
   public static enum FlywheelIOSetpointSource {
-    SHOT_CALCULATOR,
-    MANUAL
+    MANUAL,
+    SHOT_CALCULATOR
   }
 
   public static enum FlywheelIOOutputMode {
@@ -41,7 +46,9 @@ public interface FlywheelIO {
     public double velocitySetpoint = 0.0;
   }
 
-  default void updateInputs(FlywheelIOInputs inputs) {}
+  default void updateInputs(FlywheelIOInputs inputs) {
+  }
 
-  default void applyOutputs(FlywheelIOOutputs outputs) {}
+  default void applyOutputs(FlywheelIOOutputs outputs) {
+  }
 }

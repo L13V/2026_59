@@ -153,12 +153,19 @@ public class Drive extends SubsystemBase {
   @Override
   public void periodic() {
     odometryLock.lock(); // Prevents odometry updates while reading data
-    gyroIO.updateInputs(gyroInputs);
+    try {
+      gyroIO.updateInputs(gyroInputs);
+      for (var module : modules) {
+        module.updateInputs();
+      }
+    } finally {
+      odometryLock.unlock();
+    }
+
     Logger.processInputs("Drive/Gyro", gyroInputs);
     for (var module : modules) {
       module.periodic();
     }
-    odometryLock.unlock();
 
     // Stop moving when disabled
     if (DriverStation.isDisabled()) {

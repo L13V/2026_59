@@ -58,10 +58,9 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void robotInit() {
-    // lastCalcTs = Timer.getFPGATimestamp();
-    // lastShooterTs = Timer.getFPGATimestamp();
-    // // // Start 10ms periodic
+    lastCalcTs = Timer.getFPGATimestamp();
     // CalculationLoop.startPeriodic(0.005);
+    lastShooterTs = Timer.getFPGATimestamp();
     shooterLoop.startPeriodic(0.005);
   }
 
@@ -132,8 +131,11 @@ public class Robot extends LoggedRobot {
     CommandScheduler.getInstance().run();
 
     // Log loop timings
-    // Logger.recordOutput("CalculationLoop/dt", lastCalcDt); // TODO: PUT THIS BACK
-    // Logger.recordOutput("ShooterLoop/dt", lastShooterDt);
+    Logger.recordOutput("CalculationLoop/dt", lastCalcDt); // TODO: PUT THIS BACK
+    Logger.recordOutput("ShooterLoop/dt", lastShooterDt);
+    Logger.recordOutput("RobotState/es-pose", RobotState.getInstance().getRobotPose());
+    Logger.recordOutput("RobotState/es-modulestates", RobotState.getInstance().getModuleStates());
+    Logger.recordOutput("RobotState/es-botrotation", RobotState.getInstance().getRotation());
 
     // Call periodicAfterScheduler on FullSubsystems
     // ShotCalculator.getInstance().publishShotParameters();

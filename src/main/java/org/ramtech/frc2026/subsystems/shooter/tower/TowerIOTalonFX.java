@@ -64,13 +64,12 @@ public class TowerIOTalonFX implements TowerIO {
     inputs.signalsOk =
         BaseStatusSignal.refreshAll(towerVoltageSig, towerVelocitySig, towerCurrentSig);
 
-    // Configuration
     inputs.towerConnected = BaseStatusSignal.isAllGood(towerVoltageSig);
     inputs.towerConfigured = towerConfigured;
 
-    inputs.towerMotorVoltage = towerMotor.getMotorVoltage().getValueAsDouble();
-    inputs.towerVelocity = towerMotor.getVelocity().getValueAsDouble();
-    inputs.towerSupplyCurrent = towerMotor.getSupplyCurrent().getValueAsDouble();
+    inputs.towerMotorVoltage = towerVoltageSig.getValueAsDouble();
+    inputs.towerVelocity = towerVelocitySig.getValueAsDouble();
+    inputs.towerSupplyCurrent = towerCurrentSig.getValueAsDouble();
   }
 
   @Override
@@ -79,7 +78,6 @@ public class TowerIOTalonFX implements TowerIO {
       case OFF:
         towerMotor.stopMotor();
         break;
-
       case VOLTAGE:
         towerMotor.setControl(voltageOut.withOutput(outputs.voltageSetpoint).withEnableFOC(true));
         break;

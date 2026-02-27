@@ -52,9 +52,8 @@ public class Module {
             AlertType.kError);
   }
 
-  public void periodic() {
+  public void updateInputs() {
     io.updateInputs(inputs);
-    Logger.processInputs("Drive/Module" + Integer.toString(index), inputs);
 
     // Calculate positions for odometry
     int sampleCount = inputs.odometryTimestamps.length; // All signals are sampled together
@@ -64,6 +63,10 @@ public class Module {
       Rotation2d angle = inputs.odometryTurnPositions[i];
       odometryPositions[i] = new SwerveModulePosition(positionMeters, angle);
     }
+  }
+
+  public void periodic() {
+    Logger.processInputs("Drive/Module" + Integer.toString(index), inputs);
 
     // Update alerts
     driveDisconnectedAlert.set(!inputs.driveConnected);
