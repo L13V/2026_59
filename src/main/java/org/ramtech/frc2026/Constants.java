@@ -52,6 +52,9 @@ public final class Constants {
     public static final int turretMotorId = 54;
     public static final int turretEncoderAId = 55;
     public static final int turretEncoderBId = 56;
+    public static final double motionMagicAcceleration = 0;
+    public static final double motionMagicCruiseVelocity = 0;
+    public static final double motionMagicJerk = 0;
   }
 
   public static final class HoodConstants {
@@ -81,8 +84,10 @@ public final class Constants {
   }
 
   public static final class targetPoses {
-    public static Pose3d redHub = new Pose3d(1.0, 1.0, 1.0, new Rotation3d(0, 0, 0));
-    public static Pose3d blueHub = new Pose3d(1.0, 1.0, 1.0, new Rotation3d(0, 0, 0));
+    public static Pose3d hub = new Pose3d(1.0, 1.0, 1.0, new Rotation3d(0, 0, 0));
+    public static Pose3d leftPass = new Pose3d(1.0, 1.0, 1.0, new Rotation3d(0, 0, 0));
+    public static Pose3d rightPass = new Pose3d(1.0, 1.0, 1.0, new Rotation3d(0, 0, 0));
+
   }
 
   public static final class ClimbConstants {

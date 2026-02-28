@@ -23,8 +23,10 @@ public class Turret extends ShooterSubsystem {
   private final TurretIOOutputs outputs = new TurretIOOutputs();
   // Alerts
   private final Debouncer turretDebouncer = new Debouncer(0.5, Debouncer.DebounceType.kFalling);
-  private final Alert turretDisconnected =
-      new Alert("Turret Motor Disconnected!", Alert.AlertType.kWarning);
+
+  private final Alert turretMotorDisconnected = new Alert("Turret Motor Disconnected!", Alert.AlertType.kWarning);
+  private final Alert turretEncoderADisconnected = new Alert("Turret Encoder A Disconnected!", Alert.AlertType.kWarning);
+  private final Alert turretEncoderBDisconnected = new Alert("Turret Encoder B Disconnected!", Alert.AlertType.kWarning);
 
   /** Creates a new Hood. */
   public Turret(TurretIO io) {
@@ -35,8 +37,12 @@ public class Turret extends ShooterSubsystem {
     // This method will be called once per scheduler run
     io.updateInputs(inputs);
     Logger.processInputs("Shooter/Turret", inputs);
-    turretDisconnected.set(
+    turretMotorDisconnected.set(
         Robot.showHardwareAlerts() && !turretDebouncer.calculate(inputs.turretMotorConnected));
+    turretEncoderADisconnected.set(
+        Robot.showHardwareAlerts() && !turretDebouncer.calculate(inputs.turretEncoderAConnected));
+    turretEncoderBDisconnected.set(
+        Robot.showHardwareAlerts() && !turretDebouncer.calculate(inputs.turretEncoderBConnected));
   }
 
   @Override

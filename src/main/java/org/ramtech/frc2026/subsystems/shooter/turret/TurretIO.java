@@ -2,18 +2,25 @@ package org.ramtech.frc2026.subsystems.shooter.turret;
 
 import org.littletonrobotics.junction.AutoLog;
 
+import com.ctre.phoenix6.StatusCode;
+
 public interface TurretIO {
 
   @AutoLog
   public static class TurretIOInputs {
+    public StatusCode turretMotorSignalOk = StatusCode.NodeIsInvalid;
+    public StatusCode turretEncoderASignalOk = StatusCode.NodeIsInvalid;
+    public StatusCode turretEncoderBSignalOk = StatusCode.NodeIsInvalid;
+
     public boolean turretMotorConnected = false;
     public boolean turretMotorConfigured = false;
 
     public boolean turretEncoderAConnected = false;
-    public boolean turretEncoderBConnected = false;
-
     public boolean turretEncoderAConfigured = false;
+    public boolean turretEncoderBConnected = false;
     public boolean turretEncoderBConfigured = false;
+
+    public boolean turretCrtComplete = false;
 
     public double TurretMotorVoltage = 0.0;
     public double TurretMotorSupplyCurrent = 0.0;
@@ -43,7 +50,9 @@ public interface TurretIO {
     public double positionSetpoint = 0.0;
   }
 
-  default void updateInputs(TurretIOInputs inputs) {}
+  default void updateInputs(TurretIOInputs inputs) {
+  }
 
-  default void applyOutputs(TurretIOOutputs outputs) {}
+  default void applyOutputs(TurretIOOutputs outputs) {
+  }
 }

@@ -7,13 +7,11 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import org.ramtech.frc2026.Constants;
-import org.ramtech.frc2026.Constants.FlywheelConstants;
 import org.ramtech.frc2026.Constants.HoodConstants;
 
 public class HoodIOTalonFX implements HoodIO {
   // Motors
-  private final TalonFX hoodMotor =
-      new TalonFX(HoodConstants.hoodMotorId, Constants.CANivore); // Main Motor
+  private final TalonFX hoodMotor = new TalonFX(HoodConstants.hoodMotorId, Constants.CANivore); // Main Motor
 
   // Configuration
   private final TalonFXConfiguration hoodConfig = new TalonFXConfiguration();
@@ -27,13 +25,22 @@ public class HoodIOTalonFX implements HoodIO {
     // Complete the config
     hoodConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
     hoodConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
-    hoodConfig.Slot0.kP = FlywheelConstants.kP_Slot0;
-    hoodConfig.Slot0.kI = FlywheelConstants.kI_Slot0;
-    hoodConfig.Slot0.kD = FlywheelConstants.kD_Slot0;
-    hoodConfig.Slot0.kS = FlywheelConstants.kS_Slot0;
-    hoodConfig.Slot0.kV = FlywheelConstants.kV_Slot0;
-    hoodConfig.Slot0.kA = FlywheelConstants.kA_Slot0;
-    hoodConfig.Slot0.kG = FlywheelConstants.kG_Slot0;
+    hoodConfig.Slot0.kP = HoodConstants.kP_Slot0;
+    hoodConfig.Slot0.kI = HoodConstants.kI_Slot0;
+    hoodConfig.Slot0.kD = HoodConstants.kD_Slot0;
+    hoodConfig.Slot0.kS = HoodConstants.kS_Slot0;
+    hoodConfig.Slot0.kV = HoodConstants.kV_Slot0;
+    hoodConfig.Slot0.kA = HoodConstants.kA_Slot0;
+    hoodConfig.Slot0.kG = HoodConstants.kG_Slot0;
+    hoodConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+    hoodConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+    hoodConfig.CurrentLimits.StatorCurrentLimit = 120;
+    hoodConfig.CurrentLimits.StatorCurrentLimitEnable = true;
+    hoodConfig.CurrentLimits.SupplyCurrentLimit = 120;
+    hoodConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
+    hoodConfig.CurrentLimits.SupplyCurrentLowerLimit = 70;
+    hoodConfig.CurrentLimits.SupplyCurrentLowerTime = 3;
+
   }
 
   @Override
@@ -61,10 +68,11 @@ public class HoodIOTalonFX implements HoodIO {
         hoodMotor.stopMotor();
         break;
       case VOLTAGE:
-        hoodMotor.setControl(voltageOut.withOutput(outputs.voltageSetpoint));
+        hoodMotor.setControl(voltageOut.withOutput(outputs.voltageSetpoint).withEnableFOC(true));
         break;
       case POSITION:
-        hoodMotor.setControl(positionVoltage.withVelocity(outputs.positionSetpoint));
+        hoodMotor.setControl(positionVoltage.withPosition(outputs.positionSetpoint).withEnableFOC(true));
+        break;
     }
   }
 }

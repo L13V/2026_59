@@ -13,7 +13,7 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
 
-import static org.ramtech.frc2026.util.PhoenixUtil.tryUntilOkWithStatus;
+import static org.ramtech.frc2026.util.PhoenixUtil.*;
 
 import org.ramtech.frc2026.Constants;
 import org.ramtech.frc2026.Constants.FlywheelConstants;
@@ -57,9 +57,28 @@ public class FlywheelIOTalonFX implements FlywheelIO {
     leftSideConfig.Slot0.kG = FlywheelConstants.kG_Slot0;
     leftSideConfig.Voltage.PeakForwardVoltage = FlywheelConstants.peakForwardVoltage;
     leftSideConfig.Voltage.PeakReverseVoltage = FlywheelConstants.peakReverseVoltage;
+    leftSideConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+    leftSideConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+    leftSideConfig.CurrentLimits.StatorCurrentLimit = 120;
+    leftSideConfig.CurrentLimits.StatorCurrentLimitEnable = true;
+    leftSideConfig.CurrentLimits.SupplyCurrentLimit = 120;
+    leftSideConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
+    leftSideConfig.CurrentLimits.SupplyCurrentLowerLimit = 70;
+    leftSideConfig.CurrentLimits.SupplyCurrentLowerTime = 3;
+
     // Right Side
     rightSideConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
     rightSideConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+    rightSideConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+    rightSideConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+    rightSideConfig.CurrentLimits.StatorCurrentLimit = 120;
+    rightSideConfig.CurrentLimits.StatorCurrentLimitEnable = true;
+    rightSideConfig.CurrentLimits.SupplyCurrentLimit = 120;
+    rightSideConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
+    rightSideConfig.CurrentLimits.SupplyCurrentLowerLimit = 70;
+    rightSideConfig.CurrentLimits.SupplyCurrentLowerTime = 3;
+        leftSideConfig.Voltage.PeakForwardVoltage = FlywheelConstants.peakForwardVoltage;
+    leftSideConfig.Voltage.PeakReverseVoltage = FlywheelConstants.peakReverseVoltage;
 
     leftSideConfigured = tryUntilOkWithStatus(5, () -> leftFlywheelMotor.getConfigurator().apply(leftSideConfig));
     rightSideConfigured = tryUntilOkWithStatus(5, () -> rightFlywheelMotor.getConfigurator().apply(rightSideConfig));
@@ -110,11 +129,11 @@ public class FlywheelIOTalonFX implements FlywheelIO {
         rightFlywheelMotor.stopMotor();
         break;
       case VOLTAGE:
-        leftFlywheelMotor.setControl(voltageOut.withOutput(outputs.voltageSetpoint));
+        leftFlywheelMotor.setControl(voltageOut.withOutput(outputs.voltageSetpoint).withEnableFOC(true));
         rightFlywheelMotor.setControl(follower);
         break;
       case VELOCITY:
-        leftFlywheelMotor.setControl(velocityVoltage.withVelocity(outputs.velocitySetpoint));
+        leftFlywheelMotor.setControl(velocityVoltage.withVelocity(outputs.velocitySetpoint).withEnableFOC(true));
         rightFlywheelMotor.setControl(follower);
         break;
     }
