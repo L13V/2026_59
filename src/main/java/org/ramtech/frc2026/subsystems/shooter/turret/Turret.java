@@ -95,7 +95,7 @@ public class Turret extends ShooterSubsystem {
     synchronized (outputsLock) {
       outputs.setpointSource = TurretIOSetpointSource.MANUAL;
       outputs.mode = TurretIOOutputMode.POSITION;
-      outputs.positionSetpoint = position;
+      outputs.positionSetpoint = position + 90.0; // Applied offset for making zero straight
     }
   }
 

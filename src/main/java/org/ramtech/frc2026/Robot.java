@@ -121,7 +121,7 @@ public class Robot extends LoggedRobot {
   public void robotPeriodic() {
     // Optionally switch the thread to high priority to improve loop
     // timing (see the template project documentation for details)
-    // Threads.setCurrentThreadPriority(true, 99); // TODO: Possibly remove
+    // Threads.setCurrentThreadPriority(true, 99); 
 
     // Runs the Scheduler. This is responsible for polling buttons, adding
     // newly-scheduled commands, running already-scheduled commands, removing
@@ -131,7 +131,7 @@ public class Robot extends LoggedRobot {
     CommandScheduler.getInstance().run();
 
     // Log loop timings
-    Logger.recordOutput("CalculationLoop/dt", lastCalcDt); // TODO: PUT THIS BACK
+    Logger.recordOutput("CalculationLoop/dt", lastCalcDt);
     Logger.recordOutput("ShooterLoop/dt", lastShooterDt);
 
     // Call periodicAfterScheduler on FullSubsystems
@@ -141,7 +141,7 @@ public class Robot extends LoggedRobot {
   }
 
   // Return to non-RT thread priority (do not modify the first argument)
-  // Threads.setCurrentThreadPriority(false, 10); // TODO: Possibly remove
+  // Threads.setCurrentThreadPriority(false, 10);
 
   public static boolean showHardwareAlerts() {
     return Constants.currentMode != Mode.SIM && Timer.getTimestamp() > 30.0;

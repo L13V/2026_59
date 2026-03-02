@@ -34,30 +34,33 @@ public class ShotCalculator {
   /*
    * Turret
    */
-
-  public double getAngleToHub() {
+  /**
+   * 
+   * @return The angle within one rotation from the turret's zero to the target hub pose.
+   * 
+   */
+  public Rotation2d getTurretAngleToHub() {
     Pose3d robotpose = new Pose3d(RobotState.getInstance().getRobotPose());
-    Pose3d turretpose = robotpose.transformBy(Offsets.turretOffset);
+    Pose3d turretpose = robotpose.transformBy(Offsets.turretOffset); // to turret and clockwise 90 degrees
 
     // x and y translation to the center of the hub
     var translationToHub = TargetPoses.hub.getTranslation().minus(turretpose.getTranslation());
     // top-down angle to hub
     Rotation2d fieldAngleToHub = new Rotation2d(translationToHub.getX(), translationToHub.getY());
-    // turret relative angle (center of turret to the hub)
-    Rotation2d robotRelativeAngle = fieldAngleToHub.minus(RobotState.getInstance().getRobotPose().getRotation());
-    double targetDegrees = robotRelativeAngle.getDegrees();
-    return targetDegrees;
+    // incorperate robot angle
+    Rotation2d turretAngle = fieldAngleToHub.minus(RobotState.getInstance().getRobotPose().getRotation());
+    return turretAngle;
   }
 
   public void update(double loopTime) {
-    double turretAngle = getAngleToHub();
+    double turretAngle = getTurretAngleToHub().getDegrees();
     boolean isValid = true;
     latest = new ShotParameters(
         isValid,
-        35.0, // Interpolated Hood
-        3000.0, // Interpolated Flywheel
-        10.0,
-        turretAngle);
+        20.0, // Degrees
+        50.0, // Rps
+        10.0, // Rps
+        turretAngle); // Degrees
   }
 
   public ShotParameters getLatest() {

@@ -93,7 +93,7 @@ public final class Constants {
 
   public static final class Offsets {
     public static final Transform3d turretOffset =
-        new Transform3d(Units.inchesToMeters(9), Units.inchesToMeters(-3.25), Units.inchesToMeters(5), new Rotation3d(0,0,Units.degreesToRadians(-90)));
+        new Transform3d(Units.inchesToMeters(9), Units.inchesToMeters(-3.25), Units.inchesToMeters(5), new Rotation3d());
   }
 
   public static final class ClimbConstants {

@@ -114,7 +114,7 @@ public class PhoenixOdometryThread extends Thread {
         if (isCANFD) {
           BaseStatusSignal.waitForAll(
               2.0 / Drive.ODOMETRY_FREQUENCY,
-              phoenixSignals); // TODO: Figure out if 1.5 over 2.0 fixes anything. Less forgiving so
+              phoenixSignals);
         } else {
           // "waitForAll" does not support blocking on multiple signals with a bus
           // that is not CAN FD, regardless of Pro licensing. No reasoning for this
