@@ -22,55 +22,52 @@ import org.ramtech.frc2026.generated.TunerConstants;
 
 /** IO implementation for Pigeon 2. */
 public class GyroIOPigeon2 implements GyroIO {
-  private final Pigeon2 pigeon =
-      new Pigeon2(TunerConstants.DrivetrainConstants.Pigeon2Id, TunerConstants.kCANBus);
-  private final StatusSignal<Angle> yaw = pigeon.getYaw();
-  private final Queue<Double> yawPositionQueue;
-  private final Queue<Double> yawTimestampQueue;
-  private final StatusSignal<AngularVelocity> yawVelocity = pigeon.getAngularVelocityZWorld();
-  private final StatusSignal<LinearAcceleration> accelX = pigeon.getAccelerationX();
-  private final StatusSignal<LinearAcceleration> accelY = pigeon.getAccelerationY();
-  private final StatusSignal<LinearAcceleration> accelZ = pigeon.getAccelerationZ();
+	private final Pigeon2 pigeon = new Pigeon2(TunerConstants.DrivetrainConstants.Pigeon2Id, TunerConstants.kCANBus);
+	private final StatusSignal<Angle> yaw = pigeon.getYaw();
+	private final Queue<Double> yawPositionQueue;
+	private final Queue<Double> yawTimestampQueue;
+	private final StatusSignal<AngularVelocity> yawVelocity = pigeon.getAngularVelocityZWorld();
+	private final StatusSignal<LinearAcceleration> accelX = pigeon.getAccelerationX();
+	private final StatusSignal<LinearAcceleration> accelY = pigeon.getAccelerationY();
+	private final StatusSignal<LinearAcceleration> accelZ = pigeon.getAccelerationZ();
 
-  public GyroIOPigeon2() {
-    if (TunerConstants.DrivetrainConstants.Pigeon2Configs != null) {
-      pigeon.getConfigurator().apply(TunerConstants.DrivetrainConstants.Pigeon2Configs);
-    } else {
-      pigeon.getConfigurator().apply(new Pigeon2Configuration());
-    }
+	public GyroIOPigeon2() {
+		if (TunerConstants.DrivetrainConstants.Pigeon2Configs != null) {
+			pigeon.getConfigurator().apply(TunerConstants.DrivetrainConstants.Pigeon2Configs);
+		} else {
+			pigeon.getConfigurator().apply(new Pigeon2Configuration());
+		}
 
-    pigeon.getConfigurator().setYaw(0.0);
-    yaw.setUpdateFrequency(Drive.ODOMETRY_FREQUENCY);
-    yawVelocity.setUpdateFrequency(Drive.ODOMETRY_FREQUENCY); // TODO: Use this somewhere
-    BaseStatusSignal.setUpdateFrequencyForAll(50.0, accelX, accelY, accelZ);
-    pigeon.optimizeBusUtilization();
-    yawTimestampQueue = PhoenixOdometryThread.getInstance().makeTimestampQueue();
-    yawPositionQueue = PhoenixOdometryThread.getInstance().registerSignal(yaw.clone());
-  }
+		pigeon.getConfigurator().setYaw(0.0);
+		yaw.setUpdateFrequency(Drive.ODOMETRY_FREQUENCY);
+		yawVelocity.setUpdateFrequency(Drive.ODOMETRY_FREQUENCY); // TODO: Use this somewhere
+		BaseStatusSignal.setUpdateFrequencyForAll(50.0, accelX, accelY, accelZ);
+		pigeon.optimizeBusUtilization();
+		yawTimestampQueue = PhoenixOdometryThread.getInstance().makeTimestampQueue();
+		yawPositionQueue = PhoenixOdometryThread.getInstance().registerSignal(yaw.clone());
+	}
 
-  @Override
-  public void updateInputs(GyroIOInputs inputs) {
-    inputs.connected =
-        BaseStatusSignal.refreshAll(yaw, yawVelocity, accelX, accelY, accelZ).equals(StatusCode.OK);
-    inputs.yawPosition = Rotation2d.fromDegrees(yaw.getValueAsDouble());
-    inputs.yawVelocityRadPerSec = Units.degreesToRadians(yawVelocity.getValueAsDouble());
-    inputs.accelX = accelX.getValueAsDouble();
-    inputs.accelY = accelY.getValueAsDouble();
-    inputs.accelZ = accelZ.getValueAsDouble();
+	@Override
+	public void updateInputs(GyroIOInputs inputs) {
+		inputs.connected = BaseStatusSignal.refreshAll(yaw, yawVelocity, accelX, accelY, accelZ).equals(StatusCode.OK);
+		inputs.yawPosition = Rotation2d.fromDegrees(yaw.getValueAsDouble());
+		inputs.yawVelocityRadPerSec = Units.degreesToRadians(yawVelocity.getValueAsDouble());
+		inputs.accelX = accelX.getValueAsDouble();
+		inputs.accelY = accelY.getValueAsDouble();
+		inputs.accelZ = accelZ.getValueAsDouble();
 
-    int yawTimestampCount = yawTimestampQueue.size();
-    inputs.odometryYawTimestamps = new double[yawTimestampCount];
-    for (int i = 0; i < yawTimestampCount; i++) {
-      Double value = yawTimestampQueue.poll();
-      inputs.odometryYawTimestamps[i] = value != null ? value : 0.0;
-    }
+		int yawTimestampCount = yawTimestampQueue.size();
+		inputs.odometryYawTimestamps = new double[yawTimestampCount];
+		for (int i = 0; i < yawTimestampCount; i++) {
+			Double value = yawTimestampQueue.poll();
+			inputs.odometryYawTimestamps[i] = value != null ? value : 0.0;
+		}
 
-    int yawPositionCount = yawPositionQueue.size();
-    inputs.odometryYawPositions = new Rotation2d[yawPositionCount];
-    for (int i = 0; i < yawPositionCount; i++) {
-      Double value = yawPositionQueue.poll();
-      inputs.odometryYawPositions[i] =
-          value != null ? Rotation2d.fromDegrees(value) : Rotation2d.kZero;
-    }
-  }
+		int yawPositionCount = yawPositionQueue.size();
+		inputs.odometryYawPositions = new Rotation2d[yawPositionCount];
+		for (int i = 0; i < yawPositionCount; i++) {
+			Double value = yawPositionQueue.poll();
+			inputs.odometryYawPositions[i] = value != null ? Rotation2d.fromDegrees(value) : Rotation2d.kZero;
+		}
+	}
 }

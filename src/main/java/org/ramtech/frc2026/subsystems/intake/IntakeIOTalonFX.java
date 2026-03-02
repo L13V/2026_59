@@ -16,73 +16,69 @@ import edu.wpi.first.units.measure.Voltage;
 import org.ramtech.frc2026.Constants.IntakeConstants;
 
 public class IntakeIOTalonFX implements IntakeIO {
-  // Motors
-  private final TalonFX rollerMotor = new TalonFX(IntakeConstants.rollerMotorId); // Main Motor
+	// Motors
+	private final TalonFX rollerMotor = new TalonFX(IntakeConstants.rollerMotorId); // Main Motor
 
-  // Configuration
-  private final TalonFXConfiguration rollerConfig = new TalonFXConfiguration();
-  private boolean rollerConfigured = false;
+	// Configuration
+	private final TalonFXConfiguration rollerConfig = new TalonFXConfiguration();
+	private boolean rollerConfigured = false;
 
-  // Status Signals (Cached to prevent allocation in loop)
-  private final StatusSignal<Voltage> rollerVoltageSig;
-  private final StatusSignal<AngularVelocity> rollerVelocitySig;
-  private final StatusSignal<Current> rollerCurrentSig;
+	// Status Signals (Cached to prevent allocation in loop)
+	private final StatusSignal<Voltage> rollerVoltageSig;
+	private final StatusSignal<AngularVelocity> rollerVelocitySig;
+	private final StatusSignal<Current> rollerCurrentSig;
 
-  // Control Methods
-  private final VoltageOut voltageOut = new VoltageOut(0); // Control Method
-  private final VelocityVoltage velocityVoltage = new VelocityVoltage(0);
+	// Control Methods
+	private final VoltageOut voltageOut = new VoltageOut(0); // Control Method
+	private final VelocityVoltage velocityVoltage = new VelocityVoltage(0);
 
-  public IntakeIOTalonFX() {
-    // Complete the config
-    rollerConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
-    rollerConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
-    rollerConfig.CurrentLimits.StatorCurrentLimit = 120;
-    rollerConfig.CurrentLimits.StatorCurrentLimitEnable = true;
-    rollerConfig.CurrentLimits.SupplyCurrentLimit = 120;
-    rollerConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-    rollerConfig.CurrentLimits.SupplyCurrentLowerLimit = 70;
-    rollerConfig.CurrentLimits.SupplyCurrentLowerTime = 3;
+	public IntakeIOTalonFX() {
+		// Complete the config
+		rollerConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+		rollerConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+		rollerConfig.CurrentLimits.StatorCurrentLimit = 120;
+		rollerConfig.CurrentLimits.StatorCurrentLimitEnable = true;
+		rollerConfig.CurrentLimits.SupplyCurrentLimit = 120;
+		rollerConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
+		rollerConfig.CurrentLimits.SupplyCurrentLowerLimit = 70;
+		rollerConfig.CurrentLimits.SupplyCurrentLowerTime = 3;
 
-    // Configure Motors
-    rollerConfigured =
-        tryUntilOkWithStatus(5, () -> rollerMotor.getConfigurator().apply(rollerConfig, 0.25));
+		// Configure Motors
+		rollerConfigured = tryUntilOkWithStatus(5, () -> rollerMotor.getConfigurator().apply(rollerConfig, 0.25));
 
-    // Initialize signals
-    rollerVoltageSig = rollerMotor.getMotorVoltage();
-    rollerVelocitySig = rollerMotor.getVelocity();
-    rollerCurrentSig = rollerMotor.getSupplyCurrent();
+		// Initialize signals
+		rollerVoltageSig = rollerMotor.getMotorVoltage();
+		rollerVelocitySig = rollerMotor.getVelocity();
+		rollerCurrentSig = rollerMotor.getSupplyCurrent();
 
-    BaseStatusSignal.setUpdateFrequencyForAll(
-        50.0, rollerVoltageSig, rollerVelocitySig, rollerCurrentSig);
+		BaseStatusSignal.setUpdateFrequencyForAll(50.0, rollerVoltageSig, rollerVelocitySig, rollerCurrentSig);
 
-    rollerMotor.optimizeBusUtilization();
-  }
+		rollerMotor.optimizeBusUtilization();
+	}
 
-  @Override
-  public void updateInputs(IntakeIOInputs inputs) {
-    inputs.signalsOk =
-        BaseStatusSignal.refreshAll(rollerVoltageSig, rollerVelocitySig, rollerCurrentSig);
+	@Override
+	public void updateInputs(IntakeIOInputs inputs) {
+		inputs.signalsOk = BaseStatusSignal.refreshAll(rollerVoltageSig, rollerVelocitySig, rollerCurrentSig);
 
-    // Configuration
-    inputs.rollerConnected = BaseStatusSignal.isAllGood(rollerVoltageSig);
-    inputs.rollerConfigured = rollerConfigured;
-    inputs.rollerVoltage = rollerVoltageSig.getValueAsDouble();
-    inputs.rollerRps = rollerVelocitySig.getValueAsDouble();
-    inputs.rollerSupplyCurrent = rollerCurrentSig.getValueAsDouble();
-  }
+		// Configuration
+		inputs.rollerConnected = BaseStatusSignal.isAllGood(rollerVoltageSig);
+		inputs.rollerConfigured = rollerConfigured;
+		inputs.rollerVoltage = rollerVoltageSig.getValueAsDouble();
+		inputs.rollerRps = rollerVelocitySig.getValueAsDouble();
+		inputs.rollerSupplyCurrent = rollerCurrentSig.getValueAsDouble();
+	}
 
-  @Override
-  public void applyOutputs(IntakeIOOutputs outputs) {
-    switch (outputs.mode) {
-      case OFF:
-        rollerMotor.stopMotor();
-        break;
-      case VOLTAGE:
-        rollerMotor.setControl(voltageOut.withOutput(outputs.voltageSetpoint).withEnableFOC(true));
-        break;
-      case VELOCITY:
-        rollerMotor.setControl(
-            velocityVoltage.withVelocity(outputs.velocitySetpoint).withEnableFOC(true));
-    }
-  }
+	@Override
+	public void applyOutputs(IntakeIOOutputs outputs) {
+		switch (outputs.mode) {
+			case OFF :
+				rollerMotor.stopMotor();
+				break;
+			case VOLTAGE :
+				rollerMotor.setControl(voltageOut.withOutput(outputs.voltageSetpoint).withEnableFOC(true));
+				break;
+			case VELOCITY :
+				rollerMotor.setControl(velocityVoltage.withVelocity(outputs.velocitySetpoint).withEnableFOC(true));
+		}
+	}
 }

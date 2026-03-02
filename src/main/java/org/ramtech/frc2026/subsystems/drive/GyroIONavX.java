@@ -15,37 +15,36 @@ import java.util.Queue;
 
 /** IO implementation for NavX. */
 public class GyroIONavX implements GyroIO {
-  private final AHRS navX = new AHRS(NavXComType.kMXP_SPI, (byte) Drive.ODOMETRY_FREQUENCY);
-  private final Queue<Double> yawPositionQueue;
-  private final Queue<Double> yawTimestampQueue;
+	private final AHRS navX = new AHRS(NavXComType.kMXP_SPI, (byte) Drive.ODOMETRY_FREQUENCY);
+	private final Queue<Double> yawPositionQueue;
+	private final Queue<Double> yawTimestampQueue;
 
-  public GyroIONavX() {
-    yawTimestampQueue = PhoenixOdometryThread.getInstance().makeTimestampQueue();
-    yawPositionQueue = PhoenixOdometryThread.getInstance().registerSignal(navX::getYaw);
-  }
+	public GyroIONavX() {
+		yawTimestampQueue = PhoenixOdometryThread.getInstance().makeTimestampQueue();
+		yawPositionQueue = PhoenixOdometryThread.getInstance().registerSignal(navX::getYaw);
+	}
 
-  @Override
-  public void updateInputs(GyroIOInputs inputs) {
-    inputs.connected = navX.isConnected();
-    inputs.yawPosition = Rotation2d.fromDegrees(-navX.getYaw());
-    inputs.yawVelocityRadPerSec = Units.degreesToRadians(-navX.getRawGyroZ());
-    inputs.accelX = navX.getWorldLinearAccelX();
-    inputs.accelY = navX.getWorldLinearAccelY();
-    inputs.accelZ = navX.getWorldLinearAccelZ();
+	@Override
+	public void updateInputs(GyroIOInputs inputs) {
+		inputs.connected = navX.isConnected();
+		inputs.yawPosition = Rotation2d.fromDegrees(-navX.getYaw());
+		inputs.yawVelocityRadPerSec = Units.degreesToRadians(-navX.getRawGyroZ());
+		inputs.accelX = navX.getWorldLinearAccelX();
+		inputs.accelY = navX.getWorldLinearAccelY();
+		inputs.accelZ = navX.getWorldLinearAccelZ();
 
-    int yawTimestampCount = yawTimestampQueue.size();
-    inputs.odometryYawTimestamps = new double[yawTimestampCount];
-    for (int i = 0; i < yawTimestampCount; i++) {
-      Double value = yawTimestampQueue.poll();
-      inputs.odometryYawTimestamps[i] = value != null ? value : 0.0;
-    }
+		int yawTimestampCount = yawTimestampQueue.size();
+		inputs.odometryYawTimestamps = new double[yawTimestampCount];
+		for (int i = 0; i < yawTimestampCount; i++) {
+			Double value = yawTimestampQueue.poll();
+			inputs.odometryYawTimestamps[i] = value != null ? value : 0.0;
+		}
 
-    int yawPositionCount = yawPositionQueue.size();
-    inputs.odometryYawPositions = new Rotation2d[yawPositionCount];
-    for (int i = 0; i < yawPositionCount; i++) {
-      Double value = yawPositionQueue.poll();
-      inputs.odometryYawPositions[i] =
-          value != null ? Rotation2d.fromDegrees(-value) : Rotation2d.kZero;
-    }
-  }
+		int yawPositionCount = yawPositionQueue.size();
+		inputs.odometryYawPositions = new Rotation2d[yawPositionCount];
+		for (int i = 0; i < yawPositionCount; i++) {
+			Double value = yawPositionQueue.poll();
+			inputs.odometryYawPositions[i] = value != null ? Rotation2d.fromDegrees(-value) : Rotation2d.kZero;
+		}
+	}
 }

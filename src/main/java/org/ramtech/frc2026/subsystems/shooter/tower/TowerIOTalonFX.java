@@ -17,73 +17,68 @@ import org.ramtech.frc2026.Constants;
 import org.ramtech.frc2026.Constants.TowerConstants;
 
 public class TowerIOTalonFX implements TowerIO {
-  // Motors
-  private final TalonFX towerMotor =
-      new TalonFX(TowerConstants.towerMotorId, Constants.CANivore); // Main Motor
+	// Motors
+	private final TalonFX towerMotor = new TalonFX(TowerConstants.towerMotorId, Constants.CANivore); // Main Motor
 
-  // Configuration
-  private final TalonFXConfiguration towerConfig = new TalonFXConfiguration();
-  private boolean towerConfigured = false;
+	// Configuration
+	private final TalonFXConfiguration towerConfig = new TalonFXConfiguration();
+	private boolean towerConfigured = false;
 
-  private final StatusSignal<Voltage> towerVoltageSig;
-  private final StatusSignal<AngularVelocity> towerVelocitySig;
-  private final StatusSignal<Current> towerCurrentSig;
+	private final StatusSignal<Voltage> towerVoltageSig;
+	private final StatusSignal<AngularVelocity> towerVelocitySig;
+	private final StatusSignal<Current> towerCurrentSig;
 
-  // Control Methods
-  private final VoltageOut voltageOut = new VoltageOut(0); // Control Method
-  private final VelocityVoltage velocityVoltage = new VelocityVoltage(0);
+	// Control Methods
+	private final VoltageOut voltageOut = new VoltageOut(0); // Control Method
+	private final VelocityVoltage velocityVoltage = new VelocityVoltage(0);
 
-  public TowerIOTalonFX() {
-    // Complete the config
-    towerConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
-    towerConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
-    towerConfig.CurrentLimits.StatorCurrentLimit = 120;
-    towerConfig.CurrentLimits.StatorCurrentLimitEnable = true;
-    towerConfig.CurrentLimits.SupplyCurrentLimit = 120;
-    towerConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-    towerConfig.CurrentLimits.SupplyCurrentLowerLimit = 70;
-    towerConfig.CurrentLimits.SupplyCurrentLowerTime = 3;
+	public TowerIOTalonFX() {
+		// Complete the config
+		towerConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+		towerConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+		towerConfig.CurrentLimits.StatorCurrentLimit = 120;
+		towerConfig.CurrentLimits.StatorCurrentLimitEnable = true;
+		towerConfig.CurrentLimits.SupplyCurrentLimit = 120;
+		towerConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
+		towerConfig.CurrentLimits.SupplyCurrentLowerLimit = 70;
+		towerConfig.CurrentLimits.SupplyCurrentLowerTime = 3;
 
-    towerConfigured =
-        tryUntilOkWithStatus(5, () -> towerMotor.getConfigurator().apply(towerConfig));
+		towerConfigured = tryUntilOkWithStatus(5, () -> towerMotor.getConfigurator().apply(towerConfig));
 
-    // Initialize signals
-    towerVoltageSig = towerMotor.getMotorVoltage();
-    towerVelocitySig = towerMotor.getVelocity();
-    towerCurrentSig = towerMotor.getSupplyCurrent();
+		// Initialize signals
+		towerVoltageSig = towerMotor.getMotorVoltage();
+		towerVelocitySig = towerMotor.getVelocity();
+		towerCurrentSig = towerMotor.getSupplyCurrent();
 
-    BaseStatusSignal.setUpdateFrequencyForAll(
-        50.0, towerVoltageSig, towerVelocitySig, towerCurrentSig);
+		BaseStatusSignal.setUpdateFrequencyForAll(50.0, towerVoltageSig, towerVelocitySig, towerCurrentSig);
 
-    towerMotor.optimizeBusUtilization();
-  }
+		towerMotor.optimizeBusUtilization();
+	}
 
-  @Override
-  public void updateInputs(TowerIOInputs inputs) {
+	@Override
+	public void updateInputs(TowerIOInputs inputs) {
 
-    inputs.signalsOk =
-        BaseStatusSignal.refreshAll(towerVoltageSig, towerVelocitySig, towerCurrentSig);
+		inputs.signalsOk = BaseStatusSignal.refreshAll(towerVoltageSig, towerVelocitySig, towerCurrentSig);
 
-    inputs.towerConnected = BaseStatusSignal.isAllGood(towerVoltageSig);
-    inputs.towerConfigured = towerConfigured;
+		inputs.towerConnected = BaseStatusSignal.isAllGood(towerVoltageSig);
+		inputs.towerConfigured = towerConfigured;
 
-    inputs.towerMotorVoltage = towerVoltageSig.getValueAsDouble();
-    inputs.towerVelocity = towerVelocitySig.getValueAsDouble();
-    inputs.towerSupplyCurrent = towerCurrentSig.getValueAsDouble();
-  }
+		inputs.towerMotorVoltage = towerVoltageSig.getValueAsDouble();
+		inputs.towerVelocity = towerVelocitySig.getValueAsDouble();
+		inputs.towerSupplyCurrent = towerCurrentSig.getValueAsDouble();
+	}
 
-  @Override
-  public void applyOutputs(TowerIOOutputs outputs) {
-    switch (outputs.mode) {
-      case OFF:
-        towerMotor.stopMotor();
-        break;
-      case VOLTAGE:
-        towerMotor.setControl(voltageOut.withOutput(outputs.voltageSetpoint).withEnableFOC(true));
-        break;
-      case VELOCITY:
-        towerMotor.setControl(
-            velocityVoltage.withVelocity(outputs.velocitySetpoint).withEnableFOC(true));
-    }
-  }
+	@Override
+	public void applyOutputs(TowerIOOutputs outputs) {
+		switch (outputs.mode) {
+			case OFF :
+				towerMotor.stopMotor();
+				break;
+			case VOLTAGE :
+				towerMotor.setControl(voltageOut.withOutput(outputs.voltageSetpoint).withEnableFOC(true));
+				break;
+			case VELOCITY :
+				towerMotor.setControl(velocityVoltage.withVelocity(outputs.velocitySetpoint).withEnableFOC(true));
+		}
+	}
 }

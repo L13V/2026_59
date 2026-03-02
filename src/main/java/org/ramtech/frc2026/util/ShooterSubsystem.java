@@ -11,27 +11,28 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * A standard subsystem that includes an extra periodic callback which runs after the command
- * scheduler. Allows outputs to be published after all other periodic code has finished.
+ * A standard subsystem that includes an extra periodic callback which runs
+ * after the command scheduler. Allows outputs to be published after all other
+ * periodic code has finished.
  */
 public abstract class ShooterSubsystem extends FullSubsystem {
-  private static List<ShooterSubsystem> instances = new ArrayList<>();
+	private static List<ShooterSubsystem> instances = new ArrayList<>();
 
-  public ShooterSubsystem() {
-    super();
-    instances.add(this);
-  }
+	public ShooterSubsystem() {
+		super();
+		instances.add(this);
+	}
 
-  public ShooterSubsystem(String name) {
-    super(name);
-    instances.add(this);
-  }
+	public ShooterSubsystem(String name) {
+		super(name);
+		instances.add(this);
+	}
 
-  public abstract void shooterPeriodic(double dt);
+	public abstract void shooterPeriodic();
 
-  public static void runAllShooterMotorPeriodics(double dt) {
-    for (ShooterSubsystem instance : instances) {
-      instance.shooterPeriodic(dt);
-    }
-  }
+	public static void runAllShooterMotorPeriodics() {
+		for (ShooterSubsystem instance : instances) {
+			instance.shooterPeriodic();
+		}
+	}
 }

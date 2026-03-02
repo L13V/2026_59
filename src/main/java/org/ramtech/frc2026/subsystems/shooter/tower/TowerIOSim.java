@@ -15,64 +15,64 @@ import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import org.ramtech.frc2026.Constants.TowerConstants;
 
 public class TowerIOSim implements TowerIO {
-  // Physics constants
-  private static final double GEAR_RATIO = 1.0; // TODO: Set actual gear ratio
-  private static final double MOI_KG_M2 = 0.001; // TODO: Set actual MOI
-  private static final DCMotor GEARBOX =
-      new DCMotor(12, 7.09, 366, 2, Units.rotationsPerMinuteToRadiansPerSecond(6000), 1);
+	// Physics constants
+	private static final double GEAR_RATIO = 1.0; // TODO: Set actual gear ratio
+	private static final double MOI_KG_M2 = 0.001; // TODO: Set actual MOI
+	private static final DCMotor GEARBOX = new DCMotor(12, 7.09, 366, 2,
+			Units.rotationsPerMinuteToRadiansPerSecond(6000), 1);
 
-  // Hardware (Simulated)
-  private final TalonFX towerMotor = new TalonFX(TowerConstants.towerMotorId);
-  private final TalonFXSimState towerSimState = towerMotor.getSimState();
+	// Hardware (Simulated)
+	private final TalonFX towerMotor = new TalonFX(TowerConstants.towerMotorId);
+	private final TalonFXSimState towerSimState = towerMotor.getSimState();
 
-  // Physics
-  private final DCMotorSim sim =
-      new DCMotorSim(LinearSystemId.createDCMotorSystem(GEARBOX, MOI_KG_M2, GEAR_RATIO), GEARBOX);
+	// Physics
+	private final DCMotorSim sim = new DCMotorSim(LinearSystemId.createDCMotorSystem(GEARBOX, MOI_KG_M2, GEAR_RATIO),
+			GEARBOX);
 
-  // Controls
-  private final VoltageOut voltageOut = new VoltageOut(0);
-  private final VelocityVoltage velocityVoltage = new VelocityVoltage(0);
+	// Controls
+	private final VoltageOut voltageOut = new VoltageOut(0);
+	private final VelocityVoltage velocityVoltage = new VelocityVoltage(0);
 
-  public TowerIOSim() {
-    var config = new TalonFXConfiguration();
-    config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
-    config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
-    config.Slot0.kP = 0.1; // TODO: Tune this for Sim/Real
-    config.Slot0.kV = 0.12; // Approximate kV for Kraken
-    towerMotor.getConfigurator().apply(config);
-  }
+	public TowerIOSim() {
+		var config = new TalonFXConfiguration();
+		config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+		config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+		config.Slot0.kP = 0.1; // TODO: Tune this for Sim/Real
+		config.Slot0.kV = 0.12; // Approximate kV for Kraken
+		towerMotor.getConfigurator().apply(config);
+	}
 
-  @Override
-  public void updateInputs(TowerIOInputs inputs) {
-    // 1. Update Physics
-    towerSimState.setSupplyVoltage(RobotController.getBatteryVoltage());
-    sim.setInputVoltage(towerSimState.getMotorVoltage());
-    sim.update(0.020); // 20ms loop time
+	@Override
+	public void updateInputs(TowerIOInputs inputs) {
+		// 1. Update Physics
+		towerSimState.setSupplyVoltage(RobotController.getBatteryVoltage());
+		sim.setInputVoltage(towerSimState.getMotorVoltage());
+		sim.update(0.020); // 20ms loop time
 
-    // 2. Update Sensors (Bridge Physics -> Talon)
-    towerSimState.setRawRotorPosition(Units.radiansToRotations(sim.getAngularPositionRad()));
-    towerSimState.setRotorVelocity(Units.radiansToRotations(sim.getAngularVelocityRadPerSec()));
+		// 2. Update Sensors (Bridge Physics -> Talon)
+		towerSimState.setRawRotorPosition(Units.radiansToRotations(sim.getAngularPositionRad()));
+		towerSimState.setRotorVelocity(Units.radiansToRotations(sim.getAngularVelocityRadPerSec()));
 
-    // 3. Update Inputs (Bridge Talon -> IO)
-    inputs.towerConnected = true;
-    inputs.towerConfigured = true;
-    inputs.towerMotorVoltage = towerMotor.getMotorVoltage().getValueAsDouble();
-    inputs.towerVelocity = towerMotor.getVelocity().getValueAsDouble();
-    inputs.towerSupplyCurrent = sim.getCurrentDrawAmps();
-  }
+		// 3. Update Inputs (Bridge Talon -> IO)
+		inputs.towerConnected = true;
+		inputs.towerConfigured = true;
+		inputs.towerMotorVoltage = towerMotor.getMotorVoltage().getValueAsDouble();
+		inputs.towerVelocity = towerMotor.getVelocity().getValueAsDouble();
+		inputs.towerSupplyCurrent = sim.getCurrentDrawAmps();
+	}
 
-  @Override
-  public void applyOutputs(TowerIOOutputs outputs) {
-    switch (outputs.mode) {
-      case OFF:
-        towerMotor.stopMotor();
-        break;
-      case VOLTAGE:
-        towerMotor.setControl(voltageOut.withOutput(outputs.voltageSetpoint));
-        break;
-      case VELOCITY:
-        towerMotor.setControl(velocityVoltage.withVelocity(outputs.velocitySetpoint));
-        break;
-    }
-  }
+	@Override
+	public void applyOutputs(TowerIOOutputs outputs) {
+		switch (outputs.mode) {
+			case OFF :
+				towerMotor.stopMotor();
+				break;
+			case VOLTAGE :
+				towerMotor.setControl(voltageOut.withOutput(outputs.voltageSetpoint));
+				break;
+			case VELOCITY :
+				towerMotor.setControl(velocityVoltage.withVelocity(outputs.velocitySetpoint));
+				break;
+		}
+	}
 }

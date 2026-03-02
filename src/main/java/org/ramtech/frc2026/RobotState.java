@@ -8,86 +8,79 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 
 /** Add your docs here. */
 public class RobotState {
-  private static RobotState instance;
+	private static RobotState instance;
 
-  public static RobotState getInstance() { //
-    if (instance == null)
-      instance = new RobotState();
-    return instance;
-  }
+	public static RobotState getInstance() { //
+		if (instance == null)
+			instance = new RobotState();
+		return instance;
+	}
 
-  // Create an initial pose for the supplier to overwrite.
-  private Supplier<Pose2d> poseSupplier = Pose2d::new;
-  private Supplier<ChassisSpeeds> speedSupplier = ChassisSpeeds::new;
-  private Supplier<SwerveModuleState[]> moduleStateSupplier = () -> new SwerveModuleState[] {
-      new SwerveModuleState(),
-      new SwerveModuleState(),
-      new SwerveModuleState(),
-      new SwerveModuleState()
-  };
-  private Supplier<double[]> accelerationSupplier = () -> new double[] { 0.0, 0.0, 0.0 };
+	// Create an initial pose for the supplier to overwrite.
+	private Supplier<Pose2d> poseSupplier = Pose2d::new;
+	private Supplier<ChassisSpeeds> speedSupplier = ChassisSpeeds::new;
+	private Supplier<SwerveModuleState[]> moduleStateSupplier = () -> new SwerveModuleState[]{new SwerveModuleState(),
+			new SwerveModuleState(), new SwerveModuleState(), new SwerveModuleState()};
+	private Supplier<double[]> accelerationSupplier = () -> new double[]{0.0, 0.0, 0.0};
 
-  /*
-   * Setting Suppliers
-   */
-  public void setPoseSupplier(Supplier<Pose2d> supplier) {
-    this.poseSupplier = supplier;
-  }
+	/*
+	 * Setting Suppliers
+	 */
+	public void setPoseSupplier(Supplier<Pose2d> supplier) {
+		this.poseSupplier = supplier;
+	}
 
-  public void setSpeedSupplier(Supplier<ChassisSpeeds> supplier) {
-    this.speedSupplier = supplier;
-  }
+	public void setSpeedSupplier(Supplier<ChassisSpeeds> supplier) {
+		this.speedSupplier = supplier;
+	}
 
-  public void setModuleStateSupplier(Supplier<SwerveModuleState[]> supplier) {
-    this.moduleStateSupplier = supplier;
-  }
+	public void setModuleStateSupplier(Supplier<SwerveModuleState[]> supplier) {
+		this.moduleStateSupplier = supplier;
+	}
 
-  public void setAccelerationSupplier(Supplier<double[]> supplier) {
-    this.accelerationSupplier = supplier;
-  }
-  /*
-   * Getters
-   */
+	public void setAccelerationSupplier(Supplier<double[]> supplier) {
+		this.accelerationSupplier = supplier;
+	}
+	/*
+	 * Getters
+	 */
 
-  public Pose2d getRobotPose() {
-    return poseSupplier.get();
-  }
+	public Pose2d getRobotPose() {
+		return poseSupplier.get();
+	}
 
-  public Rotation2d getRotation() {
-    return poseSupplier.get().getRotation();
-  }
+	public Rotation2d getRotation() {
+		return poseSupplier.get().getRotation();
+	}
 
-  public ChassisSpeeds getChassisSpeeds() {
-    return speedSupplier.get();
-  }
+	public ChassisSpeeds getChassisSpeeds() {
+		return speedSupplier.get();
+	}
 
-  public ChassisSpeeds getFieldSpeeds() {
-    return ChassisSpeeds.fromRobotRelativeSpeeds(getChassisSpeeds(), getRotation());
-  }
+	public ChassisSpeeds getFieldSpeeds() {
+		return ChassisSpeeds.fromRobotRelativeSpeeds(getChassisSpeeds(), getRotation());
+	}
 
-  public SwerveModuleState[] getModuleStates() {
-    return moduleStateSupplier.get();
-  }
+	public SwerveModuleState[] getModuleStates() {
+		return moduleStateSupplier.get();
+	}
 
-  public double[] getAcceleration() {
-    return accelerationSupplier.get();
-  }
+	public double[] getAcceleration() {
+		return accelerationSupplier.get();
+	}
 
-
-
-  /*
-   * Misc
-   */
-  public void publishState() {
-    Logger.recordOutput("RobotState/BaseRobotPose", RobotState.getInstance().getRobotPose());
-    Logger.recordOutput("RobotState/BaseRobotRotation", RobotState.getInstance().getRotation());
-    Logger.recordOutput("RobotState/ModuleStats", RobotState.getInstance().getModuleStates());
-    Logger.recordOutput("RobotState/Acceleration", RobotState.getInstance().getAcceleration());
-  }
+	/*
+	 * Misc
+	 */
+	public void publishState() {
+		Logger.recordOutput("RobotState/BaseRobotPose", RobotState.getInstance().getRobotPose());
+		Logger.recordOutput("RobotState/BaseRobotRotation", RobotState.getInstance().getRotation());
+		Logger.recordOutput("RobotState/ModuleStats", RobotState.getInstance().getModuleStates());
+		Logger.recordOutput("RobotState/Acceleration", RobotState.getInstance().getAcceleration());
+	}
 }

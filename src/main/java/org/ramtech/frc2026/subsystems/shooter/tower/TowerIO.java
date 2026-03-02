@@ -5,38 +5,37 @@ import org.littletonrobotics.junction.AutoLog;
 
 public interface TowerIO {
 
-  @AutoLog
-  public static class TowerIOInputs {
-    public StatusCode signalsOk = StatusCode.NodeIsInvalid;
+	@AutoLog
+	public static class TowerIOInputs {
+		public StatusCode signalsOk = StatusCode.NodeIsInvalid;
 
-    public boolean towerConnected = false;
-    public boolean towerConfigured = false;
+		public boolean towerConnected = false;
+		public boolean towerConfigured = false;
 
-    public double towerMotorVoltage = 0.0;
-    public double towerVelocity = 0.0;
-    public double towerSupplyCurrent = 0.0;
-  }
+		public double towerMotorVoltage = 0.0;
+		public double towerVelocity = 0.0;
+		public double towerSupplyCurrent = 0.0;
+	}
 
-  public static enum TowerIOSetpointSource {
-    MANUAL,
-    SHOT_CALCULATOR
-  }
+	public static enum TowerIOSetpointSource {
+		MANUAL, SHOT_CALCULATOR
+	}
 
-  public static enum TowerIOOutputMode {
-    OFF,
-    VOLTAGE,
-    VELOCITY
-  }
+	public static enum TowerIOOutputMode {
+		OFF, VOLTAGE, VELOCITY
+	}
 
-  @AutoLog
-  public static class TowerIOOutputs {
-    public TowerIOOutputMode mode = TowerIOOutputMode.OFF;
-    public TowerIOSetpointSource setpointSource = TowerIOSetpointSource.SHOT_CALCULATOR;
-    public double voltageSetpoint = 0.0;
-    public double velocitySetpoint = 0.0;
-  }
+	@AutoLog
+	public static class TowerIOOutputs {
+		public TowerIOOutputMode mode = TowerIOOutputMode.OFF;
+		public TowerIOSetpointSource setpointSource = TowerIOSetpointSource.SHOT_CALCULATOR;
+		public double voltageSetpoint = 0.0;
+		public double velocitySetpoint = 0.0;
+	}
 
-  default void updateInputs(TowerIOInputs inputs) {}
+	default void updateInputs(TowerIOInputs inputs) {
+	}
 
-  default void applyOutputs(TowerIOOutputs outputs) {}
+	default void applyOutputs(TowerIOOutputs outputs) {
+	}
 }

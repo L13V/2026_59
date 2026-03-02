@@ -4,37 +4,36 @@ import org.littletonrobotics.junction.AutoLog;
 
 public interface HoodIO {
 
-  @AutoLog
-  public static class HoodIOInputs {
-    public boolean hoodConnected = false;
-    public boolean hoodConfigured = false;
+	@AutoLog
+	public static class HoodIOInputs {
+		public boolean hoodConnected = false;
+		public boolean hoodConfigured = false;
 
-    public double hoodMotorVoltage = 0.0;
-    public double hoodSupplyCurrent = 0.0;
-    public double hoodPosition = 0.0;
-    public double hoodVelocity = 0.0;
-  }
+		public double hoodMotorVoltage = 0.0;
+		public double hoodSupplyCurrent = 0.0;
+		public double hoodPosition = 0.0;
+		public double hoodVelocity = 0.0;
+	}
 
-  public static enum HoodIOSetpointSource {
-    SHOT_CALCULATOR,
-    MANUAL
-  }
+	public static enum HoodIOSetpointSource {
+		SHOT_CALCULATOR, MANUAL
+	}
 
-  public static enum HoodIOOutputMode {
-    OFF,
-    VOLTAGE,
-    POSITION
-  }
+	public static enum HoodIOOutputMode {
+		OFF, VOLTAGE, POSITION
+	}
 
-  @AutoLog
-  public static class HoodIOOutputs {
-    public HoodIOOutputMode mode = HoodIOOutputMode.POSITION;
-    public HoodIOSetpointSource setpointSource = HoodIOSetpointSource.SHOT_CALCULATOR;
-    public double voltageSetpoint = 0.0;
-    public double positionSetpoint = 0.0;
-  }
+	@AutoLog
+	public static class HoodIOOutputs {
+		public HoodIOOutputMode mode = HoodIOOutputMode.POSITION;
+		public HoodIOSetpointSource setpointSource = HoodIOSetpointSource.SHOT_CALCULATOR;
+		public double voltageSetpoint = 0.0;
+		public double positionSetpoint = 0.0;
+	}
 
-  default void updateInputs(HoodIOInputs inputs) {}
+	default void updateInputs(HoodIOInputs inputs) {
+	}
 
-  default void applyOutputs(HoodIOOutputs outputs) {}
+	default void applyOutputs(HoodIOOutputs outputs) {
+	}
 }
