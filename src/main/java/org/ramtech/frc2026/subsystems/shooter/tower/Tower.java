@@ -23,7 +23,8 @@ public class Tower extends ShooterSubsystem {
   private final TowerIOOutputs outputs = new TowerIOOutputs();
   // Alerts
   private final Debouncer towerDebouncer = new Debouncer(0.5, Debouncer.DebounceType.kFalling);
-  private final Alert towerDisconnected = new Alert("Tower Motor Disconnected!", Alert.AlertType.kWarning);
+  private final Alert towerDisconnected =
+      new Alert("Tower Motor Disconnected!", Alert.AlertType.kWarning);
 
   /** Creates a new Tower. */
   public Tower(TowerIO io) {
@@ -51,7 +52,8 @@ public class Tower extends ShooterSubsystem {
   public void shooterPeriodic(double dt) {
     var shotCalculation = ShotCalculator.getInstance().getLatest();
     synchronized (outputsLock) {
-      if (outputs.setpointSource == TowerIOSetpointSource.SHOT_CALCULATOR & shotCalculation.isValid()) {
+      if (outputs.setpointSource == TowerIOSetpointSource.SHOT_CALCULATOR
+          & shotCalculation.isValid()) {
         outputs.mode = TowerIOOutputMode.VELOCITY;
         outputs.velocitySetpoint = shotCalculation.towerVelocity();
       }

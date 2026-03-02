@@ -302,6 +302,11 @@ public class Drive extends SubsystemBase {
     return kinematics.toChassisSpeeds(getModuleStates());
   }
 
+  /** Returns the current acceleration in Gs [x, y, z]. */
+  public double[] getAcceleration() {
+    return new double[] {gyroInputs.accelX, gyroInputs.accelY, gyroInputs.accelZ};
+  }
+
   /** Returns the position of each module in radians. */
   public double[] getWheelRadiusCharacterizationPositions() {
     double[] values = new double[4];

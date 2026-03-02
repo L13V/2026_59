@@ -16,6 +16,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.LinearAcceleration;
 import java.util.Queue;
 import org.ramtech.frc2026.generated.TunerConstants;
 
@@ -27,6 +28,9 @@ public class GyroIOPigeon2 implements GyroIO {
   private final Queue<Double> yawPositionQueue;
   private final Queue<Double> yawTimestampQueue;
   private final StatusSignal<AngularVelocity> yawVelocity = pigeon.getAngularVelocityZWorld();
+  private final StatusSignal<LinearAcceleration> accelX = pigeon.getAccelerationX();
+  private final StatusSignal<LinearAcceleration> accelY = pigeon.getAccelerationY();
+  private final StatusSignal<LinearAcceleration> accelZ = pigeon.getAccelerationZ();
 
   public GyroIOPigeon2() {
     if (TunerConstants.DrivetrainConstants.Pigeon2Configs != null) {
@@ -38,6 +42,7 @@ public class GyroIOPigeon2 implements GyroIO {
     pigeon.getConfigurator().setYaw(0.0);
     yaw.setUpdateFrequency(Drive.ODOMETRY_FREQUENCY);
     yawVelocity.setUpdateFrequency(Drive.ODOMETRY_FREQUENCY); // TODO: Use this somewhere
+    BaseStatusSignal.setUpdateFrequencyForAll(50.0, accelX, accelY, accelZ);
     pigeon.optimizeBusUtilization();
     yawTimestampQueue = PhoenixOdometryThread.getInstance().makeTimestampQueue();
     yawPositionQueue = PhoenixOdometryThread.getInstance().registerSignal(yaw.clone());
@@ -45,9 +50,13 @@ public class GyroIOPigeon2 implements GyroIO {
 
   @Override
   public void updateInputs(GyroIOInputs inputs) {
-    inputs.connected = BaseStatusSignal.refreshAll(yaw, yawVelocity).equals(StatusCode.OK);
+    inputs.connected =
+        BaseStatusSignal.refreshAll(yaw, yawVelocity, accelX, accelY, accelZ).equals(StatusCode.OK);
     inputs.yawPosition = Rotation2d.fromDegrees(yaw.getValueAsDouble());
     inputs.yawVelocityRadPerSec = Units.degreesToRadians(yawVelocity.getValueAsDouble());
+    inputs.accelX = accelX.getValueAsDouble();
+    inputs.accelY = accelY.getValueAsDouble();
+    inputs.accelZ = accelZ.getValueAsDouble();
 
     int yawTimestampCount = yawTimestampQueue.size();
     inputs.odometryYawTimestamps = new double[yawTimestampCount];

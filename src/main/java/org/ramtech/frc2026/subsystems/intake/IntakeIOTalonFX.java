@@ -81,7 +81,8 @@ public class IntakeIOTalonFX implements IntakeIO {
         rollerMotor.setControl(voltageOut.withOutput(outputs.voltageSetpoint).withEnableFOC(true));
         break;
       case VELOCITY:
-        rollerMotor.setControl(velocityVoltage.withVelocity(outputs.velocitySetpoint).withEnableFOC(true));
+        rollerMotor.setControl(
+            velocityVoltage.withVelocity(outputs.velocitySetpoint).withEnableFOC(true));
     }
   }
 }

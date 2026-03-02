@@ -82,7 +82,8 @@ public class TowerIOTalonFX implements TowerIO {
         towerMotor.setControl(voltageOut.withOutput(outputs.voltageSetpoint).withEnableFOC(true));
         break;
       case VELOCITY:
-        towerMotor.setControl(velocityVoltage.withVelocity(outputs.velocitySetpoint).withEnableFOC(true));
+        towerMotor.setControl(
+            velocityVoltage.withVelocity(outputs.velocitySetpoint).withEnableFOC(true));
     }
   }
 }

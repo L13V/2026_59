@@ -10,6 +10,8 @@ package org.ramtech.frc2026;
 import com.ctre.phoenix6.CANBus;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.RobotBase;
 
 /**
@@ -73,21 +75,25 @@ public final class Constants {
     public static final int rightMotorId = 59;
 
     public static final Double kP_Slot0 = 0.5;
-    public static final Double kI_Slot0 = 1.0;
+    public static final Double kI_Slot0 = 2.0;
     public static final Double kD_Slot0 = 0.0;
     public static final Double kS_Slot0 = 0.0;
     public static final Double kV_Slot0 = 0.2;
     public static final Double kA_Slot0 = 0.0;
     public static final Double kG_Slot0 = 0.0;
     public static final Double peakForwardVoltage = 16.0;
-    public static final Double peakReverseVoltage = 1.0;
+    public static final Double peakReverseVoltage = 3.0;
   }
 
-  public static final class targetPoses {
+  public static final class TargetPoses {
     public static Pose3d hub = new Pose3d(1.0, 1.0, 1.0, new Rotation3d(0, 0, 0));
     public static Pose3d leftPass = new Pose3d(1.0, 1.0, 1.0, new Rotation3d(0, 0, 0));
     public static Pose3d rightPass = new Pose3d(1.0, 1.0, 1.0, new Rotation3d(0, 0, 0));
+  }
 
+  public static final class Offsets {
+    public static final Transform3d turretOffset =
+        new Transform3d(Units.inchesToMeters(9), Units.inchesToMeters(-3.25), Units.inchesToMeters(5), new Rotation3d(0,0,Units.degreesToRadians(-90)));
   }
 
   public static final class ClimbConstants {

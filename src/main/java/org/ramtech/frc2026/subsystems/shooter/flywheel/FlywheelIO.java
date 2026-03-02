@@ -1,8 +1,7 @@
 package org.ramtech.frc2026.subsystems.shooter.flywheel;
 
-import org.littletonrobotics.junction.AutoLog;
-
 import com.ctre.phoenix6.StatusCode;
+import org.littletonrobotics.junction.AutoLog;
 
 public interface FlywheelIO {
 
@@ -46,9 +45,7 @@ public interface FlywheelIO {
     public double velocitySetpoint = 0.0;
   }
 
-  default void updateInputs(FlywheelIOInputs inputs) {
-  }
+  default void updateInputs(FlywheelIOInputs inputs) {}
 
-  default void applyOutputs(FlywheelIOOutputs outputs) {
-  }
+  default void applyOutputs(FlywheelIOOutputs outputs) {}
 }

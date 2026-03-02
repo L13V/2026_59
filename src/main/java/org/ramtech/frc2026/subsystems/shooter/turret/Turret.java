@@ -24,9 +24,12 @@ public class Turret extends ShooterSubsystem {
   // Alerts
   private final Debouncer turretDebouncer = new Debouncer(0.5, Debouncer.DebounceType.kFalling);
 
-  private final Alert turretMotorDisconnected = new Alert("Turret Motor Disconnected!", Alert.AlertType.kWarning);
-  private final Alert turretEncoderADisconnected = new Alert("Turret Encoder A Disconnected!", Alert.AlertType.kWarning);
-  private final Alert turretEncoderBDisconnected = new Alert("Turret Encoder B Disconnected!", Alert.AlertType.kWarning);
+  private final Alert turretMotorDisconnected =
+      new Alert("Turret Motor Disconnected!", Alert.AlertType.kWarning);
+  private final Alert turretEncoderADisconnected =
+      new Alert("Turret Encoder A Disconnected!", Alert.AlertType.kWarning);
+  private final Alert turretEncoderBDisconnected =
+      new Alert("Turret Encoder B Disconnected!", Alert.AlertType.kWarning);
 
   /** Creates a new Hood. */
   public Turret(TurretIO io) {

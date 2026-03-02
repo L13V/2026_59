@@ -8,35 +8,38 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+
 import java.util.function.Supplier;
+import org.littletonrobotics.junction.Logger;
 
 /** Add your docs here. */
 public class RobotState {
   private static RobotState instance;
 
   public static RobotState getInstance() { //
-    if (instance == null) instance = new RobotState();
+    if (instance == null)
+      instance = new RobotState();
     return instance;
   }
 
   // Create an initial pose for the supplier to overwrite.
   private Supplier<Pose2d> poseSupplier = Pose2d::new;
   private Supplier<ChassisSpeeds> speedSupplier = ChassisSpeeds::new;
-  private Supplier<SwerveModuleState[]> moduleStateSupplier =
-      () ->
-          new SwerveModuleState[] {
-            new SwerveModuleState(),
-            new SwerveModuleState(),
-            new SwerveModuleState(),
-            new SwerveModuleState()
-          };
+  private Supplier<SwerveModuleState[]> moduleStateSupplier = () -> new SwerveModuleState[] {
+      new SwerveModuleState(),
+      new SwerveModuleState(),
+      new SwerveModuleState(),
+      new SwerveModuleState()
+  };
+  private Supplier<double[]> accelerationSupplier = () -> new double[] { 0.0, 0.0, 0.0 };
 
-  /** Call once during robot init */
+  /*
+   * Setting Suppliers
+   */
   public void setPoseSupplier(Supplier<Pose2d> supplier) {
     this.poseSupplier = supplier;
   }
 
-  /** Call once during robot init */
   public void setSpeedSupplier(Supplier<ChassisSpeeds> supplier) {
     this.speedSupplier = supplier;
   }
@@ -44,6 +47,13 @@ public class RobotState {
   public void setModuleStateSupplier(Supplier<SwerveModuleState[]> supplier) {
     this.moduleStateSupplier = supplier;
   }
+
+  public void setAccelerationSupplier(Supplier<double[]> supplier) {
+    this.accelerationSupplier = supplier;
+  }
+  /*
+   * Getters
+   */
 
   public Pose2d getRobotPose() {
     return poseSupplier.get();
@@ -63,5 +73,21 @@ public class RobotState {
 
   public SwerveModuleState[] getModuleStates() {
     return moduleStateSupplier.get();
+  }
+
+  public double[] getAcceleration() {
+    return accelerationSupplier.get();
+  }
+
+
+
+  /*
+   * Misc
+   */
+  public void publishState() {
+    Logger.recordOutput("RobotState/BaseRobotPose", RobotState.getInstance().getRobotPose());
+    Logger.recordOutput("RobotState/BaseRobotRotation", RobotState.getInstance().getRotation());
+    Logger.recordOutput("RobotState/ModuleStats", RobotState.getInstance().getModuleStates());
+    Logger.recordOutput("RobotState/Acceleration", RobotState.getInstance().getAcceleration());
   }
 }

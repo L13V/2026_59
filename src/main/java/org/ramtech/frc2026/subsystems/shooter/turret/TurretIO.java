@@ -1,8 +1,7 @@
 package org.ramtech.frc2026.subsystems.shooter.turret;
 
-import org.littletonrobotics.junction.AutoLog;
-
 import com.ctre.phoenix6.StatusCode;
+import org.littletonrobotics.junction.AutoLog;
 
 public interface TurretIO {
 
@@ -50,9 +49,7 @@ public interface TurretIO {
     public double positionSetpoint = 0.0;
   }
 
-  default void updateInputs(TurretIOInputs inputs) {
-  }
+  default void updateInputs(TurretIOInputs inputs) {}
 
-  default void applyOutputs(TurretIOOutputs outputs) {
-  }
+  default void applyOutputs(TurretIOOutputs outputs) {}
 }

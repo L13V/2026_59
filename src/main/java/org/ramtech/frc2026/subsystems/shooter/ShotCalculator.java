@@ -4,10 +4,14 @@
 
 package org.ramtech.frc2026.subsystems.shooter;
 
-import java.util.concurrent.atomic.AtomicReference;
 import org.littletonrobotics.junction.Logger;
+import org.ramtech.frc2026.Constants.Offsets;
+import org.ramtech.frc2026.Constants.TargetPoses;
 
-/** Add your docs here. */
+import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import org.ramtech.frc2026.RobotState;
+
 public class ShotCalculator {
   private static ShotCalculator instance = new ShotCalculator();
 
@@ -15,89 +19,49 @@ public class ShotCalculator {
     return instance;
   }
 
-  public static class ShotParameters {
-    private boolean isValid;
-    private double hoodAngle;
-    private double flywheelVelocity;
-    private double towerVelocity;
-    private double turretAngle;
-
-    public ShotParameters(
-        boolean isValid,
-        double hoodAngle,
-        double flywheelVelocity,
-        double towerVelocity,
-        double turretAngle) {
-      this.isValid = isValid;
-      this.hoodAngle = hoodAngle;
-      this.flywheelVelocity = flywheelVelocity;
-      this.towerVelocity = towerVelocity;
-      this.turretAngle = turretAngle;
-    }
-
-    public void set(
-        boolean isValid,
-        double hoodAngle,
-        double flywheelVelocity,
-        double towerVelocity,
-        double turretAngle) {
-      this.isValid = isValid;
-      this.hoodAngle = hoodAngle;
-      this.flywheelVelocity = flywheelVelocity;
-      this.towerVelocity = towerVelocity;
-      this.turretAngle = turretAngle;
-    }
-
-    public boolean isValid() {
-      return isValid;
-    }
-
-    public double hoodAngle() {
-      return hoodAngle;
-    }
-
-    public double flywheelVelocity() {
-      return flywheelVelocity;
-    }
-
-    public double towerVelocity() {
-      return towerVelocity;
-    }
-
-    public double turretAngle() {
-      return turretAngle;
-    }
-
-    @Override
-    public String toString() {
-      return "ShotParameters{"
-          + "isValid="
-          + isValid
-          + ", hoodAngle="
-          + hoodAngle
-          + ", flywheelVelocity="
-          + flywheelVelocity
-          + ", towerVelocity="
-          + towerVelocity
-          + ", turretAngle="
-          + turretAngle
-          + '}';
-    }
+  public record ShotParameters(
+      boolean isValid,
+      double hoodAngle,
+      double flywheelVelocity,
+      double towerVelocity,
+      double turretAngle) {
   }
 
-  private final ShotParameters params1 = new ShotParameters(false, 0, 0, 0, 0);
-  private final ShotParameters params2 = new ShotParameters(false, 0, 0, 0, 0);
+  // 'volatile' ensures the 20ms thread always sees the most recent write
+  // from the 5ms thread without the overhead of heavy synchronization.
+  private volatile ShotParameters latest = new ShotParameters(false, 0, 0, 0, 0);
 
-  private final AtomicReference<ShotParameters> latest = new AtomicReference<>(params1);
+  /*
+   * Turret
+   */
+
+  public double getAngleToHub() {
+    Pose3d robotpose = new Pose3d(RobotState.getInstance().getRobotPose());
+    Pose3d turretpose = robotpose.transformBy(Offsets.turretOffset);
+
+    // x and y translation to the center of the hub
+    var translationToHub = TargetPoses.hub.getTranslation().minus(turretpose.getTranslation());
+    // top-down angle to hub
+    Rotation2d fieldAngleToHub = new Rotation2d(translationToHub.getX(), translationToHub.getY());
+    // turret relative angle (center of turret to the hub)
+    Rotation2d robotRelativeAngle = fieldAngleToHub.minus(RobotState.getInstance().getRobotPose().getRotation());
+    double targetDegrees = robotRelativeAngle.getDegrees();
+    return targetDegrees;
+  }
 
   public void update(double loopTime) {
-    ShotParameters newParams = latest.get() == params1 ? params2 : params1;
-    newParams.set(false, 0.0, 0.0, 0.0, 0.0);
-    latest.set(newParams);
+    double turretAngle = getAngleToHub();
+    boolean isValid = true;
+    latest = new ShotParameters(
+        isValid,
+        35.0, // Interpolated Hood
+        3000.0, // Interpolated Flywheel
+        10.0,
+        turretAngle);
   }
 
   public ShotParameters getLatest() {
-    return latest.get();
+    return latest;
   }
 
   public void publishShotParameters() {

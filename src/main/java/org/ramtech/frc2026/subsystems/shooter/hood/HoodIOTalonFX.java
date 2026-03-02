@@ -1,20 +1,23 @@
 package org.ramtech.frc2026.subsystems.shooter.hood;
 
-import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.configs.TalonFXSConfiguration;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
-import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.hardware.TalonFXS;
+import com.ctre.phoenix6.signals.AdvancedHallSupportValue;
 import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.MotorArrangementValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import org.ramtech.frc2026.Constants;
 import org.ramtech.frc2026.Constants.HoodConstants;
 
 public class HoodIOTalonFX implements HoodIO {
   // Motors
-  private final TalonFX hoodMotor = new TalonFX(HoodConstants.hoodMotorId, Constants.CANivore); // Main Motor
+  private final TalonFXS hoodMotor =
+      new TalonFXS(HoodConstants.hoodMotorId, Constants.CANivore); // Main Motor
 
   // Configuration
-  private final TalonFXConfiguration hoodConfig = new TalonFXConfiguration();
+  private final TalonFXSConfiguration hoodConfig = new TalonFXSConfiguration();
   private boolean hoodConfigured = false;
 
   // Control Methods
@@ -25,6 +28,8 @@ public class HoodIOTalonFX implements HoodIO {
     // Complete the config
     hoodConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
     hoodConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+    hoodConfig.Commutation.AdvancedHallSupport = AdvancedHallSupportValue.Enabled;
+    hoodConfig.Commutation.MotorArrangement = MotorArrangementValue.Minion_JST;
     hoodConfig.Slot0.kP = HoodConstants.kP_Slot0;
     hoodConfig.Slot0.kI = HoodConstants.kI_Slot0;
     hoodConfig.Slot0.kD = HoodConstants.kD_Slot0;
@@ -40,7 +45,6 @@ public class HoodIOTalonFX implements HoodIO {
     hoodConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
     hoodConfig.CurrentLimits.SupplyCurrentLowerLimit = 70;
     hoodConfig.CurrentLimits.SupplyCurrentLowerTime = 3;
-
   }
 
   @Override
@@ -71,7 +75,8 @@ public class HoodIOTalonFX implements HoodIO {
         hoodMotor.setControl(voltageOut.withOutput(outputs.voltageSetpoint).withEnableFOC(true));
         break;
       case POSITION:
-        hoodMotor.setControl(positionVoltage.withPosition(outputs.positionSetpoint).withEnableFOC(true));
+        hoodMotor.setControl(
+            positionVoltage.withPosition(outputs.positionSetpoint).withEnableFOC(true));
         break;
     }
   }

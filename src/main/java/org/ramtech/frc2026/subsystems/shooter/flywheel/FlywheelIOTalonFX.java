@@ -1,5 +1,7 @@
 package org.ramtech.frc2026.subsystems.shooter.flywheel;
 
+import static org.ramtech.frc2026.util.PhoenixUtil.*;
+
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -8,20 +10,18 @@ import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.*;
-
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
-
-import static org.ramtech.frc2026.util.PhoenixUtil.*;
-
 import org.ramtech.frc2026.Constants;
 import org.ramtech.frc2026.Constants.FlywheelConstants;
 
 public class FlywheelIOTalonFX implements FlywheelIO {
   // Motors
-  private final TalonFX leftFlywheelMotor = new TalonFX(FlywheelConstants.leftMotorId, Constants.CANivore);
-  private final TalonFX rightFlywheelMotor = new TalonFX(FlywheelConstants.rightMotorId, Constants.CANivore);
+  private final TalonFX leftFlywheelMotor =
+      new TalonFX(FlywheelConstants.leftMotorId, Constants.CANivore);
+  private final TalonFX rightFlywheelMotor =
+      new TalonFX(FlywheelConstants.rightMotorId, Constants.CANivore);
 
   // Configuration
   private final TalonFXConfiguration leftSideConfig = new TalonFXConfiguration();
@@ -46,7 +46,7 @@ public class FlywheelIOTalonFX implements FlywheelIO {
   public FlywheelIOTalonFX() {
     // Complete the config
     // Left Side
-    leftSideConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+    leftSideConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
     leftSideConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
     leftSideConfig.Slot0.kP = FlywheelConstants.kP_Slot0;
     leftSideConfig.Slot0.kI = FlywheelConstants.kI_Slot0;
@@ -57,8 +57,6 @@ public class FlywheelIOTalonFX implements FlywheelIO {
     leftSideConfig.Slot0.kG = FlywheelConstants.kG_Slot0;
     leftSideConfig.Voltage.PeakForwardVoltage = FlywheelConstants.peakForwardVoltage;
     leftSideConfig.Voltage.PeakReverseVoltage = FlywheelConstants.peakReverseVoltage;
-    leftSideConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
-    leftSideConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
     leftSideConfig.CurrentLimits.StatorCurrentLimit = 120;
     leftSideConfig.CurrentLimits.StatorCurrentLimitEnable = true;
     leftSideConfig.CurrentLimits.SupplyCurrentLimit = 120;
@@ -67,8 +65,6 @@ public class FlywheelIOTalonFX implements FlywheelIO {
     leftSideConfig.CurrentLimits.SupplyCurrentLowerTime = 3;
 
     // Right Side
-    rightSideConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
-    rightSideConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
     rightSideConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
     rightSideConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
     rightSideConfig.CurrentLimits.StatorCurrentLimit = 120;
@@ -77,11 +73,13 @@ public class FlywheelIOTalonFX implements FlywheelIO {
     rightSideConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
     rightSideConfig.CurrentLimits.SupplyCurrentLowerLimit = 70;
     rightSideConfig.CurrentLimits.SupplyCurrentLowerTime = 3;
-        leftSideConfig.Voltage.PeakForwardVoltage = FlywheelConstants.peakForwardVoltage;
-    leftSideConfig.Voltage.PeakReverseVoltage = FlywheelConstants.peakReverseVoltage;
+    rightSideConfig.Voltage.PeakForwardVoltage = FlywheelConstants.peakForwardVoltage;
+    rightSideConfig.Voltage.PeakReverseVoltage = FlywheelConstants.peakReverseVoltage;
 
-    leftSideConfigured = tryUntilOkWithStatus(5, () -> leftFlywheelMotor.getConfigurator().apply(leftSideConfig));
-    rightSideConfigured = tryUntilOkWithStatus(5, () -> rightFlywheelMotor.getConfigurator().apply(rightSideConfig));
+    leftSideConfigured =
+        tryUntilOkWithStatus(5, () -> leftFlywheelMotor.getConfigurator().apply(leftSideConfig));
+    rightSideConfigured =
+        tryUntilOkWithStatus(5, () -> rightFlywheelMotor.getConfigurator().apply(rightSideConfig));
 
     leftMotorVoltageSig = leftFlywheelMotor.getMotorVoltage();
     leftMotorVelocitySig = leftFlywheelMotor.getVelocity();
@@ -91,19 +89,26 @@ public class FlywheelIOTalonFX implements FlywheelIO {
     rightMotorVelocitySig = rightFlywheelMotor.getVelocity();
     rightMotorCurrentSig = rightFlywheelMotor.getSupplyCurrent();
 
-    BaseStatusSignal.setUpdateFrequencyForAll(50.0, leftMotorVoltageSig, leftMotorVelocitySig, leftMotorCurrentSig,
-        rightMotorVoltageSig, rightMotorVelocitySig, rightMotorCurrentSig);
+    BaseStatusSignal.setUpdateFrequencyForAll(
+        50.0,
+        leftMotorVoltageSig,
+        leftMotorVelocitySig,
+        leftMotorCurrentSig,
+        rightMotorVoltageSig,
+        rightMotorVelocitySig,
+        rightMotorCurrentSig);
 
     leftFlywheelMotor.optimizeBusUtilization();
     rightFlywheelMotor.optimizeBusUtilization();
-
   }
 
   @Override
   public void updateInputs(FlywheelIOInputs inputs) {
-    inputs.leftSignalsOk = BaseStatusSignal.refreshAll(leftMotorVoltageSig, leftMotorVelocitySig, leftMotorCurrentSig);
-    inputs.rightSignalsOk = BaseStatusSignal.refreshAll(rightMotorVoltageSig, rightMotorVelocitySig,
-        rightMotorCurrentSig);
+    inputs.leftSignalsOk =
+        BaseStatusSignal.refreshAll(leftMotorVoltageSig, leftMotorVelocitySig, leftMotorCurrentSig);
+    inputs.rightSignalsOk =
+        BaseStatusSignal.refreshAll(
+            rightMotorVoltageSig, rightMotorVelocitySig, rightMotorCurrentSig);
 
     inputs.leftSideConnected = BaseStatusSignal.isAllGood(leftMotorVoltageSig);
     inputs.rightSideConnected = BaseStatusSignal.isAllGood(rightMotorVoltageSig);
@@ -129,11 +134,13 @@ public class FlywheelIOTalonFX implements FlywheelIO {
         rightFlywheelMotor.stopMotor();
         break;
       case VOLTAGE:
-        leftFlywheelMotor.setControl(voltageOut.withOutput(outputs.voltageSetpoint).withEnableFOC(true));
+        leftFlywheelMotor.setControl(
+            voltageOut.withOutput(outputs.voltageSetpoint).withEnableFOC(true));
         rightFlywheelMotor.setControl(follower);
         break;
       case VELOCITY:
-        leftFlywheelMotor.setControl(velocityVoltage.withVelocity(outputs.velocitySetpoint).withEnableFOC(true));
+        leftFlywheelMotor.setControl(
+            velocityVoltage.withVelocity(outputs.velocitySetpoint).withEnableFOC(true));
         rightFlywheelMotor.setControl(follower);
         break;
     }
