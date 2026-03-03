@@ -12,8 +12,6 @@ import org.ramtech.frc2026.Constants.Offsets;
 import org.ramtech.frc2026.Constants.TargetPoses;
 import org.ramtech.frc2026.Constants.TurretConstants;
 
-import com.ctre.phoenix6.controls.LarsonAnimation;
-
 import org.ramtech.frc2026.RobotState;
 
 public class ShotCalculator {
@@ -34,7 +32,7 @@ public class ShotCalculator {
 	/*
 	 * Turret
 	 */
-	
+
 	/**
 	 * @return The angle within one rotation from the turret's zero to the target
 	 *         hub pose.
@@ -49,11 +47,11 @@ public class ShotCalculator {
 		Rotation2d fieldAngleToHub = new Rotation2d(translationToHub.getX(), translationToHub.getY());
 		// incorperate robot angle
 		Rotation2d turretAngle = fieldAngleToHub.minus(RobotState.getInstance().getRobotPose().getRotation());
-		return turretAngle; 
+		return turretAngle;
 	}
 
 	/*
-	 * Calculate Nearest Angle Target
+	 * Calculate Nearest Real Target Angle
 	 */
 	public double getClosestTurretTarget() {
 		double lastTarget = latest.turretAngle;
@@ -65,23 +63,24 @@ public class ShotCalculator {
 		// Closest target (NOT CONSTRAINED SO IT COULD DAMAGE THE MECHANISM)
 		double unconstrainedTarget = targetAngle + optomizedError;
 		// Check for illegal values
-		if(unconstrainedTarget < TurretConstants.rotationLowerLimit) {
+		if (unconstrainedTarget < TurretConstants.rotationLowerLimit) {
 			unconstrainedTarget += 360;
 		} else if (unconstrainedTarget > TurretConstants.rotationUpperLimit) {
 			unconstrainedTarget -= 360;
 		}
 
 		// Final filter for safety
-		finalTarget = MathUtil.clamp(unconstrainedTarget,TurretConstants.rotationLowerLimit,TurretConstants.rotationUpperLimit);
+		finalTarget = MathUtil.clamp(unconstrainedTarget, TurretConstants.rotationLowerLimit,
+				TurretConstants.rotationUpperLimit);
 		return finalTarget;
 	}
 
 	public void update(double loopTime) {
-		double turretAngle = getTurretAngleToHub().getDegrees();
+		double turretAngle = getClosestTurretTarget();
 		boolean isValid = true;
 		latest = new ShotParameters(isValid, 20.0, // Degrees
-				50.0, // Rps
-				10.0, // Rps
+				40.0, // Rps
+				40.0, // Rps
 				turretAngle); // Degrees
 	}
 

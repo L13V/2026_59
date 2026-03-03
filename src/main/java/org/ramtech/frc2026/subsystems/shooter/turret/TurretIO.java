@@ -1,6 +1,9 @@
 package org.ramtech.frc2026.subsystems.shooter.turret;
 
 import com.ctre.phoenix6.StatusCode;
+
+import yams.units.EasyCRT.CRTStatus;
+
 import org.littletonrobotics.junction.AutoLog;
 
 public interface TurretIO {
@@ -28,6 +31,11 @@ public interface TurretIO {
 
 		public double TurretEncoderAPosition = 0.0;
 		public double TurretEncoderBPosition = 0.0;
+		public double TurretEncoderAAbsPosition = 0.0;
+		public double TurretEncoderBAbsPosition = 0.0;
+
+		public double crtValue = 0.0;
+		public CRTStatus crtStatus;
 	}
 
 	public static enum TurretIOSetpointSource {

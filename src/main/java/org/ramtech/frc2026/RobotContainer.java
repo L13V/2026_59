@@ -36,6 +36,9 @@ import org.ramtech.frc2026.subsystems.shooter.tower.Tower;
 import org.ramtech.frc2026.subsystems.shooter.tower.TowerIO;
 import org.ramtech.frc2026.subsystems.shooter.tower.TowerIOSim;
 import org.ramtech.frc2026.subsystems.shooter.tower.TowerIOTalonFX;
+import org.ramtech.frc2026.subsystems.shooter.turret.Turret;
+import org.ramtech.frc2026.subsystems.shooter.turret.TurretIO;
+import org.ramtech.frc2026.subsystems.shooter.turret.TurretIOReal;
 import org.ramtech.frc2026.subsystems.vision.Vision;
 import org.ramtech.frc2026.subsystems.vision.VisionIO;
 import org.ramtech.frc2026.subsystems.vision.VisionIOPhotonVision;
@@ -60,6 +63,7 @@ public class RobotContainer {
 	private final Tower tower;
 	// private final Hood hood;
 	private final Flywheel flywheel;
+	private final Turret turret;
 
 	// Controller
 	private final CommandXboxController controller = new CommandXboxController(0);
@@ -88,6 +92,7 @@ public class RobotContainer {
 				tower = new Tower(new TowerIOTalonFX());
 				flywheel = new Flywheel(new FlywheelIOTalonFX());
 				// hood = new Hood(new HoodIOTalonFX());
+				turret = new Turret(new TurretIOReal());
 				break;
 
 			case SIM :
@@ -107,6 +112,8 @@ public class RobotContainer {
 				tower = new Tower(new TowerIOSim());
 				flywheel = new Flywheel(new FlywheelIOSim());
 				// hood = new Hood(new HoodIOSim());
+				turret = new Turret(new TurretIOReal());
+
 				break;
 
 			default :
@@ -128,6 +135,9 @@ public class RobotContainer {
 				});
 				flywheel = new Flywheel(new FlywheelIO() {
 				});
+				turret = new Turret(new TurretIO() {
+				});
+
 				// hood = new Hood(new HoodIO() {});
 
 				break;

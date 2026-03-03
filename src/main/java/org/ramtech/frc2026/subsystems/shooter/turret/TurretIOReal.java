@@ -1,5 +1,6 @@
 package org.ramtech.frc2026.subsystems.shooter.turret;
 
+import static edu.wpi.first.units.Units.Rotations;
 import static org.ramtech.frc2026.util.PhoenixUtil.*;
 
 import com.ctre.phoenix6.BaseStatusSignal;
@@ -7,20 +8,19 @@ import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicExpoVoltage;
-import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
+
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
 import org.ramtech.frc2026.Constants;
 import org.ramtech.frc2026.Constants.TurretConstants;
-import org.ramtech.frc2026.generated.TunerConstants;
 
 import yams.units.EasyCRT;
 import yams.units.EasyCRTConfig;
@@ -53,9 +53,16 @@ public class TurretIOReal implements TurretIO {
 	private final StatusSignal<Angle> turretEncoderAPositionSig;
 	private final StatusSignal<Angle> turretEncoderBPositionSig;
 
+	private final StatusSignal<Angle> turretEncoderAAbsPositionSig;
+
+	private final StatusSignal<Angle> turretEncoderBAbsPositionSig;
+
 	// Control Methods
 	private final VoltageOut voltageOut = new VoltageOut(0); // Control Method
 	private final MotionMagicExpoVoltage MotionMagicExpoVoltage = new MotionMagicExpoVoltage(0);
+
+	public final EasyCRT peniscrt;
+	public final EasyCRTConfig peniscrtconfig;
 
 	public TurretIOReal() {
 		/*
@@ -89,23 +96,25 @@ public class TurretIOReal implements TurretIO {
 		 * Encoder A
 		 */
 		encoderAConfig.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
-		encoderAConfig.MagnetSensor.MagnetOffset = 0.08349609375;
+		// encoderAConfig.MagnetSensor.MagnetOffset = 0.08349609375;
 		encoderAConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 1;
 		/*
 		 * Encoder B
 		 */
 		encoderBConfig.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
-		encoderBConfig.MagnetSensor.MagnetOffset = 0.130859375;
+		// encoderBConfig.MagnetSensor.MagnetOffset = 0.130859375;
 		encoderBConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 1;
 
-		/* 
+		/*
 		 * Configure Motors
 		 */
 		turretMotorConfigured = tryUntilOkWithStatus(5, () -> turretMotor.getConfigurator().apply(turretConfig));
-		turretEncoderAConfigured = tryUntilOkWithStatus(5, () -> turretEncoderA.getConfigurator().apply(encoderAConfig));
-		turretEncoderBConfigured = tryUntilOkWithStatus(5,() -> turretEncoderB.getConfigurator().apply(encoderBConfig));
+		turretEncoderAConfigured = tryUntilOkWithStatus(5,
+				() -> turretEncoderA.getConfigurator().apply(encoderAConfig));
+		turretEncoderBConfigured = tryUntilOkWithStatus(5,
+				() -> turretEncoderB.getConfigurator().apply(encoderBConfig));
 
-		/* 
+		/*
 		 * Initalize Signals
 		 */
 		turretMotorVoltageSig = turretMotor.getMotorVoltage();
@@ -115,40 +124,91 @@ public class TurretIOReal implements TurretIO {
 		turretEncoderAPositionSig = turretEncoderA.getPosition();
 		turretEncoderBPositionSig = turretEncoderB.getPosition();
 
-		BaseStatusSignal.setUpdateFrequencyForAll(50.0, turretMotorVoltageSig, turretMotorPositionSig,
-				turretMotorVelocitySig, turretMotorCurrentSig, turretEncoderAPositionSig, turretEncoderBPositionSig);
+		turretEncoderAAbsPositionSig = turretEncoderA.getAbsolutePosition();
+		turretEncoderBAbsPositionSig = turretEncoderB.getAbsolutePosition();
 
-		/* 
+		BaseStatusSignal.setUpdateFrequencyForAll(50.0, turretMotorVoltageSig, turretMotorPositionSig,
+				turretMotorVelocitySig, turretMotorCurrentSig, turretEncoderAPositionSig, turretEncoderBPositionSig,
+				turretEncoderAAbsPositionSig, turretEncoderBAbsPositionSig);
+
+		/*
 		 * Optomize Bus Utilization
 		 */
 		turretMotor.optimizeBusUtilization();
 		turretEncoderA.optimizeBusUtilization();
 		turretEncoderB.optimizeBusUtilization();
-		attemptCrt(5);
+		// attemptCrt(5);
+
+		/*
+		 * Liev's special area
+		 */
+
+		// Prep CRT Solver
+		BaseStatusSignal.refreshAll(turretEncoderAAbsPositionSig, turretEncoderBAbsPositionSig);
+		peniscrtconfig = new EasyCRTConfig(turretEncoderAAbsPositionSig.asSupplier(),
+				turretEncoderBAbsPositionSig.asSupplier()).withAbsoluteEncoder1GearingStages(1, 1)
+						.withAbsoluteEncoder2GearingStages(16, 27)
+						.withAbsoluteEncoderOffsets(Angle.ofBaseUnits(-0.04666066249000264, Rotations),
+								Angle.ofBaseUnits(-0.948242, Rotations))
+						.withAbsoluteEncoderInversions(false, false)
+						.withMechanismRange(Angle.ofBaseUnits(0, Rotations), Angle.ofBaseUnits(540, Rotations));
+		// Solve and push to motor
+		// peniscrt = new EasyCRT(easyCrtConfig.withAbsoluteEncoder1GearingStages(10,
+		// 148)
+		// .withAbsoluteEncoder2GearingStages(27, 16, 10, 148)
+		// .withAbsoluteEncoderOffsets(Angle.ofBaseUnits(-0.04666066249000264,
+		// Rotations),
+		// Angle.ofBaseUnits(-0.948242, Rotations))
+		// .withAbsoluteEncoderInversions(false, false));
+		// peniscrt = new EasyCRT(easyCrtConfig.withAbsoluteEncoder1GearingStages(148,
+		// 10)
+		// .withAbsoluteEncoder2GearingStages(148, 10, 27, 16)
+		// .withAbsoluteEncoderOffsets(Angle.ofBaseUnits(-0.04666066249000264,
+		// Rotations),
+		// Angle.ofBaseUnits(-0.948242, Rotations))
+		// .withAbsoluteEncoderInversions(false, false));
+		peniscrt = new EasyCRT(peniscrtconfig);
 	}
 
-	public void attemptCrt(int attempts) { // Attempt Crt a couple times to ensure minimal errors
-		for (int i = 0; i < attempts; i++) { // Ratios
-			// Refresh signals to ensure we have latest data for CRT
-			BaseStatusSignal.refreshAll(turretEncoderAPositionSig, turretEncoderBPositionSig);
-			// If everything online and configured, calculate start angle and push to motor.
-			if (turretMotorConfigured & turretEncoderAConfigured & turretEncoderBConfigured) {
-				// Prep CRT Solver
-				var easyCrtConfig = new EasyCRTConfig(turretEncoderAPositionSig.asSupplier(),
-						turretEncoderBPositionSig.asSupplier());
-				// Solve and push to motor
-				var easyCrtSolver = new EasyCRT(easyCrtConfig);
-				easyCrtSolver.getAngleOptional().ifPresent(mechAngle -> {
-					turretCrtComplete = tryUntilOkWithStatus(5, () -> turretMotor.setPosition(mechAngle));
-				});
-				break; // if it worked, cancel the loop
-			}
-		}
+	// public void attemptCrt(int attempts) { // Attempt Crt a couple times to
+	// ensure minimal errors
+	// for (int i = 0; i < attempts; i++) { // Ratios
+	// // Refresh signals to ensure we have latest data for CRT
+	// BaseStatusSignal.refreshAll(turretEncoderAPositionSig,
+	// turretEncoderBPositionSig);
+	// // If everything online and configured, calculate start angle and push to
+	// motor.
+	// if (turretMotorConfigured & turretEncoderAConfigured &
+	// turretEncoderBConfigured) {
+	// // Prep CRT Solver
+	// var easyCrtConfig = new EasyCRTConfig(turretEncoderAPositionSig.asSupplier(),
+	// turretEncoderBPositionSig.asSupplier());
+	// // Solve and push to motor
+	// var easyCrtSolver = new EasyCRT(
+	// easyCrtConfig.withAbsoluteEncoder1GearingStages(10, 148)
+	// .withAbsoluteEncoder2GearingStages(27, 16, 10, 148)
+	// .withAbsoluteEncoderOffsets(Angle.ofBaseUnits(-0.04666066249000264,
+	// Rotations),
+	// Angle.ofBaseUnits(-0.948242, Rotations))
+	// .withAbsoluteEncoderInversions(false, false));
+
+	// easyCrtSolver.getAngleOptional().ifPresent(mechAngle -> {
+	// turretCrtComplete = tryUntilOkWithStatus(5, () ->
+	// turretMotor.setPosition(mechAngle));
+	// });
+	// break; // if it worked, cancel the loop
+	// }
+	// }
+	// }
+
+	public double returnangle() {
+		BaseStatusSignal.refreshAll(turretEncoderAPositionSig, turretEncoderBPositionSig);
+		return peniscrt.getAngleOptional().map(mechAngle -> mechAngle.magnitude()).orElse(0.0);
 	}
 
-	public void attemptCrt() {
-		attemptCrt(1);
-	}
+	// public void attemptCrt() {
+	// attemptCrt(1);
+	// }
 
 	@Override
 	public void updateInputs(TurretIOInputs inputs) {
@@ -177,19 +237,29 @@ public class TurretIOReal implements TurretIO {
 
 		inputs.TurretEncoderAPosition = turretEncoderAPositionSig.getValueAsDouble();
 		inputs.TurretEncoderBPosition = turretEncoderBPositionSig.getValueAsDouble();
+		inputs.TurretEncoderAAbsPosition = turretEncoderAAbsPositionSig.getValueAsDouble();
+		inputs.TurretEncoderBAbsPosition = turretEncoderBAbsPositionSig.getValueAsDouble();
+
+		inputs.crtValue = returnangle();
+		inputs.crtStatus = peniscrt.getLastStatus();
+
+		System.out.println("Satisfies: " + peniscrtconfig.coverageSatisfiesRange());
+		System.out.println("Satisfies: " + peniscrtconfig.getMatchTolerance());
+
 	}
 
 	@Override
 	public void applyOutputs(TurretIOOutputs outputs) {
 		switch (outputs.mode) {
-			case OFF:
+			case OFF :
 				turretMotor.stopMotor();
 				break;
-			case VOLTAGE:
+			case VOLTAGE :
 				turretMotor.setControl(voltageOut.withOutput(outputs.voltageSetpoint).withEnableFOC(true));
 				break;
-			case POSITION:
-				turretMotor.setControl(MotionMagicExpoVoltage.withPosition(outputs.positionSetpoint).withEnableFOC(true));
+			case POSITION :
+				// turretMotor
+				// .setControl(MotionMagicExpoVoltage.withPosition(outputs.positionSetpoint).withEnableFOC(true));
 				break;
 		}
 	}

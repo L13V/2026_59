@@ -128,9 +128,9 @@ public class FlywheelIOTalonFX implements FlywheelIO {
 				rightFlywheelMotor.setControl(follower);
 				break;
 			case VELOCITY :
-				leftFlywheelMotor
-						.setControl(velocityVoltage.withVelocity(outputs.velocitySetpoint).withEnableFOC(true));
-				rightFlywheelMotor.setControl(follower);
+				// leftFlywheelMotor
+				// .setControl(velocityVoltage.withVelocity(outputs.velocitySetpoint).withEnableFOC(true));
+				// rightFlywheelMotor.setControl(follower);
 				break;
 		}
 	}
