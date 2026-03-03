@@ -61,8 +61,8 @@ public class TurretIOReal implements TurretIO {
 	private final VoltageOut voltageOut = new VoltageOut(0); // Control Method
 	private final MotionMagicExpoVoltage MotionMagicExpoVoltage = new MotionMagicExpoVoltage(0);
 
-	public final EasyCRT peniscrt;
-	public final EasyCRTConfig peniscrtconfig;
+	public final EasyCRT crt;
+	public final EasyCRTConfig crtconfig;
 
 	public TurretIOReal() {
 		/*
@@ -145,7 +145,7 @@ public class TurretIOReal implements TurretIO {
 
 		// Prep CRT Solver
 		BaseStatusSignal.refreshAll(turretEncoderAAbsPositionSig, turretEncoderBAbsPositionSig);
-		peniscrtconfig = new EasyCRTConfig(turretEncoderAAbsPositionSig.asSupplier(),
+		crtconfig = new EasyCRTConfig(turretEncoderAAbsPositionSig.asSupplier(),
 				turretEncoderBAbsPositionSig.asSupplier()).withAbsoluteEncoder1GearingStages(1, 1)
 						.withAbsoluteEncoder2GearingStages(16, 27)
 						.withAbsoluteEncoderOffsets(Angle.ofBaseUnits(-0.04666066249000264, Rotations),
@@ -153,21 +153,21 @@ public class TurretIOReal implements TurretIO {
 						.withAbsoluteEncoderInversions(false, false)
 						.withMechanismRange(Angle.ofBaseUnits(0, Rotations), Angle.ofBaseUnits(540, Rotations));
 		// Solve and push to motor
-		// peniscrt = new EasyCRT(easyCrtConfig.withAbsoluteEncoder1GearingStages(10,
+		// crt = new EasyCRT(easyCrtConfig.withAbsoluteEncoder1GearingStages(10,
 		// 148)
 		// .withAbsoluteEncoder2GearingStages(27, 16, 10, 148)
 		// .withAbsoluteEncoderOffsets(Angle.ofBaseUnits(-0.04666066249000264,
 		// Rotations),
 		// Angle.ofBaseUnits(-0.948242, Rotations))
 		// .withAbsoluteEncoderInversions(false, false));
-		// peniscrt = new EasyCRT(easyCrtConfig.withAbsoluteEncoder1GearingStages(148,
+		// crt = new EasyCRT(easyCrtConfig.withAbsoluteEncoder1GearingStages(148,
 		// 10)
 		// .withAbsoluteEncoder2GearingStages(148, 10, 27, 16)
 		// .withAbsoluteEncoderOffsets(Angle.ofBaseUnits(-0.04666066249000264,
 		// Rotations),
 		// Angle.ofBaseUnits(-0.948242, Rotations))
 		// .withAbsoluteEncoderInversions(false, false));
-		peniscrt = new EasyCRT(peniscrtconfig);
+		crt = new EasyCRT(crtconfig);
 	}
 
 	// public void attemptCrt(int attempts) { // Attempt Crt a couple times to
@@ -203,7 +203,7 @@ public class TurretIOReal implements TurretIO {
 
 	public double returnangle() {
 		BaseStatusSignal.refreshAll(turretEncoderAPositionSig, turretEncoderBPositionSig);
-		return peniscrt.getAngleOptional().map(mechAngle -> mechAngle.magnitude()).orElse(0.0);
+		return crt.getAngleOptional().map(mechAngle -> mechAngle.magnitude()).orElse(0.0);
 	}
 
 	// public void attemptCrt() {
@@ -241,10 +241,10 @@ public class TurretIOReal implements TurretIO {
 		inputs.TurretEncoderBAbsPosition = turretEncoderBAbsPositionSig.getValueAsDouble();
 
 		inputs.crtValue = returnangle();
-		inputs.crtStatus = peniscrt.getLastStatus();
+		inputs.crtStatus = crt.getLastStatus();
 
-		System.out.println("Satisfies: " + peniscrtconfig.coverageSatisfiesRange());
-		System.out.println("Satisfies: " + peniscrtconfig.getMatchTolerance());
+		System.out.println("Satisfies: " + crtconfig.coverageSatisfiesRange());
+		System.out.println("Satisfies: " + crtconfig.getMatchTolerance());
 
 	}
 
