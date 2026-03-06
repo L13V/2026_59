@@ -205,7 +205,6 @@ public class ShotCalculator {
 			flyWheelFeedForward = rpsDiff / 100;
 		}
 
-		// double flyWheelVelocity = 40.0;
 		double towerVelocity = 40.0; // TODO: Remove
 		boolean isValid = true;
 		latest = new ShotParameters(isValid, 90 - Math.toDegrees(hoodAngle), // Degrees FROM HORIZONTAL

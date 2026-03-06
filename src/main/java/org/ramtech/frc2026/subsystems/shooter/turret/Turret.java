@@ -109,6 +109,6 @@ public class Turret extends ShooterSubsystem {
 	}
 
 	public double getTurretAngle() {
-		return inputs.TurretMotorPosition - 90; // TODO: Check Offset
+		return inputs.TurretMotorPosition - 90;
 	}
 }
