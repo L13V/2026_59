@@ -44,8 +44,8 @@ public class ShotCalculator {
 	private static final double rpsMult = 1.0;
 	private static final double peakRPSS = 5000;
 
-	private static final double hoodMinAngle = 10; // deg TODO: Verify
-	private static final double hoodMaxAngle = hoodMinAngle + 41; // deg
+	public static final double hoodMinAngle = 12; // deg TODO: Verify
+	private static final double hoodMaxAngle = 53; // deg
 
 	private static final double g = 9.83069; // m/s^2
 	private static final double ballMass = 0.226796; // kg
@@ -68,15 +68,11 @@ public class ShotCalculator {
 	private static final double flyWheelRatio = 24 / 72; // relative to the motor
 	private static final double backWheelRatio = flyWheelRatio * (36 / 16) * (27 / 16); // relative to the motor
 	/*
-	 * Hood
-	 */
-
-	/*
 	 * Turret
 	 */
 
 	/**
-	 * @return The angle within one rotation from the turret's zero to the target
+	 * @return The distance from the turret's zero to the target
 	 *         hub pose.
 	 */
 	public Rotation2d getTurretAngleToHub() {
@@ -93,7 +89,7 @@ public class ShotCalculator {
 	}
 
 	/**
-	 * @return The angle within one rotation from the turret's zero to the target
+	 * @return The angle within one rotation from the turret's origin (robot front = 0 degrees) to the target
 	 *         hub pose.
 	 */
 	public double getTurretDistanceToTarget() {
@@ -126,7 +122,7 @@ public class ShotCalculator {
 
 		// Final filter for safety
 		finalTarget = MathUtil.clamp(unconstrainedTarget, TurretConstants.reverseSoftLimit - 90,
-				TurretConstants.forwardSoftLimit + 90);
+				TurretConstants.forwardSoftLimit - 90);
 		return finalTarget;
 	}
 
@@ -193,10 +189,10 @@ public class ShotCalculator {
 		// double flyWheelVelocity = 40.0;
 		double towerVelocity = 40.0; // TODO: Remove
 		boolean isValid = true;
-		latest = new ShotParameters(isValid, 90 - Math.toDegrees(hoodAngle) - hoodMinAngle, // Degrees
+		latest = new ShotParameters(isValid, 90 - Math.toDegrees(hoodAngle), // Degrees FROM HORIZONTAL
 				flyWheelVelocity, // Rps
 				40.0, // Rps
-				turretAngle); // Degrees
+				turretAngle); // Degrees (Robot forward is 0 degrees)
 
 		last = latest;
 	}

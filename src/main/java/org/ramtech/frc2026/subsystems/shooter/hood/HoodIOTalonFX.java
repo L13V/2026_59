@@ -10,6 +10,7 @@ import com.ctre.phoenix6.signals.MotorArrangementValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import org.ramtech.frc2026.Constants;
 import org.ramtech.frc2026.Constants.HoodConstants;
+import org.ramtech.frc2026.subsystems.shooter.ShotCalculator;
 import org.ramtech.frc2026.Constants.HoodConstants;
 import org.ramtech.frc2026.Constants.HoodConstants;
 
@@ -87,7 +88,7 @@ public class HoodIOTalonFX implements HoodIO {
 				hoodMotor.setControl(voltageOut.withOutput(outputs.voltageSetpoint).withEnableFOC(true));
 				break;
 			case POSITION :
-				hoodMotor.setControl(motionMagicVoltage.withPosition(outputs.positionSetpoint).withEnableFOC(true));
+				hoodMotor.setControl(motionMagicVoltage.withPosition(outputs.positionSetpoint - ShotCalculator.hoodMinAngle).withEnableFOC(true));
 				break;
 		}
 	}
