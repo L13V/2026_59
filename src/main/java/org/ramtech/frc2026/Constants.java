@@ -54,18 +54,19 @@ public final class Constants {
 		public static final int turretMotorId = 54;
 		public static final int turretEncoderAId = 55;
 		public static final int turretEncoderBId = 56;
-		public static final Double kP_Slot0 = 0.0;
-		public static final Double kI_Slot0 = 0.0;
+		public static final double rotorToSensorRatio = 1;
+		public static final double SensorToMechanismRatio = 0.14668233692646027;
+
+		public static final Double kP_Slot0 = 0.5;
+		public static final Double kI_Slot0 = 0.004999999888241291;
 		public static final Double kD_Slot0 = 0.0;
-		public static final Double kS_Slot0 = 0.0;
+		public static final Double kS_Slot0 = 0.1796875;
 		public static final Double kV_Slot0 = 0.0;
 		public static final Double kA_Slot0 = 0.0;
 		public static final Double kG_Slot0 = 0.0;
-		public static final double motionMagicAcceleration = 0;
-		public static final double motionMagicCruiseVelocity = 0;
+		public static final double motionMagicAcceleration = 9000;
+		public static final double motionMagicCruiseVelocity = 770;
 		public static final double motionMagicJerk = 0;
-		public static final double rotationLowerLimit = 60;
-		public static final double rotationUpperLimit = 600; // TODO: Fix this
 
 		public static final int StatorCurrentLimit = 120;
 		public static final boolean StatorCurrentLimitEnable = true;
@@ -74,17 +75,36 @@ public final class Constants {
 		public static final int SupplyCurrentLowerLimit = 70;
 		public static final int SupplyCurrentLowerTime = 3;
 
+		public static final double forwardSoftLimit = 500;
+		public static final boolean forwardSoftLimitEnable = true;
+
+		public static final double reverseSoftLimit = 60;
+		public static final boolean reverseSoftLimitEnable = true;
+
 	}
 
 	public static final class HoodConstants {
 		public static final int hoodMotorId = 57;
-		public static final Double kP_Slot0 = 0.0;
-		public static final Double kI_Slot0 = 0.0;
+		public static final double rotorToSensorRatio = 1;
+		public static final double SensorToMechanismRatio = 0.75;
+
+		public static final Double kP_Slot0 = 3.5;
+		public static final Double kI_Slot0 = 0.0002;
 		public static final Double kD_Slot0 = 0.0;
-		public static final Double kS_Slot0 = 0.0;
+		public static final Double kS_Slot0 = 0.03;
 		public static final Double kV_Slot0 = 0.0;
-		public static final Double kA_Slot0 = 0.0;
+		public static final Double kA_Slot0 = 0.00015;
 		public static final Double kG_Slot0 = 0.0;
+
+		public static final double motionMagicAcceleration = 9000;
+		public static final double motionMagicCruiseVelocity = 770;
+		public static final double motionMagicJerk = 0;
+
+		public static final double forwardSoftLimit = 40;
+		public static final boolean forwardSoftLimitEnable = true;
+
+		public static final double reverseSoftLimit = 0;
+		public static final boolean reverseSoftLimitEnable = true;
 	}
 
 	public static final class FlywheelConstants {
@@ -100,16 +120,17 @@ public final class Constants {
 		public static final Double kG_Slot0 = 0.0;
 		public static final Double peakForwardVoltage = 16.0;
 		public static final Double peakReverseVoltage = 3.0;
+
 	}
 
 	public static final class TargetPoses {
-		public static Pose3d hub = new Pose3d(4.611624, 4.021328, 1.0, new Rotation3d());
+		public static Pose3d hub = new Pose3d(4.611624, 4.021328, 1.8288, new Rotation3d());
 		public static Pose3d leftPass = new Pose3d(1.0, 1.0, 1.0, new Rotation3d());
 		public static Pose3d rightPass = new Pose3d(1.0, 1.0, 1.0, new Rotation3d());
 	}
 
 	public static final class Offsets {
-		public static final Transform3d turretOffset = new Transform3d(Units.inchesToMeters(9),
+		public static final Transform3d turretOffset = new Transform3d(Units.inchesToMeters(-9),
 				Units.inchesToMeters(-3.25), Units.inchesToMeters(5), new Rotation3d());
 	}
 

@@ -131,7 +131,7 @@ public class Robot extends LoggedRobot {
 		Logger.recordOutput("ShooterLoop/dt", lastShooterDt);
 
 		// Call periodicAfterScheduler on FullSubsystems
-		// ShotCalculator.getInstance().publishShotParameters();
+		ShotCalculator.getInstance().publishShotParameters();
 		FullSubsystem.runAllPeriodicAfterScheduler();
 		RobotState.getInstance().publishState();
 	}

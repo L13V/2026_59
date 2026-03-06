@@ -53,6 +53,7 @@ public class Turret extends ShooterSubsystem {
 			Logger.recordOutput("Shooter/Turret/Mode", outputs.mode);
 			Logger.recordOutput("Shooter/Turret/VoltageSetpoint", outputs.voltageSetpoint);
 			Logger.recordOutput("Shooter/Turret/PositionSetpoint", outputs.positionSetpoint);
+			Logger.recordOutput("Shooter/Turret/SetpointSource", outputs.setpointSource);
 		}
 	}
 
@@ -94,7 +95,7 @@ public class Turret extends ShooterSubsystem {
 		synchronized (outputsLock) {
 			outputs.setpointSource = TurretIOSetpointSource.MANUAL;
 			outputs.mode = TurretIOOutputMode.POSITION;
-			outputs.positionSetpoint = position + 90.0; // Applied offset for making zero straight
+			outputs.positionSetpoint = position; // Applied offset for making zero straight
 		}
 	}
 

@@ -32,6 +32,10 @@ import org.ramtech.frc2026.subsystems.shooter.flywheel.Flywheel;
 import org.ramtech.frc2026.subsystems.shooter.flywheel.FlywheelIO;
 import org.ramtech.frc2026.subsystems.shooter.flywheel.FlywheelIOSim;
 import org.ramtech.frc2026.subsystems.shooter.flywheel.FlywheelIOTalonFX;
+import org.ramtech.frc2026.subsystems.shooter.hood.Hood;
+import org.ramtech.frc2026.subsystems.shooter.hood.HoodIO;
+import org.ramtech.frc2026.subsystems.shooter.hood.HoodIOSim;
+import org.ramtech.frc2026.subsystems.shooter.hood.HoodIOTalonFX;
 import org.ramtech.frc2026.subsystems.shooter.tower.Tower;
 import org.ramtech.frc2026.subsystems.shooter.tower.TowerIO;
 import org.ramtech.frc2026.subsystems.shooter.tower.TowerIOSim;
@@ -61,7 +65,7 @@ public class RobotContainer {
 	private final Intake intake;
 	private final Indexer indexer;
 	private final Tower tower;
-	// private final Hood hood;
+	private final Hood hood;
 	private final Flywheel flywheel;
 	private final Turret turret;
 
@@ -91,7 +95,7 @@ public class RobotContainer {
 				indexer = new Indexer(new IndexerIOTalonFX());
 				tower = new Tower(new TowerIOTalonFX());
 				flywheel = new Flywheel(new FlywheelIOTalonFX());
-				// hood = new Hood(new HoodIOTalonFX());
+				hood = new Hood(new HoodIOTalonFX());
 				turret = new Turret(new TurretIOReal());
 				break;
 
@@ -111,7 +115,7 @@ public class RobotContainer {
 				});
 				tower = new Tower(new TowerIOSim());
 				flywheel = new Flywheel(new FlywheelIOSim());
-				// hood = new Hood(new HoodIOSim());
+				hood = new Hood(new HoodIOSim());
 				turret = new Turret(new TurretIOReal());
 
 				break;
@@ -138,7 +142,8 @@ public class RobotContainer {
 				turret = new Turret(new TurretIO() {
 				});
 
-				// hood = new Hood(new HoodIO() {});
+				hood = new Hood(new HoodIO() {
+				});
 
 				break;
 		}
@@ -227,9 +232,6 @@ public class RobotContainer {
 		// public Command getAutonomousCommand() {
 		// return autoChooser.get();
 		// }
-
-		// public Pose2d getRobotPose() {
-		// return drive.getPose();
-		// }
 	}
+
 }
