@@ -97,4 +97,8 @@ public class Hood extends ShooterSubsystem {
 			outputs.positionSetpoint = 0.0;
 		}
 	}
+
+	public double getHoodAngle() {
+		return inputs.hoodPosition + ShotCalculator.hoodMinAngle;
+	}
 }

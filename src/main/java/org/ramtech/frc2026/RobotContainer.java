@@ -151,6 +151,10 @@ public class RobotContainer {
 		RobotState.getInstance().setSpeedSupplier(drive::getChassisSpeeds);
 		RobotState.getInstance().setModuleStateSupplier(drive::getModuleStates);
 		RobotState.getInstance().setAccelerationSupplier(drive::getAcceleration);
+		RobotState.getInstance().setFlywheelRpsSupplier(flywheel::getAverageVelocity);
+		RobotState.getInstance().setTurretAngleSupplier(turret::getTurretAngle);
+		RobotState.getInstance().setHoodAngleSupplier(hood::getHoodAngle);
+
 
 		// Set up auto routines
 		// autoChooser = new LoggedDashboardChooser<>("Auto Choices",

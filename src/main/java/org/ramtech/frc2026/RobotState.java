@@ -24,9 +24,12 @@ public class RobotState {
 	// Create an initial pose for the supplier to overwrite.
 	private Supplier<Pose2d> poseSupplier = Pose2d::new;
 	private Supplier<ChassisSpeeds> speedSupplier = ChassisSpeeds::new;
-	private Supplier<SwerveModuleState[]> moduleStateSupplier = () -> new SwerveModuleState[]{new SwerveModuleState(),
-			new SwerveModuleState(), new SwerveModuleState(), new SwerveModuleState()};
-	private Supplier<double[]> accelerationSupplier = () -> new double[]{0.0, 0.0, 0.0};
+	private Supplier<SwerveModuleState[]> moduleStateSupplier = () -> new SwerveModuleState[] { new SwerveModuleState(),
+			new SwerveModuleState(), new SwerveModuleState(), new SwerveModuleState() };
+	private Supplier<double[]> accelerationSupplier = () -> new double[] { 0.0, 0.0, 0.0 };
+	private Supplier<Double> flywheelRpsSupplier = () -> 0.0;
+	private Supplier<Double> turretAngleSupplier = () -> 0.0;
+	private Supplier<Double> hoodAngleSupplier = () -> 0.0;
 
 	/*
 	 * Setting Suppliers
@@ -45,6 +48,18 @@ public class RobotState {
 
 	public void setAccelerationSupplier(Supplier<double[]> supplier) {
 		this.accelerationSupplier = supplier;
+	}
+
+	public void setFlywheelRpsSupplier(Supplier<Double> supplier) {
+		this.flywheelRpsSupplier = supplier;
+	}
+
+	public void setTurretAngleSupplier(Supplier<Double> supplier) {
+		this.turretAngleSupplier = supplier;
+	}
+
+	public void setHoodAngleSupplier(Supplier<Double> supplier) {
+		this.hoodAngleSupplier = supplier;
 	}
 	/*
 	 * Getters
@@ -74,6 +89,18 @@ public class RobotState {
 		return accelerationSupplier.get();
 	}
 
+	public double getFlywheelRps() {
+		return flywheelRpsSupplier.get();
+	}
+
+	public double getTurretAngle() {
+		return flywheelRpsSupplier.get();
+	}
+
+	public double getHoodAngle() {
+		return flywheelRpsSupplier.get();
+	}
+
 	/*
 	 * Misc
 	 */
@@ -82,5 +109,6 @@ public class RobotState {
 		Logger.recordOutput("RobotState/BaseRobotRotation", RobotState.getInstance().getRotation());
 		Logger.recordOutput("RobotState/ModuleStats", RobotState.getInstance().getModuleStates());
 		Logger.recordOutput("RobotState/Acceleration", RobotState.getInstance().getAcceleration());
+		Logger.recordOutput("RobotState/FlywheelRPS", getFlywheelRps());
 	}
 }

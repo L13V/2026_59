@@ -27,6 +27,19 @@ public class ShotCalculator {
 		return instance;
 	}
 
+	/**
+	 * Represents the calculated parameters for a shot.
+	 * 
+	 * @param isValid          Whether the shot calculation is valid and safe to
+	 *                         execute.
+	 * @param hoodAngle        The angle of the hood in degrees from horizontal.
+	 * @param flyWheelVelocity The target velocity of the flywheel in rotations per
+	 *                         second (RPS).
+	 * @param towerVelocity    The target velocity of the tower in rotations per
+	 *                         second (RPS).
+	 * @param turretAngle      The target angle of the turret in degrees (Robot
+	 *                         forward is 0 degrees).
+	 */
 	public record ShotParameters(boolean isValid, double hoodAngle, double flyWheelVelocity, double towerVelocity,
 			double turretAngle) {
 	}
@@ -89,7 +102,8 @@ public class ShotCalculator {
 	}
 
 	/**
-	 * @return The angle within one rotation from the turret's origin (robot front = 0 degrees) to the target
+	 * @return The angle within one rotation from the turret's origin (robot front =
+	 *         0 degrees) to the target
 	 *         hub pose.
 	 */
 	public double getTurretDistanceToTarget() {
@@ -127,6 +141,11 @@ public class ShotCalculator {
 	}
 
 	public void update(double loopTime) {
+		double flywheelRpsFeedback = RobotState.getInstance().getFlywheelRps();
+		double turretAngleFeedback = RobotState.getInstance().getTurretAngle();
+		double hoodAngleFeedback = RobotState.getInstance().getHoodAngle();
+
+
 		double turretAngle = getClosestTurretTarget();
 		double turretDistanceToTarget = getTurretDistanceToTarget();
 
@@ -178,7 +197,7 @@ public class ShotCalculator {
 
 		flyWheelVelocity = DataProcessing.sanitize(last.flyWheelVelocity, rpsMin, rpsMax, flyWheelVelocity);
 
-		double rpsDiff = flyWheelVelocity - last.flyWheelVelocity; // replace last with feedback
+		double rpsDiff = flyWheelVelocity - flywheelRpsFeedback; // replace last with feedback
 
 		double flyWheelFeedForward = 0;
 
@@ -203,12 +222,8 @@ public class ShotCalculator {
 
 	public void publishShotParameters() {
 		var params = getLatest();
-		Logger.recordOutput("ShotCalculator/ShotParameters/IsValid", params.isValid());
-		Logger.recordOutput("ShotCalculator/ShotParameters/HoodAngle", params.hoodAngle());
-		Logger.recordOutput("ShotCalculator/ShotParameters/FlyWheelVelocity", params.flyWheelVelocity());
-		Logger.recordOutput("ShotCalculator/ShotParameters/TowerVelocity", params.towerVelocity());
-		Logger.recordOutput("ShotCalculator/ShotParameters/TurretAngle", params.turretAngle());
-		Logger.recordOutput("ShotCalculator/ShotParameters/AngleToHub", getTurretAngleToHub().getDegrees());
+		Logger.recordOutput("ShotCalculator/ShotParameters", params);
+		Logger.recordOutput("ShotCalculator/AngleToHub", getTurretAngleToHub().getDegrees());
 
 	}
 }
