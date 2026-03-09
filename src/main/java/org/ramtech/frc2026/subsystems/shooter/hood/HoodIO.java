@@ -2,10 +2,14 @@ package org.ramtech.frc2026.subsystems.shooter.hood;
 
 import org.littletonrobotics.junction.AutoLog;
 
+import com.ctre.phoenix6.StatusCode;
+
 public interface HoodIO {
 
 	@AutoLog
 	public static class HoodIOInputs {
+		public StatusCode signalsOk = StatusCode.NodeIsInvalid;
+
 		public boolean hoodConnected = false;
 		public boolean hoodConfigured = false;
 

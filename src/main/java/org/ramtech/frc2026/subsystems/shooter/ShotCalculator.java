@@ -5,10 +5,11 @@
 package org.ramtech.frc2026.subsystems.shooter;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import static edu.wpi.first.units.Units.Meter;
 
@@ -18,6 +19,7 @@ import org.ramtech.frc2026.Constants.TargetPoses;
 import org.ramtech.frc2026.Constants.TurretConstants;
 import org.ramtech.frc2026.generated.TunerConstants;
 import org.ramtech.frc2026.util.DataProcessing;
+import org.ramtech.frc2026.util.Zones;
 import org.ramtech.frc2026.RobotState;
 
 public class ShotCalculator {
@@ -29,36 +31,40 @@ public class ShotCalculator {
 
 	/**
 	 * Represents the calculated parameters for a shot.
-	 * 
-	 * @param isValid          Whether the shot calculation is valid and safe to
-	 *                         execute.
-	 * @param hoodAngle        The angle of the hood in degrees from horizontal.
-	 * @param flyWheelVelocity The target velocity of the flywheel in rotations per
-	 *                         second (RPS).
-	 * @param towerVelocity    The target velocity of the tower in rotations per
-	 *                         second (RPS).
-	 * @param turretAngle      The target angle of the turret in degrees (Robot
-	 *                         forward is 0 degrees).
+	 *
+	 * @param isValid
+	 *            Whether the shot calculation is valid and safe to execute.
+	 * @param hoodAngle
+	 *            The angle of the hood in degrees from horizontal.
+	 * @param flyWheelVelocity
+	 *            The target velocity of the flywheel in rotations per second (RPS).
+	 * @param towerVelocity
+	 *            The target velocity of the tower in rotations per second (RPS).
+	 * @param turretAngle
+	 *            The target angle of the turret in degrees (Robot forward is 0
+	 *            degrees).
 	 */
 	public record ShotParameters(boolean isValid, double hoodAngle, double flyWheelVelocity, double towerVelocity,
-			double turretAngle) {
+			double turretAngle, boolean hoodSafe) {
 	}
 
-	private volatile ShotParameters latest = new ShotParameters(false, 0, 0, 0, 0);
-	private volatile ShotParameters last = new ShotParameters(false, 0, 0, 0, 0);;
+	private volatile ShotParameters latest = new ShotParameters(false, 0, 0, 0, 0, false);
+	private volatile ShotParameters last = new ShotParameters(false, 0, 0, 0, 0, false);;
+
+	private static final Zones hoodLowering = new Zones();
 
 	/*
 	 * Constants
 	 */
-	private static final double shotCeiling = 2.5; // m
+	private static final double shotCeiling = 2.7; // m
 	private static final double rpsMin = 30;
-	private static final double rpsMax = 111;
-	private static final double rpsBump = 4;
-	private static final double rpsMult = 1.0;
+	private static final double rpsMax = 90;
+	private static final double rpsBump = 2.2;
+	private static final double rpsMult = 1.11;
 	private static final double peakRPSS = 5000;
 
-	public static final double hoodMinAngle = 12; // deg TODO: Verify
-	private static final double hoodMaxAngle = 53; // deg
+	public static final double hoodMinAngle = 10; // deg TODO: Verify
+	private static final double hoodMaxAngle = 51; // deg
 
 	private static final double g = 9.83069; // m/s^2
 	private static final double ballMass = 0.226796; // kg
@@ -78,15 +84,15 @@ public class ShotCalculator {
 	private static final double backWheelCircum = backWheelDiam * Math.PI; // m
 
 	private static final double angleLookup = 0; // TODO: MAKE it a lookup
-	private static final double flyWheelRatio = 24 / 72; // relative to the motor
-	private static final double backWheelRatio = flyWheelRatio * (36 / 16) * (27 / 16); // relative to the motor
+	private static final double flyWheelRatio = (24.0 / 72.0); // relative to the motor
+	private static final double backWheelRatio = (flyWheelRatio * (36.0 / 16.0) * (27.0 / 16.0)); // relative to the
+																									// motor
 	/*
 	 * Turret
 	 */
 
 	/**
-	 * @return The distance from the turret's zero to the target
-	 *         hub pose.
+	 * @return The distance from the turret's zero to the target hub pose.
 	 */
 	public Rotation2d getTurretAngleToHub() {
 		Pose3d robotpose = new Pose3d(RobotState.getInstance().getRobotPose());
@@ -103,8 +109,7 @@ public class ShotCalculator {
 
 	/**
 	 * @return The angle within one rotation from the turret's origin (robot front =
-	 *         0 degrees) to the target
-	 *         hub pose.
+	 *         0 degrees) to the target hub pose.
 	 */
 	public double getTurretDistanceToTarget() {
 		Pose3d robotpose = new Pose3d(RobotState.getInstance().getRobotPose());
@@ -141,10 +146,14 @@ public class ShotCalculator {
 	}
 
 	public void update(double loopTime) {
-		double flywheelRpsFeedback = RobotState.getInstance().getFlywheelRps();
-		double turretAngleFeedback = RobotState.getInstance().getTurretAngle();
-		double hoodAngleFeedback = RobotState.getInstance().getHoodAngle();
 
+		Pose2d turretPose = RobotState.getInstance().getRobotPose().transformBy(
+				new Transform2d(Offsets.turretOffset.getX(), Offsets.turretOffset.getY(), new Rotation2d()));
+
+		boolean unsafe = hoodLowering.isTurretUnsafe(turretPose);
+		double flywheelRpsFeedback = RobotState.getInstance().getFlywheelRps();
+		// double turretAngleFeedback = RobotState.getInstance().getTurretAngle();
+		// double hoodAngleFeedback = RobotState.getInstance().getHoodAngle();
 
 		double turretAngle = getClosestTurretTarget();
 		double turretDistanceToTarget = getTurretDistanceToTarget();
@@ -156,30 +165,27 @@ public class ShotCalculator {
 		double sanetizedHoodAngle = Units.degreesToRadians(last.hoodAngle); // TODO: Use feedback
 
 		double vertExit = (Math.sin(sanetizedHoodAngle) * ((ballDiameter + flyWheelDiam - ballCompression) / 2));
-		SmartDashboard.putNumber("VertExit", vertExit);
 		double latExit = (Math.cos(sanetizedHoodAngle) * ((ballDiameter + flyWheelDiam - ballCompression) / 2));
-		SmartDashboard.putNumber("LatExit", latExit);
 
 		double shotHeight = (TunerConstants.kWheelRadius.in(Meter) + 0.428625 + vertExit);
 
 		double trajectoryCeiling = (shotCeiling - shotHeight);
 
 		double vertFinal = (TargetPoses.hub.getZ() - shotHeight);
-		SmartDashboard.putNumber("VertFinal", vertFinal);
 
 		double latFinal = (turretDistanceToTarget + latExit - 0.10795);
-		SmartDashboard.putNumber("LatFinal", latFinal);
 
 		double hoodAngle = (Math
 				.atan(((2 * trajectoryCeiling) + (2 * Math.sqrt(trajectoryCeiling * (trajectoryCeiling - vertFinal))))
 						/ latFinal)); // TODO: Log (This is the normal)
-		hoodAngle = DataProcessing.sanitize(Math.toRadians(last.hoodAngle), Math.toRadians(hoodMinAngle),
-				Math.toRadians(hoodMaxAngle), hoodAngle);
+
+		hoodAngle = DataProcessing.sanitize(Math.toRadians(90 - last.hoodAngle), Math.toRadians(90 - hoodMaxAngle),
+				Math.toRadians(90 - hoodMinAngle), hoodAngle);
 
 		// Insert lookup up table compariosn with the 1.2 (20%) range thing
 
-		double velocityInitial = (latFinal / Math.cos(last.hoodAngle))
-				* Math.sqrt(g / 2 * ((latFinal * Math.tan(hoodAngle)) - vertFinal));
+		double velocityInitial = ((latFinal / Math.cos(hoodAngle))
+				* Math.sqrt(g / (2 * ((latFinal * Math.tan(hoodAngle)) - vertFinal))));
 
 		double airEst = (airDensity * ballArea * dragCoeff * velocityInitial * 0.5);
 
@@ -205,12 +211,16 @@ public class ShotCalculator {
 			flyWheelFeedForward = rpsDiff / 100;
 		}
 
+		if (hoodLowering.isTurretUnsafe(turretPose)) {
+			hoodAngle = Math.toRadians(90 - hoodMinAngle);
+		}
+
 		double towerVelocity = 40.0; // TODO: Remove
 		boolean isValid = true;
 		latest = new ShotParameters(isValid, 90 - Math.toDegrees(hoodAngle), // Degrees FROM HORIZONTAL
 				flyWheelVelocity, // Rps
 				40.0, // Rps
-				turretAngle); // Degrees (Robot forward is 0 degrees)
+				turretAngle, !unsafe); // Degrees (Robot forward is 0 degrees)
 
 		last = latest;
 	}

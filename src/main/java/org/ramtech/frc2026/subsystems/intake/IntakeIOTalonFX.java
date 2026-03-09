@@ -3,6 +3,7 @@ package org.ramtech.frc2026.subsystems.intake;
 import static org.ramtech.frc2026.util.PhoenixUtil.*;
 
 import com.ctre.phoenix6.BaseStatusSignal;
+import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.VelocityVoltage;
@@ -17,7 +18,7 @@ import org.ramtech.frc2026.Constants.IntakeConstants;
 
 public class IntakeIOTalonFX implements IntakeIO {
 	// Motors
-	private final TalonFX rollerMotor = new TalonFX(IntakeConstants.rollerMotorId); // Main Motor
+	private final TalonFX rollerMotor = new TalonFX(IntakeConstants.rollerMotorId, CANBus.roboRIO()); // Main Motor
 
 	// Configuration
 	private final TalonFXConfiguration rollerConfig = new TalonFXConfiguration();
@@ -38,9 +39,9 @@ public class IntakeIOTalonFX implements IntakeIO {
 		rollerConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
 		rollerConfig.CurrentLimits.StatorCurrentLimit = 120;
 		rollerConfig.CurrentLimits.StatorCurrentLimitEnable = true;
-		rollerConfig.CurrentLimits.SupplyCurrentLimit = 120;
+		rollerConfig.CurrentLimits.SupplyCurrentLimit = 60;
 		rollerConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-		rollerConfig.CurrentLimits.SupplyCurrentLowerLimit = 70;
+		rollerConfig.CurrentLimits.SupplyCurrentLowerLimit = 30;
 		rollerConfig.CurrentLimits.SupplyCurrentLowerTime = 3;
 
 		// Configure Motors

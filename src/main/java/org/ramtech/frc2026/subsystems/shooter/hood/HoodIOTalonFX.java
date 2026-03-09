@@ -1,5 +1,7 @@
 package org.ramtech.frc2026.subsystems.shooter.hood;
 
+import com.ctre.phoenix6.BaseStatusSignal;
+import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.TalonFXSConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
@@ -8,11 +10,14 @@ import com.ctre.phoenix6.signals.AdvancedHallSupportValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.MotorArrangementValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+
+import edu.wpi.first.units.measure.*;
+
+import static org.ramtech.frc2026.util.PhoenixUtil.*;
+
 import org.ramtech.frc2026.Constants;
 import org.ramtech.frc2026.Constants.HoodConstants;
 import org.ramtech.frc2026.subsystems.shooter.ShotCalculator;
-import org.ramtech.frc2026.Constants.HoodConstants;
-import org.ramtech.frc2026.Constants.HoodConstants;
 
 public class HoodIOTalonFX implements HoodIO {
 	// Motors
@@ -21,6 +26,11 @@ public class HoodIOTalonFX implements HoodIO {
 	// Configuration
 	private final TalonFXSConfiguration hoodConfig = new TalonFXSConfiguration();
 	private boolean hoodConfigured = false;
+
+	private final StatusSignal<Voltage> hoodMotorVoltageSig;
+	private final StatusSignal<AngularVelocity> hoodMotorVelocitySig;
+	private final StatusSignal<Current> hoodMotorCurrentSig;
+	private final StatusSignal<Angle> hoodMotorPositionSig;
 
 	// Control Methods
 	private final VoltageOut voltageOut = new VoltageOut(0); // Control Method
@@ -33,7 +43,6 @@ public class HoodIOTalonFX implements HoodIO {
 		hoodConfig.Commutation.AdvancedHallSupport = AdvancedHallSupportValue.Enabled;
 		hoodConfig.Commutation.MotorArrangement = MotorArrangementValue.Minion_JST;
 		// Conversion Factors
-		// hoodConfig.Feedback.RotorToSensorRatio = HoodConstants.rotorToSensorRatio;
 		hoodConfig.ExternalFeedback.RotorToSensorRatio = HoodConstants.rotorToSensorRatio;
 		hoodConfig.ExternalFeedback.SensorToMechanismRatio = HoodConstants.SensorToMechanismRatio;
 
@@ -58,24 +67,33 @@ public class HoodIOTalonFX implements HoodIO {
 		// hoodConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
 		// hoodConfig.CurrentLimits.SupplyCurrentLowerLimit = 70;
 		// hoodConfig.CurrentLimits.SupplyCurrentLowerTime = 3;
+
+		hoodConfigured = tryUntilOkWithStatus(5, () -> hoodMotor.getConfigurator().apply(hoodConfig));
+
+		hoodMotorVoltageSig = hoodMotor.getMotorVoltage();
+		hoodMotorVelocitySig = hoodMotor.getVelocity();
+		hoodMotorPositionSig = hoodMotor.getPosition();
+		hoodMotorCurrentSig = hoodMotor.getSupplyCurrent();
+
+		BaseStatusSignal.setUpdateFrequencyForAll(50.0, hoodMotorVoltageSig, hoodMotorVelocitySig, hoodMotorCurrentSig);
+
+		hoodMotor.optimizeBusUtilization();
+
 	}
 
 	@Override
 	public void updateInputs(HoodIOInputs inputs) { // TODO: FIX ALL THE CODE
 		// Configuration
-		inputs.hoodConnected = hoodMotor.isConnected(); // Detect connected
-		if (!hoodConfigured && inputs.hoodConnected) { // Configure motor
-			hoodMotor.getConfigurator().apply(hoodConfig);
-			hoodConfigured = true;
-		}
+		inputs.signalsOk = BaseStatusSignal.refreshAll(hoodMotorVoltageSig, hoodMotorVelocitySig, hoodMotorCurrentSig);
+
+		inputs.hoodConnected = BaseStatusSignal.isAllGood(hoodMotorVoltageSig);
 
 		inputs.hoodConfigured = hoodConfigured;
 
-		inputs.hoodMotorVoltage = hoodMotor.getMotorVoltage().getValueAsDouble();
-
-		inputs.hoodPosition = hoodMotor.getPosition().getValueAsDouble();
-		inputs.hoodVelocity = hoodMotor.getVelocity().getValueAsDouble();
-		inputs.hoodSupplyCurrent = hoodMotor.getSupplyCurrent().getValueAsDouble();
+		inputs.hoodMotorVoltage = hoodMotorVoltageSig.getValueAsDouble();
+		inputs.hoodPosition = hoodMotorPositionSig.getValueAsDouble();
+		inputs.hoodVelocity = hoodMotorVelocitySig.getValueAsDouble();
+		inputs.hoodSupplyCurrent = hoodMotorCurrentSig.getValueAsDouble();
 	}
 
 	@Override
@@ -88,7 +106,8 @@ public class HoodIOTalonFX implements HoodIO {
 				hoodMotor.setControl(voltageOut.withOutput(outputs.voltageSetpoint).withEnableFOC(true));
 				break;
 			case POSITION :
-				hoodMotor.setControl(motionMagicVoltage.withPosition(outputs.positionSetpoint - ShotCalculator.hoodMinAngle).withEnableFOC(true));
+				hoodMotor.setControl(motionMagicVoltage
+						.withPosition(outputs.positionSetpoint - ShotCalculator.hoodMinAngle).withEnableFOC(true));
 				break;
 		}
 	}

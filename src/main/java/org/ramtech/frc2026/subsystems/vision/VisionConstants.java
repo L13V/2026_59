@@ -25,14 +25,14 @@ public class VisionConstants {
 
 	// Robot to camera transforms
 	// (Not used by Limelight, configure in web UI instead)
-	public static Transform3d robotToFL = new Transform3d(0.38783006, 0.24178006, 0.52707032,
-			new Rotation3d(Units.degreesToRadians(21), Units.degreesToRadians(0), Units.degreesToRadians(45)));
-	public static Transform3d robotToFR = new Transform3d(-0.38783006, 0.24178006, 0.52707032,
-			new Rotation3d(Units.degreesToRadians(21), Units.degreesToRadians(0), Units.degreesToRadians(-45)));
-	public static Transform3d robotToBL = new Transform3d(0.38783006, -0.24178006, 0.52707032,
-			new Rotation3d(Units.degreesToRadians(21), Units.degreesToRadians(0), Units.degreesToRadians(135)));
-	public static Transform3d robotToBR = new Transform3d(-0.03223006, -0.24178006, 0.52707032,
-			new Rotation3d(Units.degreesToRadians(0), Units.degreesToRadians(21), Units.degreesToRadians(-135)));
+	public static Transform3d robotToFL = new Transform3d(0.254, 0.4, 0.527,
+			new Rotation3d(Units.degreesToRadians(0), Units.degreesToRadians(-21), Units.degreesToRadians(45)));
+	public static Transform3d robotToFR = new Transform3d(0.254, -0.4, 0.527,
+			new Rotation3d(Units.degreesToRadians(0), Units.degreesToRadians(-21), Units.degreesToRadians(315)));
+	public static Transform3d robotToBL = new Transform3d(-0.254, 0.4, 0.527,
+			new Rotation3d(Units.degreesToRadians(0), Units.degreesToRadians(-21), Units.degreesToRadians(135)));
+	public static Transform3d robotToBR = new Transform3d(-0.254, -0.0444, 0.527,
+			new Rotation3d(Units.degreesToRadians(0), Units.degreesToRadians(-21), Units.degreesToRadians(225)));
 
 	// Basic filtering thresholds
 	public static double maxAmbiguity = 0.3;

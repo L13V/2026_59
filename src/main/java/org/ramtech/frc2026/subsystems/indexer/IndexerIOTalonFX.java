@@ -45,9 +45,9 @@ public class IndexerIOTalonFX implements IndexerIO {
 		ballTunnelConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
 		ballTunnelConfig.CurrentLimits.StatorCurrentLimit = 120;
 		ballTunnelConfig.CurrentLimits.StatorCurrentLimitEnable = true;
-		ballTunnelConfig.CurrentLimits.SupplyCurrentLimit = 120;
+		ballTunnelConfig.CurrentLimits.SupplyCurrentLimit = 30;
 		ballTunnelConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-		ballTunnelConfig.CurrentLimits.SupplyCurrentLowerLimit = 70;
+		ballTunnelConfig.CurrentLimits.SupplyCurrentLowerLimit = 30;
 		ballTunnelConfig.CurrentLimits.SupplyCurrentLowerTime = 3;
 
 		// Intake Side
@@ -55,9 +55,9 @@ public class IndexerIOTalonFX implements IndexerIO {
 		starConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
 		starConfig.CurrentLimits.StatorCurrentLimit = 120;
 		starConfig.CurrentLimits.StatorCurrentLimitEnable = true;
-		starConfig.CurrentLimits.SupplyCurrentLimit = 120;
+		starConfig.CurrentLimits.SupplyCurrentLimit = 30;
 		starConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-		starConfig.CurrentLimits.SupplyCurrentLowerLimit = 70;
+		starConfig.CurrentLimits.SupplyCurrentLowerLimit = 30;
 		starConfig.CurrentLimits.SupplyCurrentLowerTime = 3;
 
 		// Configure Motors

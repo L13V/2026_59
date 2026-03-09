@@ -38,9 +38,9 @@ public class TowerIOTalonFX implements TowerIO {
 		towerConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
 		towerConfig.CurrentLimits.StatorCurrentLimit = 120;
 		towerConfig.CurrentLimits.StatorCurrentLimitEnable = true;
-		towerConfig.CurrentLimits.SupplyCurrentLimit = 120;
+		towerConfig.CurrentLimits.SupplyCurrentLimit = 30;
 		towerConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-		towerConfig.CurrentLimits.SupplyCurrentLowerLimit = 70;
+		towerConfig.CurrentLimits.SupplyCurrentLowerLimit = 30;
 		towerConfig.CurrentLimits.SupplyCurrentLowerTime = 3;
 
 		towerConfigured = tryUntilOkWithStatus(5, () -> towerMotor.getConfigurator().apply(towerConfig));

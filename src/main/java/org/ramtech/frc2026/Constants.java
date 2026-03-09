@@ -70,9 +70,9 @@ public final class Constants {
 
 		public static final int StatorCurrentLimit = 120;
 		public static final boolean StatorCurrentLimitEnable = true;
-		public static final int SupplyCurrentLimit = 120;
+		public static final int SupplyCurrentLimit = 30;
 		public static final boolean SupplyCurrentLimitEnable = true;
-		public static final int SupplyCurrentLowerLimit = 70;
+		public static final int SupplyCurrentLowerLimit = 30;
 		public static final int SupplyCurrentLowerTime = 3;
 
 		public static final double forwardSoftLimit = 500;
@@ -124,7 +124,7 @@ public final class Constants {
 	}
 
 	public static final class TargetPoses {
-		public static Pose3d hub = new Pose3d(4.611624, 4.021328, 1.8288, new Rotation3d());
+		public static Pose3d hub = new Pose3d(4.305594, 4.034663, 1.8288, new Rotation3d());
 		public static Pose3d leftPass = new Pose3d(1.0, 1.0, 1.0, new Rotation3d());
 		public static Pose3d rightPass = new Pose3d(1.0, 1.0, 1.0, new Rotation3d());
 	}

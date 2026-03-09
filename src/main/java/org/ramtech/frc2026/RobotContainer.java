@@ -28,6 +28,7 @@ import org.ramtech.frc2026.subsystems.intake.Intake;
 import org.ramtech.frc2026.subsystems.intake.IntakeIO;
 import org.ramtech.frc2026.subsystems.intake.IntakeIOSim;
 import org.ramtech.frc2026.subsystems.intake.IntakeIOTalonFX;
+import org.ramtech.frc2026.subsystems.shooter.ShotCalculator;
 import org.ramtech.frc2026.subsystems.shooter.flywheel.Flywheel;
 import org.ramtech.frc2026.subsystems.shooter.flywheel.FlywheelIO;
 import org.ramtech.frc2026.subsystems.shooter.flywheel.FlywheelIOSim;
@@ -155,7 +156,6 @@ public class RobotContainer {
 		RobotState.getInstance().setTurretAngleSupplier(turret::getTurretAngle);
 		RobotState.getInstance().setHoodAngleSupplier(hood::getHoodAngle);
 
-
 		// Set up auto routines
 		// autoChooser = new LoggedDashboardChooser<>("Auto Choices",
 		// AutoBuilder.buildAutoChooser());
@@ -208,13 +208,18 @@ public class RobotContainer {
 		// Switch to X pattern when X button is pressed
 		// controller.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
 
-		controller.a().onTrue(new InstantCommand(() -> intake.setVoltage(12.0)))
-				.onFalse(new InstantCommand(() -> intake.stop()));
-		controller.y().onTrue(new InstantCommand(() -> indexer.setVoltages(12.0, 9.0)))
+		controller.leftTrigger().onTrue(new InstantCommand(() -> intake.setVoltage(10.0)))
+				.onTrue(new InstantCommand(() -> indexer.setVoltages(0, 6)))
+				.onFalse(new InstantCommand(() -> intake.stop())).onFalse(new InstantCommand(() -> indexer.stop()));
+		controller.leftBumper().and(() -> ShotCalculator.getInstance().getLatest().hoodSafe())
+				.onTrue(new InstantCommand(() -> indexer.setVoltages(12.0, 12)))
+				.onTrue(new InstantCommand(() -> intake.setVoltage(10.0)))
 				.onTrue(new InstantCommand(() -> tower.setVoltage(12)))
-				.onFalse(new InstantCommand(() -> indexer.stop())).onFalse(new InstantCommand(() -> tower.stop()));
+				.onFalse(new InstantCommand(() -> indexer.stop())).onFalse(new InstantCommand(() -> tower.stop()))
+				.onFalse(new InstantCommand(() -> intake.stop()));
 		controller.x().onTrue(new InstantCommand(() -> flywheel.setVelocity(40)))
 				.onFalse(new InstantCommand(() -> flywheel.setVelocity(0)));
+		controller.y().onTrue(new InstantCommand(() -> flywheel.enableCalculation()));
 
 		// Reset gyro to 0° when B button is pressed
 		// controller

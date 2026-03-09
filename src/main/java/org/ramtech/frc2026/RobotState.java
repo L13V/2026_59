@@ -8,12 +8,15 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
+import org.ramtech.frc2026.util.Zones;
 
 /** Add your docs here. */
 public class RobotState {
 	private static RobotState instance;
+	private Zones zones = new Zones();
 
 	public static RobotState getInstance() { //
 		if (instance == null)
@@ -24,9 +27,9 @@ public class RobotState {
 	// Create an initial pose for the supplier to overwrite.
 	private Supplier<Pose2d> poseSupplier = Pose2d::new;
 	private Supplier<ChassisSpeeds> speedSupplier = ChassisSpeeds::new;
-	private Supplier<SwerveModuleState[]> moduleStateSupplier = () -> new SwerveModuleState[] { new SwerveModuleState(),
-			new SwerveModuleState(), new SwerveModuleState(), new SwerveModuleState() };
-	private Supplier<double[]> accelerationSupplier = () -> new double[] { 0.0, 0.0, 0.0 };
+	private Supplier<SwerveModuleState[]> moduleStateSupplier = () -> new SwerveModuleState[]{new SwerveModuleState(),
+			new SwerveModuleState(), new SwerveModuleState(), new SwerveModuleState()};
+	private Supplier<double[]> accelerationSupplier = () -> new double[]{0.0, 0.0, 0.0};
 	private Supplier<Double> flywheelRpsSupplier = () -> 0.0;
 	private Supplier<Double> turretAngleSupplier = () -> 0.0;
 	private Supplier<Double> hoodAngleSupplier = () -> 0.0;
@@ -94,11 +97,11 @@ public class RobotState {
 	}
 
 	public double getTurretAngle() {
-		return flywheelRpsSupplier.get();
+		return turretAngleSupplier.get();
 	}
 
 	public double getHoodAngle() {
-		return flywheelRpsSupplier.get();
+		return hoodAngleSupplier.get();
 	}
 
 	/*
@@ -110,5 +113,7 @@ public class RobotState {
 		Logger.recordOutput("RobotState/ModuleStats", RobotState.getInstance().getModuleStates());
 		Logger.recordOutput("RobotState/Acceleration", RobotState.getInstance().getAcceleration());
 		Logger.recordOutput("RobotState/FlywheelRPS", getFlywheelRps());
+		Logger.recordOutput("RobotState/Zone", zones.getZoneFromPose(RobotState.getInstance().getRobotPose()));
+
 	}
 }

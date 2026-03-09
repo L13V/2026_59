@@ -101,13 +101,13 @@ public class TurretIOReal implements TurretIO {
 		 * Encoder A
 		 */
 		encoderAConfig.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
-		// encoderAConfig.MagnetSensor.MagnetOffset = 0.08349609375;
+		encoderAConfig.MagnetSensor.MagnetOffset = -0.90576171875;
 		encoderAConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 1;
 		/*
 		 * Encoder B
 		 */
 		encoderBConfig.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
-		// encoderBConfig.MagnetSensor.MagnetOffset = 0.130859375;
+		encoderBConfig.MagnetSensor.MagnetOffset = -0.8662109375;
 		encoderBConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 1;
 
 		/*
@@ -150,11 +150,11 @@ public class TurretIOReal implements TurretIO {
 		BaseStatusSignal.refreshAll(turretEncoderAAbsPositionSig, turretEncoderBAbsPositionSig);
 		crtconfig = new EasyCRTConfig(turretEncoderAAbsPositionSig.asSupplier(),
 				turretEncoderBAbsPositionSig.asSupplier()).withAbsoluteEncoder1GearingStages(148, 10)
-						.withAbsoluteEncoder2GearingStages(148, 10, 16, 27).withAbsoluteEncoderInversions(true, true);
+						.withAbsoluteEncoder2GearingStages(148, 10, 16, 27).withAbsoluteEncoderInversions(false, false);
 
 		crt = new EasyCRT(crtconfig);
 
-		// attemptCrt(5);
+		attemptCrt(5);
 	}
 
 	public void attemptCrt(int attempts) { // Attempt Crt a couple times to
@@ -166,7 +166,8 @@ public class TurretIOReal implements TurretIO {
 			if (turretMotorConfigured & turretEncoderAConfigured & turretEncoderBConfigured) {
 				// Solve and push to motor
 				crt.getAngleOptional().ifPresent(mechAngle -> {
-					turretCrtComplete = tryUntilOkWithStatus(5, () -> turretMotor.setPosition(mechAngle));
+					turretCrtComplete = tryUntilOkWithStatus(5,
+							() -> turretMotor.setPosition(mechAngle.magnitude() * 360.0));
 				});
 				break; // if it worked, cancel the loop
 			}
@@ -208,8 +209,8 @@ public class TurretIOReal implements TurretIO {
 		inputs.TurretEncoderAAbsPosition = turretEncoderAAbsPositionSig.getValueAsDouble();
 		inputs.TurretEncoderBAbsPosition = turretEncoderBAbsPositionSig.getValueAsDouble();
 
-		inputs.crtValue = returnangle();
-		inputs.crtStatus = crt.getLastStatus();
+		// inputs.crtValue = returnangle();
+		// inputs.crtStatus = crt.getLastStatus();
 
 		// System.out.println("Satisfies: " + crtconfig.coverageSatisfiesRange());
 		// System.out.println("Satisfies: " + crtconfig.getMatchTolerance());

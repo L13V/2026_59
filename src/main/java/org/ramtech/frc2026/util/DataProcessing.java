@@ -20,7 +20,7 @@ public class DataProcessing {
 	 * @return The sanitized value.
 	 */
 	public static double sanitize(double last, double min, double max, double input) {
-		double sanitized;
+		double sanitized = input;
 
 		if (Double.isNaN(input)) {
 			if (Double.isNaN(last)) {
@@ -28,8 +28,6 @@ public class DataProcessing {
 			} else {
 				sanitized = last;
 			}
-		} else {
-			sanitized = input;
 		}
 
 		if (sanitized < min)

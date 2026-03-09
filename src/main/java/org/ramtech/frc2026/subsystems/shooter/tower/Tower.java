@@ -32,7 +32,7 @@ public class Tower extends ShooterSubsystem {
 
 	public void periodic() {
 		// This method will be called once per scheduler run
-		io.updateInputs(inputs);
+		// io.updateInputs(inputs);
 		Logger.processInputs("Shooter/Tower", inputs);
 		towerDisconnected.set(Robot.showHardwareAlerts() && !towerDebouncer.calculate(inputs.towerConnected));
 	}

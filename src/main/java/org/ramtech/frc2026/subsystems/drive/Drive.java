@@ -50,7 +50,7 @@ import org.ramtech.frc2026.util.LocalADStarAK;
 
 public class Drive extends SubsystemBase {
 	// TunerConstants doesn't include these constants, so they are declared locally
-	static final double ODOMETRY_FREQUENCY = TunerConstants.kCANBus.isNetworkFD() ? 250.0 : 100.0; // Hz
+	static final double ODOMETRY_FREQUENCY = TunerConstants.kCANBus.isNetworkFD() ? 200.0 : 100.0; // Hz
 	public static final double DRIVE_BASE_RADIUS = Math.max(
 			Math.max(Math.hypot(TunerConstants.FrontLeft.LocationX, TunerConstants.FrontLeft.LocationY),
 					Math.hypot(TunerConstants.FrontRight.LocationX, TunerConstants.FrontRight.LocationY)),
