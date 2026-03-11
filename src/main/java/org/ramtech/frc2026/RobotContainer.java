@@ -9,6 +9,7 @@ package org.ramtech.frc2026;
 
 import static org.ramtech.frc2026.subsystems.vision.VisionConstants.*;
 
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 // import org.ramtech.frc2026.subsystems.indexer.IndexerIOSim;
@@ -155,6 +156,7 @@ public class RobotContainer {
 		RobotState.getInstance().setFlywheelRpsSupplier(flywheel::getAverageVelocity);
 		RobotState.getInstance().setTurretAngleSupplier(turret::getTurretAngle);
 		RobotState.getInstance().setHoodAngleSupplier(hood::getHoodAngle);
+		RobotState.getInstance().setGyroAngleRateSupplier(drive::getGyroAngleRate);
 
 		// Set up auto routines
 		// autoChooser = new LoggedDashboardChooser<>("Auto Choices",
@@ -206,11 +208,12 @@ public class RobotContainer {
 		// () -> Rotation2d.kZero));
 
 		// Switch to X pattern when X button is pressed
-		// controller.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
+		controller.povDown().onTrue(Commands.runOnce(drive::stopWithX, drive));
 
 		controller.leftTrigger().onTrue(new InstantCommand(() -> intake.setVoltage(10.0)))
 				.onTrue(new InstantCommand(() -> indexer.setVoltages(0, 6)))
 				.onFalse(new InstantCommand(() -> intake.stop())).onFalse(new InstantCommand(() -> indexer.stop()));
+		controller.leftBumper().onTrue(new InstantCommand(() -> ShotCalculator.getInstance().requestSafe()));
 		controller.leftBumper().and(() -> ShotCalculator.getInstance().getLatest().hoodSafe())
 				.onTrue(new InstantCommand(() -> indexer.setVoltages(12.0, 12)))
 				.onTrue(new InstantCommand(() -> intake.setVoltage(10.0)))
@@ -220,6 +223,7 @@ public class RobotContainer {
 		controller.x().onTrue(new InstantCommand(() -> flywheel.setVelocity(40)))
 				.onFalse(new InstantCommand(() -> flywheel.setVelocity(0)));
 		controller.y().onTrue(new InstantCommand(() -> flywheel.enableCalculation()));
+		controller.a().onTrue(new InstantCommand(() -> ShotCalculator.getInstance().requestSafe()));
 
 		// Reset gyro to 0° when B button is pressed
 		// controller

@@ -58,6 +58,7 @@ public class Flywheel extends ShooterSubsystem {
 				if (shotCalculation.isValid()) {
 					outputs.mode = FlywheelIOOutputMode.VELOCITY;
 					outputs.velocitySetpoint = shotCalculation.flyWheelVelocity();
+					outputs.feedForward = shotCalculation.flyWheelFeedForward();
 				}
 			}
 			io.applyOutputs(outputs); // Set the targets for the motor

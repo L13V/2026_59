@@ -17,10 +17,6 @@ public interface TowerIO {
 		public double towerSupplyCurrent = 0.0;
 	}
 
-	public static enum TowerIOSetpointSource {
-		MANUAL, SHOT_CALCULATOR
-	}
-
 	public static enum TowerIOOutputMode {
 		OFF, VOLTAGE, VELOCITY
 	}
@@ -28,7 +24,6 @@ public interface TowerIO {
 	@AutoLog
 	public static class TowerIOOutputs {
 		public TowerIOOutputMode mode = TowerIOOutputMode.OFF;
-		public TowerIOSetpointSource setpointSource = TowerIOSetpointSource.SHOT_CALCULATOR;
 		public double voltageSetpoint = 0.0;
 		public double velocitySetpoint = 0.0;
 	}

@@ -76,7 +76,7 @@ public class Drive extends SubsystemBase {
 			AlertType.kError);
 
 	private SwerveDriveKinematics kinematics = new SwerveDriveKinematics(getModuleTranslations());
-	private Rotation2d rawGyroRotation = Rotation2d.kZero;
+	private Rotation2d rawGyroRotation = Rotation2d.kZero; // TODO:
 	private SwerveModulePosition[] lastModulePositions = // For delta tracking
 			new SwerveModulePosition[]{new SwerveModulePosition(), new SwerveModulePosition(),
 					new SwerveModulePosition(), new SwerveModulePosition()};
@@ -327,6 +327,14 @@ public class Drive extends SubsystemBase {
 	/** Returns the maximum angular speed in radians per sec. */
 	public double getMaxAngularSpeedRadPerSec() {
 		return getMaxLinearSpeedMetersPerSec() / DRIVE_BASE_RADIUS;
+	}
+
+	public Rotation2d getGyroAngle() {
+		return rawGyroRotation;
+	}
+
+	public Double getGyroAngleRate() {
+		return gyroInputs.yawVelocityRadPerSec;
 	}
 
 	/** Returns an array of module translations. */

@@ -33,6 +33,7 @@ public class RobotState {
 	private Supplier<Double> flywheelRpsSupplier = () -> 0.0;
 	private Supplier<Double> turretAngleSupplier = () -> 0.0;
 	private Supplier<Double> hoodAngleSupplier = () -> 0.0;
+	private Supplier<Double> gyroAngleRateSupplier = () -> 0.0;
 
 	/*
 	 * Setting Suppliers
@@ -63,6 +64,10 @@ public class RobotState {
 
 	public void setHoodAngleSupplier(Supplier<Double> supplier) {
 		this.hoodAngleSupplier = supplier;
+	}
+
+	public void setGyroAngleRateSupplier(Supplier<Double> supplier) {
+		this.gyroAngleRateSupplier = supplier;
 	}
 	/*
 	 * Getters
@@ -102,6 +107,10 @@ public class RobotState {
 
 	public double getHoodAngle() {
 		return hoodAngleSupplier.get();
+	}
+
+	public Double getGyroAngleRate() {
+		return gyroAngleRateSupplier.get();
 	}
 
 	/*

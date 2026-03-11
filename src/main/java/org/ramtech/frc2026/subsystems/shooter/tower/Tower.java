@@ -8,13 +8,11 @@ import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.wpilibj.Alert;
 import org.littletonrobotics.junction.Logger;
 import org.ramtech.frc2026.Robot;
-import org.ramtech.frc2026.subsystems.shooter.ShotCalculator;
 import org.ramtech.frc2026.subsystems.shooter.tower.TowerIO.TowerIOOutputMode;
 import org.ramtech.frc2026.subsystems.shooter.tower.TowerIO.TowerIOOutputs;
-import org.ramtech.frc2026.subsystems.shooter.tower.TowerIO.TowerIOSetpointSource;
-import org.ramtech.frc2026.util.ShooterSubsystem;
+import org.ramtech.frc2026.util.FullSubsystem;
 
-public class Tower extends ShooterSubsystem {
+public class Tower extends FullSubsystem {
 	private final Object outputsLock = new Object();
 
 	// IO
@@ -39,59 +37,26 @@ public class Tower extends ShooterSubsystem {
 
 	@Override
 	public void periodicAfterScheduler() {
-		synchronized (outputsLock) {
-			Logger.recordOutput("Shooter/Tower/Mode", outputs.mode);
-			Logger.recordOutput("Shooter/Tower/VoltageSetpoint", outputs.voltageSetpoint);
-			Logger.recordOutput("Shoter/Tower/VelocitySetpoint", outputs.velocitySetpoint);
-		}
-	}
+		Logger.recordOutput("Shooter/Tower/Mode", outputs.mode);
+		Logger.recordOutput("Shooter/Tower/VoltageSetpoint", outputs.voltageSetpoint);
+		Logger.recordOutput("Shoter/Tower/VelocitySetpoint", outputs.velocitySetpoint);
+		io.applyOutputs(outputs); // Set the targets for the motor
 
-	@Override
-	public void shooterPeriodic() {
-		var shotCalculation = ShotCalculator.getInstance().getLatest();
-		synchronized (outputsLock) {
-			if (outputs.setpointSource == TowerIOSetpointSource.SHOT_CALCULATOR & shotCalculation.isValid()) {
-				outputs.mode = TowerIOOutputMode.VELOCITY;
-				outputs.velocitySetpoint = shotCalculation.towerVelocity();
-			}
-			io.applyOutputs(outputs); // Set the targets for the motor
-		}
-	}
-
-	public void enableCalculation() {
-		synchronized (outputsLock) {
-			outputs.setpointSource = TowerIOSetpointSource.SHOT_CALCULATOR;
-		}
-	}
-
-	public void disableCalculation() {
-		synchronized (outputsLock) {
-			outputs.setpointSource = TowerIOSetpointSource.MANUAL;
-		}
 	}
 
 	public void setVoltage(double voltage) {
-		synchronized (outputsLock) {
-			outputs.setpointSource = TowerIOSetpointSource.MANUAL;
-			outputs.mode = TowerIOOutputMode.VOLTAGE;
-			outputs.voltageSetpoint = voltage;
-		}
+		outputs.mode = TowerIOOutputMode.VOLTAGE;
+		outputs.voltageSetpoint = voltage;
 	}
 
 	public void setVelocity(double velocity) {
-		synchronized (outputsLock) {
-			outputs.setpointSource = TowerIOSetpointSource.MANUAL;
-			outputs.mode = TowerIOOutputMode.VELOCITY;
-			outputs.velocitySetpoint = velocity;
-		}
+		outputs.mode = TowerIOOutputMode.VELOCITY;
+		outputs.velocitySetpoint = velocity;
 	}
 
 	public void stop() {
-		synchronized (outputsLock) {
-			outputs.setpointSource = TowerIOSetpointSource.MANUAL;
-			outputs.mode = TowerIOOutputMode.OFF;
-			outputs.voltageSetpoint = 0.0;
-			outputs.velocitySetpoint = 0.0;
-		}
+		outputs.mode = TowerIOOutputMode.OFF;
+		outputs.voltageSetpoint = 0.0;
+		outputs.velocitySetpoint = 0.0;
 	}
 }

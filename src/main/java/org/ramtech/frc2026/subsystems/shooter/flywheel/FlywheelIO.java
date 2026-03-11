@@ -24,6 +24,7 @@ public interface FlywheelIO {
 
 		public double leftSideSupplyCurrent = 0.0;
 		public double rightSideSupplyCurrent = 0.0;
+
 	}
 
 	public static enum FlywheelIOSetpointSource {
@@ -40,6 +41,7 @@ public interface FlywheelIO {
 		public FlywheelIOSetpointSource setpointSource = FlywheelIOSetpointSource.SHOT_CALCULATOR;
 		public double voltageSetpoint = 0.0;
 		public double velocitySetpoint = 0.0;
+		public double feedForward = 0.0;
 	}
 
 	default void updateInputs(FlywheelIOInputs inputs) {

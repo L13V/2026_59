@@ -10,7 +10,7 @@ import java.util.List;
 public class Zones {
 
 	public static enum zoneType {
-		shooting, passing, blockShooting, unsafe
+		scoring, passingcloseleft, passingcloseright, passingfarleft, passingfarright, blockShooting, hoodUnsafe, nothing
 	};
 
 	private static final double halfTurretLength = Units.inchesToMeters(30) / 2;
@@ -44,15 +44,24 @@ public class Zones {
 
 		// Center
 
-		zones.add(new Zone(4.028694, 6.80339, 4.028694 + 1.1938, 8.069326, "Our Left Trench", zoneType.unsafe));
-		zones.add(new Zone(4.028694, 0, 4.028694 + 1.1938, 1.265936, "Our Right Trench", zoneType.unsafe));
+		zones.add(new Zone(4.028694, 6.80339, 4.028694 + 1.1938, 8.069326, "Our Left Trench", zoneType.hoodUnsafe));
+		zones.add(new Zone(4.028694, 0, 4.028694 + 1.1938, 1.265936, "Our Right Trench", zoneType.hoodUnsafe));
 
-		zones.add(new Zone(11.318496, 6.80339, 11.318496 + 1.1938, 8.069326, "Opposing Right Trench", zoneType.unsafe));
-		zones.add(new Zone(11.318496, 0, 11.318496 + 1.1938, 1.265936, "Opposing Left Trench", zoneType.unsafe));
+		zones.add(new Zone(11.318496, 6.80339, 11.318496 + 1.1938, 8.069326, "Opposing Right Trench",
+				zoneType.hoodUnsafe));
+		zones.add(new Zone(11.318496, 0, 11.318496 + 1.1938, 1.265936, "Opposing Left Trench", zoneType.hoodUnsafe));
 
-		zones.add(new Zone(0, 0, 5.222494, 8.069326, "Our Alliance", zoneType.shooting));
-		zones.add(new Zone(5.222494, 0, 11.318496, 8.069326, "Center", zoneType.passing));
-		zones.add(new Zone(11.318496, 0, 16.540988, 8.069326, "Opposing Alliance", zoneType.passing));
+		zones.add(new Zone(0, 0, 5.222494, 8.069326, "Our Alliance", zoneType.scoring));
+		zones.add(new Zone(5.222494, (8.069326 / 2) + 0.1, 11.318496, 8.069326, "Left Center",
+				zoneType.passingcloseleft));
+		zones.add(new Zone(5.222494, 0, 11.318496, (8.069326 / 2) - 0.1, "Right Center", zoneType.passingcloseright));
+
+		// zones.add(new Zone(11.318496, 0, 16.540988, 8.069326, "Opposing Alliance",
+		// zoneType.passingcloseleft));
+		zones.add(new Zone(11.318496, (8.069326 / 2) + 0.1, 16.540988, 8.069326, "Opposing Alliance Left",
+				zoneType.passingfarleft));
+		zones.add(new Zone(11.318496, 0, 16.540988, (8.069326 / 2) - 0.1, "Opposing Alliance Right",
+				zoneType.passingfarright));
 
 	}
 
@@ -87,7 +96,7 @@ public class Zones {
 
 		for (Zone zone : zones) {
 			for (Translation2d point : turretPoints) {
-				if (zone.containsPoint(point) && zone.type() == zoneType.unsafe) {
+				if (zone.containsPoint(point) && zone.type() == zoneType.hoodUnsafe) {
 					return true; // Lower hood
 				}
 			}
@@ -95,15 +104,27 @@ public class Zones {
 		return false; // allow hood raise
 	}
 
+	public Zone isTurretUnsafeZone(Pose2d turretPose) {
+		Translation2d[] turretPoints = getTurretPoints(turretPose);
+
+		for (Zone zone : zones) {
+			for (Translation2d point : turretPoints) {
+				if (zone.type() == zoneType.hoodUnsafe && zone.containsPoint(point)) {
+					return zone; // Lower hood
+				}
+			}
+		}
+		return null; // allow hood raise
+	}
+
 	/**
 	 * checks if the pose is inside a zone and returns it
 	 */
 	public Zone getZoneFromPose(Pose2d pose) {
-		// Prioritize unsafe zones
-		for (Zone zone : zones) {
-			if (zone.type() == zoneType.unsafe && zone.containsPoint(pose.getTranslation())) {
-				return zone;
-			}
+		// Prioritize unsafe zones with lengthy check
+		var turretzone = isTurretUnsafeZone(pose);
+		if (turretzone != null) {
+			return turretzone;
 		}
 		// check for other zones
 		for (Zone zone : zones) {
