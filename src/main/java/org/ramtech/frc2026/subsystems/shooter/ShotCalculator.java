@@ -80,14 +80,16 @@ public class ShotCalculator {
 	private double tFlight = 0.0;
 	private double tFlightLast = 0.0;
 
+	private Pose2d dynamicPose = new Pose2d();
+
 	/*
 	 * Constants
 	 */
-	private static final double shotCeiling = 2.7; // m
+	private static final double shotCeiling = 2.8; // m
 	private static final double rpsMin = 30;
 	private static final double rpsMax = 80;
-	private static final double rpsBump = 2.2;
-	private static final double rpsMult = 1.15;
+	private static final double rpsBump = 0.7;
+	private static final double rpsMult = 1.13;
 	private static final double peakRPSS = 5000;
 
 	public static final double hoodMinAngle = 10; // deg TODO: Verify
@@ -126,9 +128,8 @@ public class ShotCalculator {
 		// x and y translation to the center of the target
 		var translationToTarget = targetPose.getTranslation().minus(startPose.getTranslation());
 		// top-down angle to target
-		// Rotation2d fieldAngleToTarget = new Rotation2d(translationToTarget.getX(),
-		// translationToTarget.getY());
-		Rotation2d fieldAngleToTarget = new Rotation2d(1, 1);
+		Rotation2d fieldAngleToTarget = new Rotation2d(translationToTarget.getX(), translationToTarget.getY());
+		// Rotation2d fieldAngleToTarget = new Rotation2d(1, 1);
 		// incorperate robot angle
 		Rotation2d turretAngle = fieldAngleToTarget.minus(RobotState.getInstance().getRobotPose().getRotation());
 		return turretAngle;
@@ -210,7 +211,8 @@ public class ShotCalculator {
 
 		// The turret's pose
 		Pose2d robotPose = robotState.getRobotPose();
-		Logger.recordOutput("hello2", robotPose);
+
+		// Logger.recordOutput("hello2", robotPose);
 		Pose2d turretPose = robotPose.transformBy(
 				new Transform2d(Offsets.turretOffset.getX(), Offsets.turretOffset.getY(), new Rotation2d()));
 		Pose3d turretPose3d = new Pose3d(robotPose).transformBy(Offsets.turretOffset);
@@ -308,9 +310,11 @@ public class ShotCalculator {
 
 		double latFinal = (turretDistanceToTarget + latExit - 0.10795);
 
-		double hoodAngle = (Math
-				.atan(((2 * trajectoryCeiling) + (2 * Math.sqrt(trajectoryCeiling * (trajectoryCeiling - vertFinal))))
-						/ latFinal)); // TODO: Log (This is the normal)
+		double safeLatFinal = Math.max(0.001, turretDistanceToTarget + latExit - 0.10795);
+
+		double hoodAngle = Math.atan(((2 * trajectoryCeiling)
+				+ (2 * Math.sqrt(Math.max(0.0, trajectoryCeiling * (trajectoryCeiling - vertFinal)))))
+				/ Math.max(0.001, latFinal));
 		// TODO: Lookup table
 		double angleSub = Math.toDegrees(hoodAngle) - hoodIdealAngle; // this is in degrees because its just
 																		// comparing.
@@ -327,9 +331,8 @@ public class ShotCalculator {
 		hoodAngle = DataProcessing.sanitize(Math.toRadians(90 - last.hoodAngle), Math.toRadians(90 - hoodMaxAngle),
 				Math.toRadians(90 - hoodMinAngle), hoodAngle);
 		// Insert lookup up table compariosn with the 1.2 (20%) range thing
-
-		double velocityInitial = ((latFinal / Math.cos(hoodAngle))
-				* Math.sqrt(g / (2 * ((latFinal * Math.tan(hoodAngle)) - vertFinal))));
+		double velocityInitial = (latFinal / Math.max(0.001, Math.cos(hoodAngle)))
+				* Math.sqrt(g / Math.max(0.001, 2 * ((latFinal * Math.tan(hoodAngle)) - vertFinal)));
 		// double velocityInitial = 1;
 		SmartDashboard.putNumber("velinit", velocityInitial);
 
@@ -356,7 +359,7 @@ public class ShotCalculator {
 		double flyWheelFeedForward = 0;
 		double latDist = getTurretDistanceToTarget(turretPose3d, targetPose);
 		tFlight = (latDist / LatVelocity)
-				+ ((airEst * (Math.pow(latDist, 2))) / 2 * ballMass * Math.pow(LatVelocity, 2));
+				+ ((airEst * (Math.pow(latDist, 2))) / (2 * ballMass * Math.pow(LatVelocity, 2)));
 		tFlight = DataProcessing.sanitize(tFlightLast, 1, 10, tFlight);
 
 		tFlightLast = tFlight;
@@ -367,6 +370,7 @@ public class ShotCalculator {
 		Pose2d robotPoseDynamicXY = new Pose2d((robotPose.getX() + allVelocityX), (robotPose.getY() + allVelocityY),
 				robotState.getRobotPose().getRotation());
 
+		dynamicPose = robotPoseDynamicXY;
 		Pose2d turretPoseDynamicXY = robotPoseDynamicXY.transformBy(Offsets.turretOffset2d);
 
 		double turretAngle = getWrappedAngleForTurretMotorThingThatIAmTyring(
@@ -398,6 +402,7 @@ public class ShotCalculator {
 	public void publishShotParameters() {
 		var params = getLatest();
 		Logger.recordOutput("ShotCalculator/ShotParameters", params);
+		Logger.recordOutput("ShotCalculator/DynamicPose", dynamicPose);
 		Logger.recordOutput("RobotState/ZoneName", zone != null ? zone.name() : "hello!");
 		// Logger.recordOutput("ShotCalculator/AngleToTarget",
 		// getTurretAngleToTarget().getDegrees());
