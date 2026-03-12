@@ -88,8 +88,8 @@ public class ShotCalculator {
 	private static final double shotCeiling = 2.8; // m
 	private static final double rpsMin = 30;
 	private static final double rpsMax = 80;
-	private static final double rpsBump = 0.7;
-	private static final double rpsMult = 1.13;
+	private static final double rpsBump = 0;
+	private static final double rpsMult = 1.135;
 	private static final double peakRPSS = 5000;
 
 	public static final double hoodMinAngle = 10; // deg TODO: Verify
@@ -287,13 +287,26 @@ public class ShotCalculator {
 			hoodEnableRequest = false;
 		}
 
+		// ... [Your zone switch block ends here] ...
+
+		// NEW: 1. Calculate the dynamic pose FIRST using tFlightLast
+		double allVelocityX = (fieldSpeeds.vxMetersPerSecond + velocityAdder.getX()) * (tFlightLast + tReact);
+		double allVelocityY = (fieldSpeeds.vyMetersPerSecond + velocityAdder.getY()) * (tFlightLast + tReact);
+
+		Pose2d robotPoseDynamicXY = new Pose2d((robotPose.getX() + allVelocityX), (robotPose.getY() + allVelocityY),
+				robotState.getRobotPose().getRotation());
+		dynamicPose = robotPoseDynamicXY;
+
+		Pose2d turretPoseDynamicXY = robotPoseDynamicXY.transformBy(Offsets.turretOffset2d);
+		Pose3d turretPoseDynamic3d = new Pose3d(turretPoseDynamicXY); // We need this for the 3D distance check
+
 		double flywheelRpsFeedback = RobotState.getInstance().getFlywheelRps();
 		// double turretAngleFeedback = RobotState.getInstance().getTurretAngle();
-		double hoodAngleFeedback = RobotState.getInstance().getHoodAngle();
+		// double hoodAngleFeedback = RobotState.getInstance().getHoodAngle();
 
 		// double turretAngle = getClosestTurretAngleTargetToPose(turretPose3d,
 		// targetPose);
-		double turretDistanceToTarget = getTurretDistanceToTarget(turretPose3d, targetPose);
+		double turretDistanceToTarget = getTurretDistanceToTarget(turretPoseDynamic3d, targetPose);
 
 		double vertExit = (Math.sin(Math.toRadians(last.hoodAngle))
 				* ((ballDiameter + flyWheelDiam - ballCompression) / 2));
@@ -336,7 +349,8 @@ public class ShotCalculator {
 		// double velocityInitial = 1;
 		SmartDashboard.putNumber("velinit", velocityInitial);
 
-		double velocityCombo = velocityInitial + Math.abs(0); // TODO: Implement robot pose stuff
+		// NEW: 3. Add the chassis momentum to the initial velocity requirement
+		double velocityCombo = velocityInitial + Math.abs(Math.hypot(allVelocityX, allVelocityY));
 
 		double airEst = (airDensity * ballArea * dragCoeff * velocityCombo * 0.5);
 
@@ -363,15 +377,6 @@ public class ShotCalculator {
 		tFlight = DataProcessing.sanitize(tFlightLast, 1, 10, tFlight);
 
 		tFlightLast = tFlight;
-
-		double allVelocityX = (fieldSpeeds.vxMetersPerSecond + velocityAdder.getX()) * (tFlight + tReact);
-		double allVelocityY = (fieldSpeeds.vyMetersPerSecond + velocityAdder.getY()) * (tFlight + tReact);
-
-		Pose2d robotPoseDynamicXY = new Pose2d((robotPose.getX() + allVelocityX), (robotPose.getY() + allVelocityY),
-				robotState.getRobotPose().getRotation());
-
-		dynamicPose = robotPoseDynamicXY;
-		Pose2d turretPoseDynamicXY = robotPoseDynamicXY.transformBy(Offsets.turretOffset2d);
 
 		double turretAngle = getWrappedAngleForTurretMotorThingThatIAmTyring(
 				getAngleToTarget(new Pose3d(turretPoseDynamicXY), targetPose).getDegrees()
