@@ -9,7 +9,9 @@ package org.ramtech.frc2026;
 
 import com.ctre.phoenix6.CANBus;
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.RobotBase;
@@ -124,7 +126,7 @@ public final class Constants {
 	}
 
 	public static final class TargetPoses {
-		public static Pose3d hub = new Pose3d(4.305594, 4.034663, 1.8288, new Rotation3d());
+		public static Pose3d hub = new Pose3d(4.65594, 4.034663, 1.8288, new Rotation3d());
 		public static Pose3d leftFarPass = new Pose3d(4.125, 4.374663 + 1.5, 0.0, new Rotation3d());
 		public static Pose3d rightFarPass = new Pose3d(4.125, 4.374663 - 1.5, 0.0, new Rotation3d());
 		public static Pose3d leftClosePass = new Pose3d(4.125, 4.034663 + 1.5, 0.0, new Rotation3d());
@@ -134,6 +136,8 @@ public final class Constants {
 	public static final class Offsets {
 		public static final Transform3d turretOffset = new Transform3d(Units.inchesToMeters(-9),
 				Units.inchesToMeters(-3.25), Units.inchesToMeters(5), new Rotation3d());
+		public static final Transform2d turretOffset2d = new Transform2d(turretOffset.getX(), turretOffset.getY(),
+				new Rotation2d());
 	}
 
 	public static final class ClimbConstants {
