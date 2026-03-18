@@ -8,9 +8,11 @@ import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.wpilibj.Alert;
 import org.littletonrobotics.junction.Logger;
 import org.ramtech.frc2026.Robot;
-import org.ramtech.frc2026.subsystems.intake.IntakeIO.IntakeIOOutputMode;
+import org.ramtech.frc2026.subsystems.intake.IntakeIO.IntakeIORollerOutputMode;
 import org.ramtech.frc2026.subsystems.intake.IntakeIO.IntakeIOOutputs;
+import org.ramtech.frc2026.subsystems.intake.IntakeIO.IntakeIOPivotOutputMode;
 import org.ramtech.frc2026.util.FullSubsystem;
+
 
 public class Intake extends FullSubsystem {
 	// IO
@@ -18,8 +20,14 @@ public class Intake extends FullSubsystem {
 	private final IntakeIOInputsAutoLogged inputs = new IntakeIOInputsAutoLogged();
 	private final IntakeIOOutputs outputs = new IntakeIOOutputs();
 	// Alerts
-	private final Debouncer rollerDebouncer = new Debouncer(0.5, Debouncer.DebounceType.kFalling);
-	private final Alert rollerDisconnected = new Alert("Intake Roller Disconnected!", Alert.AlertType.kWarning);
+	private final Debouncer motorADebouncer = new Debouncer(0.5, Debouncer.DebounceType.kFalling);
+	private final Debouncer motorBDebouncer = new Debouncer(0.5, Debouncer.DebounceType.kFalling);
+	private final Debouncer intakePivotMotorDebouncer = new Debouncer(0.5, Debouncer.DebounceType.kFalling);
+
+	private final Alert motorADisconnected = new Alert("Intake Motor A Disconnected!", Alert.AlertType.kWarning);
+	private final Alert motorBDisconnected = new Alert("Intake Motor B Disconnected!", Alert.AlertType.kWarning);
+	private final Alert intakePivotMotorDisconnected = new Alert("Intake Pivot Motor Disconnected!",
+			Alert.AlertType.kWarning);
 
 	/** Creates a new Tower. */
 	public Intake(IntakeIO io) {
@@ -31,29 +39,39 @@ public class Intake extends FullSubsystem {
 		// This method will be called once per scheduler run
 		io.updateInputs(inputs);
 		Logger.processInputs("Intake", inputs);
-		rollerDisconnected.set(Robot.showHardwareAlerts() && !rollerDebouncer.calculate(inputs.rollerConnected));
+		motorADisconnected.set(Robot.showHardwareAlerts() && !motorADebouncer.calculate(inputs.motorAConnected));
+		motorBDisconnected.set(Robot.showHardwareAlerts() && !motorBDebouncer.calculate(inputs.motorBConnected));
+		intakePivotMotorDisconnected.set(
+				Robot.showHardwareAlerts() && !intakePivotMotorDebouncer.calculate(inputs.intakePivotMotorConnected));
+
 	}
 
 	@Override
 	public void periodicAfterScheduler() {
 		io.applyOutputs(outputs); // Set the targets for the motor
-		Logger.recordOutput("Intake/Roller/Mode", outputs.mode);
-		Logger.recordOutput("Intake/Roller/Voltage", outputs.voltageSetpoint);
+		Logger.recordOutput("Intake/Roller/Mode", outputs.rollerMode);
+		Logger.recordOutput("Intake/Roller/VoltageSetpoint", outputs.rollerVoltageSetpoint);
+
+		Logger.recordOutput("Intake/Pivot/Mode", outputs.pivotMode);
+		Logger.recordOutput("Intake/Pivot/PositionSetpoint", outputs.pivotPositionSetpoint);
 	}
 
-	public void setVoltage(double voltage) {
-		outputs.mode = IntakeIOOutputMode.VOLTAGE;
-		outputs.voltageSetpoint = voltage;
+	public void setRollerVoltage(double voltage) {
+		outputs.rollerMode = IntakeIORollerOutputMode.VOLTAGE;
+		outputs.rollerVoltageSetpoint = voltage;
 	}
 
-	public void setVelocity(double velocity) {
-		outputs.mode = IntakeIOOutputMode.VELOCITY;
-		outputs.velocitySetpoint = velocity;
+	public void setPivotPosition(double position) {
+		outputs.pivotMode = IntakeIOPivotOutputMode.POSITION;
+		outputs.pivotPositionSetpoint = position;
 	}
 
-	public void stop() {
-		outputs.mode = IntakeIOOutputMode.OFF;
-		outputs.voltageSetpoint = 0.0;
-		outputs.velocitySetpoint = 0.0;
+	public void stopRollers() {
+		outputs.rollerMode = IntakeIORollerOutputMode.OFF;
+		outputs.rollerVoltageSetpoint = 0.0;
+	}
+
+	public void stopPivot() {
+		outputs.pivotMode = IntakeIOPivotOutputMode.OFF;
 	}
 }

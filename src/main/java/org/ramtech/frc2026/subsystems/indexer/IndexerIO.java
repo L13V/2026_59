@@ -9,20 +9,14 @@ public interface IndexerIO {
 	public static class IndexerIOInputs {
 		public StatusCode signalsOk = StatusCode.NodeIsInvalid;
 
-		public boolean ballTunnelConnected = false;
-		public boolean ballTunnelConfigured = false;
+		public boolean indexerConnected = false;
+		public boolean IndexerConfigured = false;
 
-		public boolean starsConnected = false;
-		public boolean starsConfigured = false;
+		public double IndexerMotorVoltage = 0.0;
 
-		public double ballTunnelMotorVoltage = 0.0;
-		public double starMotorVoltage = 0.0;
+		public double IndexerRps = 0.0;
 
-		public double ballTunnelRps = 0.0;
-		public double starRps = 0.0;
-
-		public double ballTunnelSupplyCurrent = 0.0;
-		public double starSupplyCurrent = 0.0;
+		public double IndexerSupplyCurrent = 0.0;
 	}
 
 	public static enum IndexerIOOutputMode {
@@ -31,8 +25,7 @@ public interface IndexerIO {
 
 	public static class IndexerIOOutputs {
 		public IndexerIOOutputMode mode = IndexerIOOutputMode.OFF;
-		public double ballTunnelVoltageSetpoint = 0.0;
-		public double starVoltageSetpoint = 0.0;
+		public double indexerVoltageSetpoint = 0.0;
 	}
 
 	default void updateInputs(IndexerIOInputs inputs) {

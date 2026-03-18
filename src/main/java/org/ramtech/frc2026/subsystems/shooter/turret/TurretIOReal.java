@@ -228,7 +228,7 @@ public class TurretIOReal implements TurretIO {
 				break;
 			case POSITION :
 				turretMotor.setControl(
-						MotionMagicVoltage.withPosition(outputs.positionSetpoint + 90).withEnableFOC(true).withSlot(0));
+						MotionMagicVoltage.withPosition(outputs.positionSetpoint + 180).withEnableFOC(true).withSlot(0));
 				break;
 		}
 	}

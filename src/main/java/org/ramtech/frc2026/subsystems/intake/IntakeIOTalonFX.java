@@ -3,14 +3,17 @@ package org.ramtech.frc2026.subsystems.intake;
 import static org.ramtech.frc2026.util.PhoenixUtil.*;
 
 import com.ctre.phoenix6.BaseStatusSignal;
-import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.VelocityVoltage;
+import com.ctre.phoenix6.controls.MotionMagicVoltage;
+import com.ctre.phoenix6.controls.StrictFollower;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import org.ramtech.frc2026.Constants;
+
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
@@ -18,68 +21,143 @@ import org.ramtech.frc2026.Constants.IntakeConstants;
 
 public class IntakeIOTalonFX implements IntakeIO {
 	// Motors
-	private final TalonFX rollerMotor = new TalonFX(IntakeConstants.rollerMotorId, CANBus.roboRIO()); // Main Motor
+	private final TalonFX motorA = new TalonFX(IntakeConstants.motorAID, Constants.CANivore); // Main Motor
+	private final TalonFX motorB = new TalonFX(IntakeConstants.motorBID, Constants.CANivore); // Secondary Motor
+
+	private final TalonFX pivotMotor = new TalonFX(IntakeConstants.pivotMotorID, Constants.CANivore); // Secondary Motor
 
 	// Configuration
-	private final TalonFXConfiguration rollerConfig = new TalonFXConfiguration();
-	private boolean rollerConfigured = false;
+	private final TalonFXConfiguration motorAConfig = new TalonFXConfiguration();
+	private final TalonFXConfiguration motorBConfig = new TalonFXConfiguration();
+	private final TalonFXConfiguration pivotMotorConfig = new TalonFXConfiguration();
+
+	private boolean motorAConfigured = false;
+	private boolean motorBConfigured = false;
+	private boolean pivotMotorConfigured = false;
 
 	// Status Signals (Cached to prevent allocation in loop)
-	private final StatusSignal<Voltage> rollerVoltageSig;
-	private final StatusSignal<AngularVelocity> rollerVelocitySig;
-	private final StatusSignal<Current> rollerCurrentSig;
+	private final StatusSignal<Voltage> motorAVoltageSig;
+	private final StatusSignal<AngularVelocity> motorAVelocitySig;
+	private final StatusSignal<Current> motorACurrentSig;
+	private final StatusSignal<Voltage> motorBVoltageSig;
+	private final StatusSignal<AngularVelocity> motorBVelocitySig;
+	private final StatusSignal<Current> motorBCurrentSig;
 
+	private final StatusSignal<Voltage> intakePivotVoltageSig;
+	private final StatusSignal<AngularVelocity> intakePivotVelocitySig;
+	private final StatusSignal<Current> intakePivotCurrentSig;
+	private final StatusSignal<Angle> intakePivotPositionSig;
 	// Control Methods
 	private final VoltageOut voltageOut = new VoltageOut(0); // Control Method
-	private final VelocityVoltage velocityVoltage = new VelocityVoltage(0);
+	private final StrictFollower follower = new StrictFollower(IntakeConstants.motorAID);
+
+	private final MotionMagicVoltage pivotPosition = new MotionMagicVoltage(0.0);
 
 	public IntakeIOTalonFX() {
 		// Complete the config
-		rollerConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
-		rollerConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
-		rollerConfig.CurrentLimits.StatorCurrentLimit = 100;
-		rollerConfig.CurrentLimits.StatorCurrentLimitEnable = true;
-		rollerConfig.CurrentLimits.SupplyCurrentLimit = 50;
-		rollerConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-		rollerConfig.CurrentLimits.SupplyCurrentLowerLimit = 30;
-		rollerConfig.CurrentLimits.SupplyCurrentLowerTime = 3;
+		motorAConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+		motorAConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+		motorAConfig.CurrentLimits.StatorCurrentLimit = 90;
+		motorAConfig.CurrentLimits.StatorCurrentLimitEnable = true;
+		motorAConfig.CurrentLimits.SupplyCurrentLimit = 30;
+		motorAConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
+		motorAConfig.CurrentLimits.SupplyCurrentLowerLimit = 30;
+		motorAConfig.CurrentLimits.SupplyCurrentLowerTime = 3;
+
+		motorBConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+		motorBConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+		motorBConfig.CurrentLimits.StatorCurrentLimit = 90;
+		motorBConfig.CurrentLimits.StatorCurrentLimitEnable = true;
+		motorBConfig.CurrentLimits.SupplyCurrentLimit = 30;
+		motorBConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
+		motorBConfig.CurrentLimits.SupplyCurrentLowerLimit = 30;
+		motorBConfig.CurrentLimits.SupplyCurrentLowerTime = 3;
+
+		pivotMotorConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+		pivotMotorConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+		pivotMotorConfig.CurrentLimits.StatorCurrentLimit = 90;
+		pivotMotorConfig.CurrentLimits.StatorCurrentLimitEnable = true;
+		pivotMotorConfig.CurrentLimits.SupplyCurrentLimit = 30;
+		pivotMotorConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
+		pivotMotorConfig.CurrentLimits.SupplyCurrentLowerLimit = 30;
+		pivotMotorConfig.CurrentLimits.SupplyCurrentLowerTime = 3;
 
 		// Configure Motors
-		rollerConfigured = tryUntilOkWithStatus(5, () -> rollerMotor.getConfigurator().apply(rollerConfig, 0.25));
+		motorAConfigured = tryUntilOkWithStatus(5, () -> motorA.getConfigurator().apply(motorAConfig, 0.25));
+		motorBConfigured = tryUntilOkWithStatus(5, () -> motorB.getConfigurator().apply(motorBConfig, 0.25));
+		pivotMotorConfigured = tryUntilOkWithStatus(5,
+				() -> pivotMotor.getConfigurator().apply(pivotMotorConfig, 0.25));
 
 		// Initialize signals
-		rollerVoltageSig = rollerMotor.getMotorVoltage();
-		rollerVelocitySig = rollerMotor.getVelocity();
-		rollerCurrentSig = rollerMotor.getSupplyCurrent();
+		motorAVoltageSig = motorA.getMotorVoltage();
+		motorAVelocitySig = motorA.getVelocity();
+		motorACurrentSig = motorA.getSupplyCurrent();
+		motorBVoltageSig = motorB.getMotorVoltage();
+		motorBVelocitySig = motorB.getVelocity();
+		motorBCurrentSig = motorB.getSupplyCurrent();
 
-		BaseStatusSignal.setUpdateFrequencyForAll(50.0, rollerVoltageSig, rollerVelocitySig, rollerCurrentSig);
+		intakePivotVoltageSig = pivotMotor.getMotorVoltage();
+		intakePivotVelocitySig = pivotMotor.getVelocity();
+		intakePivotPositionSig = pivotMotor.getPosition();
+		intakePivotCurrentSig = pivotMotor.getSupplyCurrent(); // TODO: FINISH
 
-		rollerMotor.optimizeBusUtilization();
+		BaseStatusSignal.setUpdateFrequencyForAll(50.0, motorAVoltageSig, motorAVelocitySig, motorACurrentSig,
+				motorBVoltageSig, motorBVelocitySig, motorBCurrentSig, intakePivotVoltageSig, intakePivotVelocitySig,
+				intakePivotCurrentSig, intakePivotPositionSig);
+
+		motorA.optimizeBusUtilization();
+		motorB.optimizeBusUtilization();
+		pivotMotor.optimizeBusUtilization(); 
 	}
 
 	@Override
 	public void updateInputs(IntakeIOInputs inputs) {
-		inputs.signalsOk = BaseStatusSignal.refreshAll(rollerVoltageSig, rollerVelocitySig, rollerCurrentSig);
+		inputs.signalsOk = BaseStatusSignal.refreshAll(motorAVoltageSig, motorAVelocitySig, motorACurrentSig,
+				motorBCurrentSig, motorBVelocitySig, motorBCurrentSig,intakePivotVoltageSig,intakePivotVelocitySig,intakePivotCurrentSig,intakePivotPositionSig);
 
 		// Configuration
-		inputs.rollerConnected = BaseStatusSignal.isAllGood(rollerVoltageSig);
-		inputs.rollerConfigured = rollerConfigured;
-		inputs.rollerVoltage = rollerVoltageSig.getValueAsDouble();
-		inputs.rollerRps = rollerVelocitySig.getValueAsDouble();
-		inputs.rollerSupplyCurrent = rollerCurrentSig.getValueAsDouble();
+		inputs.motorAConnected = BaseStatusSignal.isAllGood(motorAVoltageSig);
+		inputs.motorAConfigured = motorAConfigured;
+		inputs.motorAVoltage = motorAVoltageSig.getValueAsDouble();
+		inputs.motorARps = motorAVelocitySig.getValueAsDouble();
+		inputs.motorASupplyCurrent = motorACurrentSig.getValueAsDouble();
+
+		inputs.motorBConnected = BaseStatusSignal.isAllGood(motorBVoltageSig);
+		inputs.motorBConfigured = motorBConfigured;
+		inputs.motorBVoltage = motorBVoltageSig.getValueAsDouble();
+		inputs.motorBRps = motorBVelocitySig.getValueAsDouble();
+		inputs.motorBSupplyCurrent = motorBCurrentSig.getValueAsDouble();
+
+		inputs.intakePivotMotorConnected = BaseStatusSignal.isAllGood(intakePivotVoltageSig);
+		inputs.intakePivotMotorConfigured = pivotMotorConfigured;
+		inputs.intakePivotMotorVoltage = intakePivotVoltageSig.getValueAsDouble();
+		inputs.intakePivotMotorRps = intakePivotVelocitySig.getValueAsDouble();
+		inputs.intakePivotMotorSupplyCurrent = intakePivotCurrentSig.getValueAsDouble();
 	}
 
 	@Override
 	public void applyOutputs(IntakeIOOutputs outputs) {
-		switch (outputs.mode) {
-			case OFF :
-				rollerMotor.stopMotor();
+		switch (outputs.rollerMode) {
+			case OFF:
+				motorA.stopMotor();
+				motorB.stopMotor();
 				break;
-			case VOLTAGE :
-				rollerMotor.setControl(voltageOut.withOutput(outputs.voltageSetpoint).withEnableFOC(true));
+			case VOLTAGE:
+				motorA.setControl(voltageOut.withOutput(outputs.rollerVoltageSetpoint).withEnableFOC(true));
+				motorB.setControl(follower);
 				break;
-			case VELOCITY :
-				rollerMotor.setControl(velocityVoltage.withVelocity(outputs.velocitySetpoint).withEnableFOC(true));
+			default:
+				break;
+		}
+		switch (outputs.pivotMode) {
+			case OFF:
+				pivotMotor.stopMotor();
+				break;
+			case POSITION:
+				pivotMotor.setControl(pivotPosition.withPosition(outputs.pivotPositionSetpoint).withEnableFOC(true));
+				break;
+			default:
+				break;
 		}
 	}
 }

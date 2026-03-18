@@ -7,6 +7,8 @@
 
 package org.ramtech.frc2026;
 
+import static org.ramtech.frc2026.subsystems.vision.VisionConstants.aprilTagLayout;
+
 import com.ctre.phoenix6.CANBus;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -22,9 +24,14 @@ import edu.wpi.first.wpilibj.RobotBase;
  * between "sim" (physics sim) and "replay" (log replay from a file).
  */
 public final class Constants {
+	public static final boolean isComp = false;
+
 	public static final Mode simMode = Mode.SIM;
 	public static final Mode currentMode = RobotBase.isReal() ? Mode.REAL : simMode;
 	public static final CANBus CANivore = new CANBus("RT Canivore");
+	public static final double MAX_WHEEL_ROTATION_VELOCITY = 10.0;
+
+	public static boolean disableFlipping = false;
 
 	public static enum Mode {
 		/** Running on a real robot. */
@@ -37,9 +44,30 @@ public final class Constants {
 		REPLAY
 	}
 
+	public static final class FieldConstants {
+		public static final double fieldLength = aprilTagLayout.getFieldLength();
+		public static final double fieldWidth = aprilTagLayout.getFieldWidth();
+	}
+
+	public static final class TargetPoses {
+		public static Pose3d hub = new Pose3d(4.65594, 4.034663, 1.8288, new Rotation3d());
+		public static Pose3d leftFarPass = new Pose3d(5.6, 4.034663 + 1.5, 0.0, new Rotation3d());
+		public static Pose3d rightFarPass = new Pose3d(5.6, 4.034663 - 1.5, 0.0, new Rotation3d());
+		public static Pose3d leftClosePass = new Pose3d(4.1, 4.034663 + 1.5, 0.0, new Rotation3d());
+		public static Pose3d rightClosePass = new Pose3d(4.1, 4.034663 - 1.5, 0.0, new Rotation3d());
+	}
+
+	public static final class Offsets {
+		public static final Transform3d turretOffset = new Transform3d(Units.inchesToMeters(-3.25),
+				Units.inchesToMeters(-9), Units.inchesToMeters(5), new Rotation3d());
+		public static final Transform2d turretOffset2d = new Transform2d(turretOffset.getX(), turretOffset.getY(),
+				new Rotation2d());
+	}
+
 	public static final class IntakeConstants {
-		public static final int intakePivotMotorId = 45;
-		public static final int rollerMotorId = 47;
+		public static final int pivotMotorID = 45;
+		public static final int motorAID = 47;
+		public static final int motorBID = 48;
 		public static final int intakeEncoderId = 0;
 	}
 
@@ -76,6 +104,8 @@ public final class Constants {
 		public static final boolean SupplyCurrentLimitEnable = true;
 		public static final int SupplyCurrentLowerLimit = 30;
 		public static final int SupplyCurrentLowerTime = 3;
+
+		public static final double turretAngleOffsetForZero = 180;
 
 		public static final double forwardSoftLimit = 600;
 		public static final boolean forwardSoftLimitEnable = true;
@@ -125,23 +155,9 @@ public final class Constants {
 
 	}
 
-	public static final class TargetPoses {
-		public static Pose3d hub = new Pose3d(4.65594, 4.034663, 1.8288, new Rotation3d());
-		public static Pose3d leftFarPass = new Pose3d(4.125, 4.374663 + 1.5, 0.0, new Rotation3d());
-		public static Pose3d rightFarPass = new Pose3d(4.125, 4.374663 - 1.5, 0.0, new Rotation3d());
-		public static Pose3d leftClosePass = new Pose3d(4.125, 4.034663 + 1.5, 0.0, new Rotation3d());
-		public static Pose3d rightClosePass = new Pose3d(4.125, 4.034663 - 1.5, 0.0, new Rotation3d());
-	}
-
-	public static final class Offsets {
-		public static final Transform3d turretOffset = new Transform3d(Units.inchesToMeters(-9),
-				Units.inchesToMeters(-3.25), Units.inchesToMeters(5), new Rotation3d());
-		public static final Transform2d turretOffset2d = new Transform2d(turretOffset.getX(), turretOffset.getY(),
-				new Rotation2d());
-	}
-
 	public static final class ClimbConstants {
 		public static final int leftClimbMotorId = 60;
 		public static final int rightClimbMotorId = 61;
 	}
+
 }

@@ -1,7 +1,8 @@
 package org.ramtech.frc2026.subsystems.intake;
 
-import com.ctre.phoenix6.StatusCode;
 import org.littletonrobotics.junction.AutoLog;
+
+import com.ctre.phoenix6.StatusCode;
 
 public interface IntakeIO {
 
@@ -9,23 +10,44 @@ public interface IntakeIO {
 	public static class IntakeIOInputs {
 		public StatusCode signalsOk = StatusCode.NodeIsInvalid;
 
-		public boolean rollerConnected = false;
-		public boolean rollerConfigured = false;
+		public boolean motorAConnected = false;
+		public boolean motorAConfigured = false;
 
-		public double rollerVoltage = 0.0;
-		public double rollerRps = 0.0;
-		public double rollerSupplyCurrent = 0.0;
+		public boolean motorBConnected = false;
+		public boolean motorBConfigured = false;
+
+		public boolean intakePivotMotorConnected = false;
+		public boolean intakePivotMotorConfigured = false;
+
+		public double motorAVoltage = 0.0;
+		public double motorARps = 0.0;
+		public double motorASupplyCurrent = 0.0;
+
+		public double motorBVoltage = 0.0;
+		public double motorBRps = 0.0;
+		public double motorBSupplyCurrent = 0.0;
+
+		public double intakePivotMotorVoltage = 0.0;
+		public double intakePivotMotorRps = 0.0;
+		public double intakePivotMotorSupplyCurrent = 0.0;
+		public double intakePivotMotorPosition = 0.0;
+
 	}
 
-	public static enum IntakeIOOutputMode {
-		OFF, VOLTAGE, VELOCITY
+	public static enum IntakeIORollerOutputMode {
+		OFF, VOLTAGE
+	}
+		public static enum IntakeIOPivotOutputMode {
+		OFF, POSITION
 	}
 
 	@AutoLog
 	public static class IntakeIOOutputs {
-		public IntakeIOOutputMode mode = IntakeIOOutputMode.OFF;
-		public double voltageSetpoint = 0.0;
-		public double velocitySetpoint = 0.0;
+		public IntakeIORollerOutputMode rollerMode = IntakeIORollerOutputMode.OFF;
+		public IntakeIOPivotOutputMode pivotMode = IntakeIOPivotOutputMode.OFF;
+		public double rollerVoltageSetpoint = 0.0;
+		public double pivotPositionSetpoint = 0.0;
+
 	}
 
 	default void updateInputs(IntakeIOInputs inputs) {

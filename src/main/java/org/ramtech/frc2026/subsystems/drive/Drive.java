@@ -15,7 +15,11 @@ import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.pathplanner.lib.pathfinding.Pathfinding;
+import com.pathplanner.lib.util.DriveFeedforwards;
 import com.pathplanner.lib.util.PathPlannerLogging;
+import com.pathplanner.lib.util.swerve.SwerveSetpoint;
+import com.pathplanner.lib.util.swerve.SwerveSetpointGenerator;
+
 import edu.wpi.first.hal.FRCNetComm.tInstances;
 import edu.wpi.first.hal.FRCNetComm.tResourceType;
 import edu.wpi.first.hal.HAL;
@@ -32,6 +36,7 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -57,10 +62,10 @@ public class Drive extends SubsystemBase {
 			Math.max(Math.hypot(TunerConstants.BackLeft.LocationX, TunerConstants.BackLeft.LocationY),
 					Math.hypot(TunerConstants.BackRight.LocationX, TunerConstants.BackRight.LocationY)));
 
-	// PathPlanner config constants TODO: FIX THESE
-	private static final double ROBOT_MASS_KG = 74.088;
-	private static final double ROBOT_MOI = 6.883;
-	private static final double WHEEL_COF = 1.2;
+	// PathPlanner config constants
+	private static final double ROBOT_MASS_KG = 50.3488;
+	private static final double ROBOT_MOI = 8.0;
+	private static final double WHEEL_COF = 1.0;
 	private static final RobotConfig PP_CONFIG = new RobotConfig(ROBOT_MASS_KG, ROBOT_MOI,
 			new ModuleConfig(TunerConstants.FrontLeft.WheelRadius, TunerConstants.kSpeedAt12Volts.in(MetersPerSecond),
 					WHEEL_COF, DCMotor.getKrakenX60Foc(1).withReduction(TunerConstants.FrontLeft.DriveMotorGearRatio),
@@ -76,12 +81,15 @@ public class Drive extends SubsystemBase {
 			AlertType.kError);
 
 	private SwerveDriveKinematics kinematics = new SwerveDriveKinematics(getModuleTranslations());
-	private Rotation2d rawGyroRotation = Rotation2d.kZero; // TODO:
+	private Rotation2d rawGyroRotation = Rotation2d.kZero;
 	private SwerveModulePosition[] lastModulePositions = // For delta tracking
-			new SwerveModulePosition[]{new SwerveModulePosition(), new SwerveModulePosition(),
-					new SwerveModulePosition(), new SwerveModulePosition()};
+			new SwerveModulePosition[] { new SwerveModulePosition(), new SwerveModulePosition(),
+					new SwerveModulePosition(), new SwerveModulePosition() };
 	private SwerveDrivePoseEstimator poseEstimator = new SwerveDrivePoseEstimator(kinematics, rawGyroRotation,
 			lastModulePositions, Pose2d.kZero);
+
+	private final SwerveSetpointGenerator setpointGenerator;
+	private SwerveSetpoint previousSetpoint;
 
 	public Drive(GyroIO gyroIO, ModuleIO flModuleIO, ModuleIO frModuleIO, ModuleIO blModuleIO, ModuleIO brModuleIO) {
 		this.gyroIO = gyroIO;
@@ -98,8 +106,8 @@ public class Drive extends SubsystemBase {
 
 		// Configure AutoBuilder for PathPlanner
 		AutoBuilder.configure(this::getPose, this::setPose, this::getChassisSpeeds, this::runVelocity,
-				new PPHolonomicDriveController(new PIDConstants(5.0, 0.0, 0.0), new PIDConstants(5.0, 0.0, 0.0)), // TODO:
-																													// Tune
+				new PPHolonomicDriveController(new PIDConstants(7.4, 0.0016, 0.00085), new PIDConstants(4.0, 0.0, 0.0)),
+																															// Tune
 				PP_CONFIG, () -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red, this);
 		Pathfinding.setPathfinder(new LocalADStarAK());
 		PathPlannerLogging.setLogActivePathCallback((activePath) -> {
@@ -108,6 +116,9 @@ public class Drive extends SubsystemBase {
 		PathPlannerLogging.setLogTargetPoseCallback((targetPose) -> {
 			Logger.recordOutput("Odometry/TrajectorySetpoint", targetPose);
 		});
+		setpointGenerator = new SwerveSetpointGenerator(PP_CONFIG,
+				Units.rotationsToRadians(Constants.MAX_WHEEL_ROTATION_VELOCITY));
+		previousSetpoint = new SwerveSetpoint(getChassisSpeeds(), getModuleStates(), DriveFeedforwards.zeros(4));
 
 		// Configure SysId
 		sysId = new SysIdRoutine(
@@ -142,8 +153,8 @@ public class Drive extends SubsystemBase {
 
 		// Log empty setpoint states when disabled
 		if (DriverStation.isDisabled()) {
-			Logger.recordOutput("SwerveStates/Setpoints", new SwerveModuleState[]{});
-			Logger.recordOutput("SwerveStates/SetpointsOptimized", new SwerveModuleState[]{});
+			Logger.recordOutput("SwerveStates/Setpoints", new SwerveModuleState[] {});
+			Logger.recordOutput("SwerveStates/SetpointsOptimized", new SwerveModuleState[] {});
 		}
 
 		// Update odometry
@@ -183,12 +194,13 @@ public class Drive extends SubsystemBase {
 	 * Runs the drive at the desired velocity.
 	 *
 	 * @param speeds
-	 *            Speeds in meters/sec
+	 *               Speeds in meters/sec
 	 */
 	public void runVelocity(ChassisSpeeds speeds) {
 		// Calculate module setpoints
 		ChassisSpeeds discreteSpeeds = ChassisSpeeds.discretize(speeds, 0.02);
-		SwerveModuleState[] setpointStates = kinematics.toSwerveModuleStates(discreteSpeeds);
+		previousSetpoint = setpointGenerator.generateSetpoint(previousSetpoint, speeds, 0.02);
+		SwerveModuleState[] setpointStates = previousSetpoint.moduleStates();
 		SwerveDriveKinematics.desaturateWheelSpeeds(setpointStates, TunerConstants.kSpeedAt12Volts);
 
 		// Log unoptimized setpoints and setpoint speeds
@@ -273,7 +285,7 @@ public class Drive extends SubsystemBase {
 
 	/** Returns the current acceleration in Gs [x, y, z]. */
 	public double[] getAcceleration() {
-		return new double[]{gyroInputs.accelX, gyroInputs.accelY, gyroInputs.accelZ};
+		return new double[] { gyroInputs.accelX, gyroInputs.accelY, gyroInputs.accelZ };
 	}
 
 	/** Returns the position of each module in radians. */
@@ -339,10 +351,10 @@ public class Drive extends SubsystemBase {
 
 	/** Returns an array of module translations. */
 	public static Translation2d[] getModuleTranslations() {
-		return new Translation2d[]{
+		return new Translation2d[] {
 				new Translation2d(TunerConstants.FrontLeft.LocationX, TunerConstants.FrontLeft.LocationY),
 				new Translation2d(TunerConstants.FrontRight.LocationX, TunerConstants.FrontRight.LocationY),
 				new Translation2d(TunerConstants.BackLeft.LocationX, TunerConstants.BackLeft.LocationY),
-				new Translation2d(TunerConstants.BackRight.LocationX, TunerConstants.BackRight.LocationY)};
+				new Translation2d(TunerConstants.BackRight.LocationX, TunerConstants.BackRight.LocationY) };
 	}
 }

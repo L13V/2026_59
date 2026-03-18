@@ -14,11 +14,9 @@ public class Indexer extends FullSubsystem {
 	private final IndexerIOInputsAutoLogged inputs = new IndexerIOInputsAutoLogged(); // the truth: what the motor sees
 	private final IndexerIOOutputs outputs = new IndexerIOOutputs(); // the targets
 	// Alerts
-	private final Debouncer ballTunnelDebouncer = new Debouncer(0.5, Debouncer.DebounceType.kFalling);
-	private final Debouncer starDebouncer = new Debouncer(0.5, Debouncer.DebounceType.kFalling);
+	private final Debouncer indexerDebouncer = new Debouncer(0.5, Debouncer.DebounceType.kFalling);
 
-	private final Alert ballTunnelDisconnected = new Alert("Ball Tunnel Motor Disconnected", Alert.AlertType.kWarning);
-	private final Alert starsDisconnected = new Alert("Star Motor Disconnected", Alert.AlertType.kWarning);
+	private final Alert indexerDisconnected = new Alert("Indexer Motor Disconnected", Alert.AlertType.kWarning);
 
 	public Indexer(IndexerIO io) {
 		this.io = io;
@@ -29,29 +27,23 @@ public class Indexer extends FullSubsystem {
 		io.updateInputs(inputs); // Grab new values from motor
 		Logger.processInputs("Indexer", inputs);
 		// Alerts
-		ballTunnelDisconnected
-				.set(Robot.showHardwareAlerts() && !ballTunnelDebouncer.calculate(inputs.ballTunnelConnected));
-
-		starsDisconnected.set(Robot.showHardwareAlerts() && !starDebouncer.calculate(inputs.starsConnected));
+		indexerDisconnected.set(Robot.showHardwareAlerts() && !indexerDebouncer.calculate(inputs.indexerConnected));
 	}
 
 	@Override
 	public void periodicAfterScheduler() {
 		io.applyOutputs(outputs); // Set the targets for the motor
 		Logger.recordOutput("Indexer/Mode", outputs.mode);
-		Logger.recordOutput("Indexer/Ball Voltage Setpoint", outputs.ballTunnelVoltageSetpoint);
-		Logger.recordOutput("Indexer/Star Voltage Setpoint", outputs.starVoltageSetpoint);
+		Logger.recordOutput("Indexer/Voltage Setpoint", outputs.indexerVoltageSetpoint);
 	}
 
-	public void setVoltages(double spinVoltage, double starVoltage) {
+	public void setVoltage(double voltage) {
 		outputs.mode = IndexerIOOutputMode.VOLTAGE;
-		outputs.ballTunnelVoltageSetpoint = spinVoltage;
-		outputs.starVoltageSetpoint = starVoltage;
+		outputs.indexerVoltageSetpoint = voltage;
 	}
 
 	public void stop() {
 		outputs.mode = IndexerIOOutputMode.OFF;
-		outputs.ballTunnelVoltageSetpoint = 0.0;
-		outputs.starVoltageSetpoint = 0.0;
+		outputs.indexerVoltageSetpoint = 0.0;
 	}
 }

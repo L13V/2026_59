@@ -1,7 +1,6 @@
 package org.ramtech.frc2026.subsystems.intake;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
@@ -22,7 +21,7 @@ public class IntakeIOSim implements IntakeIO {
 			Units.rotationsPerMinuteToRadiansPerSecond(6000), 1);
 
 	// Hardware (Simulated)
-	private final TalonFX rollerMotor = new TalonFX(IntakeConstants.rollerMotorId);
+	private final TalonFX rollerMotor = new TalonFX(IntakeConstants.motorAID);
 	private final TalonFXSimState rollerSimState = rollerMotor.getSimState();
 
 	// Physics
@@ -31,7 +30,6 @@ public class IntakeIOSim implements IntakeIO {
 
 	// Controls
 	private final VoltageOut rollerVoltageOut = new VoltageOut(0);
-	private final VelocityVoltage velocityVoltage = new VelocityVoltage(0);
 
 	public IntakeIOSim() {
 		var config = new TalonFXConfiguration();
@@ -54,25 +52,23 @@ public class IntakeIOSim implements IntakeIO {
 		rollerSimState.setRotorVelocity(Units.radiansToRotations(sim.getAngularVelocityRadPerSec()));
 
 		// 3. Update Inputs (Bridge Talon -> IO)
-		inputs.rollerConnected = true;
-		inputs.rollerConfigured = true;
-		inputs.rollerVoltage = rollerMotor.getMotorVoltage().getValueAsDouble();
-		inputs.rollerRps = rollerMotor.getVelocity().getValueAsDouble();
-		inputs.rollerSupplyCurrent = sim.getCurrentDrawAmps();
+		inputs.motorAConnected = true;
+		inputs.motorAConfigured = true;
+		inputs.motorAVoltage = rollerMotor.getMotorVoltage().getValueAsDouble();
+		inputs.motorARps = rollerMotor.getVelocity().getValueAsDouble();
+		inputs.motorASupplyCurrent = sim.getCurrentDrawAmps();
 	}
 
 	@Override
 	public void applyOutputs(IntakeIOOutputs outputs) {
-		switch (outputs.mode) {
-			case OFF :
+		switch (outputs.rollerMode) {
+			case OFF:
 				rollerMotor.stopMotor();
 				break;
-			case VOLTAGE :
-				rollerMotor.setControl(rollerVoltageOut.withOutput(outputs.voltageSetpoint));
+			case VOLTAGE:
+				rollerMotor.setControl(rollerVoltageOut.withOutput(outputs.rollerVoltageSetpoint));
 				break;
-			case VELOCITY :
-				rollerMotor.setControl(velocityVoltage.withVelocity(outputs.velocitySetpoint));
-				break;
+
 		}
 	}
 }

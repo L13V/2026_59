@@ -1,8 +1,16 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
-
 package org.ramtech.frc2026.subsystems.shooter;
+
+import static edu.wpi.first.units.Units.*;
+
+import org.littletonrobotics.junction.Logger;
+import org.ramtech.frc2026.Constants.Offsets;
+import org.ramtech.frc2026.Constants.TargetPoses;
+import org.ramtech.frc2026.Constants.TurretConstants;
+import org.ramtech.frc2026.util.AllianceFlipUtil;
+import org.ramtech.frc2026.util.DataProcessing;
+import org.ramtech.frc2026.util.Zones;
+import org.ramtech.frc2026.util.Zones.Zone;
+import org.ramtech.frc2026.util.Zones.zoneType;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -13,18 +21,9 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-import static edu.wpi.first.units.Units.Meter;
-
-import org.littletonrobotics.junction.Logger;
-import org.ramtech.frc2026.Constants.Offsets;
-import org.ramtech.frc2026.Constants.TargetPoses;
-import org.ramtech.frc2026.Constants.TurretConstants;
-import org.ramtech.frc2026.generated.TunerConstants;
-import org.ramtech.frc2026.util.DataProcessing;
-import org.ramtech.frc2026.util.Zones;
-import org.ramtech.frc2026.util.Zones.Zone;
-import org.ramtech.frc2026.util.Zones.zoneType;
+import org.ramtech.frc2026.Constants;
 import org.ramtech.frc2026.RobotState;
+import org.ramtech.frc2026.generated.TunerConstants;
 
 public class ShotCalculator {
 	private static ShotCalculator instance = new ShotCalculator();
@@ -37,21 +36,26 @@ public class ShotCalculator {
 	 * Represents the calculated parameters for a shot.
 	 *
 	 * @param isValid
-	 *            Whether the shot calculation is valid and safe to execute.
+	 *                            Whether the shot calculation is valid and safe to
+	 *                            execute.
 	 * @param hoodAngle
-	 *            The angle of the hood in degrees from horizontal.
+	 *                            The angle of the hood in degrees from horizontal.
 	 * @param flyWheelVelocity
-	 *            The target velocity of the flywheel in rotations per second (RPS).
+	 *                            The target velocity of the flywheel in rotations
+	 *                            per second (RPS).
 	 * @param flyWheelFeedForward
-	 *            The target feed forward the flywheel in rotations per second
-	 *            (RPS).
+	 *                            The target feed forward the flywheel in rotations
+	 *                            per second
+	 *                            (RPS).
 	 * @param turretAngle
-	 *            The target angle of the turret in degrees (Robot forward is 0
-	 *            degrees).
+	 *                            The target anturretAngleOffsetForZerogle of the
+	 *                            turret in degrees (Robot
+	 *                            forward is 0
+	 *                            degrees).
 	 * @param hoodSafe
-	 *            Is the hood safe to raise?
+	 *                            Is the hood safe to raise?
 	 * @param shootingAllowed
-	 *            Is the robot allowed to index to shoot?
+	 *                            Is the robot allowed to index to shoot?
 	 */
 	public record ShotParameters(boolean isValid, double hoodAngle, double flyWheelVelocity, double flyWheelFeedForward,
 			double turretAngle, boolean hoodSafe, boolean shootingAllowed) {
@@ -87,6 +91,7 @@ public class ShotCalculator {
 	 */
 	private static final double shotCeiling = 2.8; // m
 	private static final double rpsMin = 30;
+	private static final double rpsInterference = 50; // rps when the turret is gonna hit the polycarb
 	private static final double rpsMax = 80;
 	private static final double rpsBump = 0;
 	private static final double rpsMult = 1.135;
@@ -95,6 +100,7 @@ public class ShotCalculator {
 	public static final double hoodMinAngle = 10; // deg TODO: Verify
 	private static final double hoodMaxAngle = 51; // deg
 	private static final double hoodIdealAngle = 42;
+	private static final double hoodInterferenceAngle = 33;
 
 	private static final double g = 9.83069; // m/s^2
 	private static final double ballMass = 0.226796; // kg
@@ -117,6 +123,7 @@ public class ShotCalculator {
 	private static final double flyWheelRatio = (24.0 / 72.0); // relative to the motor
 	private static final double backWheelRatio = (flyWheelRatio * (36.0 / 16.0) * (27.0 / 16.0)); // relative to the
 																									// motor
+
 	/*
 	 * Turret
 	 */
@@ -163,15 +170,16 @@ public class ShotCalculator {
 		// Closest target (NOT CONSTRAINED SO IT COULD DAMAGE THE MECHANISM)
 		double unconstrainedTarget = lastTarget + optomizedError;
 		// Check for illegal values
-		if (unconstrainedTarget < TurretConstants.reverseSoftLimit - 90) { // -30
+		if (unconstrainedTarget < TurretConstants.reverseSoftLimit - TurretConstants.turretAngleOffsetForZero) {
 			unconstrainedTarget += 360;
-		} else if (unconstrainedTarget > TurretConstants.forwardSoftLimit - 90) { // 510
+		} else if (unconstrainedTarget > TurretConstants.forwardSoftLimit - TurretConstants.turretAngleOffsetForZero) {
 			unconstrainedTarget -= 360;
 		}
 
 		// Final filter for safety
-		finalTarget = MathUtil.clamp(unconstrainedTarget, TurretConstants.reverseSoftLimit - 90,
-				TurretConstants.forwardSoftLimit - 90);
+		finalTarget = MathUtil.clamp(unconstrainedTarget,
+				TurretConstants.reverseSoftLimit - TurretConstants.turretAngleOffsetForZero,
+				TurretConstants.forwardSoftLimit - TurretConstants.turretAngleOffsetForZero);
 		return finalTarget;
 	}
 
@@ -185,16 +193,21 @@ public class ShotCalculator {
 		// Closest target (NOT CONSTRAINED SO IT COULD DAMAGE THE MECHANISM)
 		double unconstrainedTarget = lastTarget + optomizedError;
 		// Check for illegal values
-		if (unconstrainedTarget < TurretConstants.reverseSoftLimit - 90) { // -30
+		if (unconstrainedTarget < TurretConstants.reverseSoftLimit - TurretConstants.turretAngleOffsetForZero) { // -30
 			unconstrainedTarget += 360;
-		} else if (unconstrainedTarget > TurretConstants.forwardSoftLimit - 90) { // 510
+		} else if (unconstrainedTarget > TurretConstants.forwardSoftLimit - TurretConstants.turretAngleOffsetForZero) { // 510
 			unconstrainedTarget -= 360;
 		}
 
 		// Final filter for safety
-		finalTarget = MathUtil.clamp(unconstrainedTarget, TurretConstants.reverseSoftLimit - 90,
-				TurretConstants.forwardSoftLimit - 90);
+		finalTarget = MathUtil.clamp(unconstrainedTarget,
+				TurretConstants.reverseSoftLimit - TurretConstants.turretAngleOffsetForZero,
+				TurretConstants.forwardSoftLimit - TurretConstants.turretAngleOffsetForZero);
 		return finalTarget;
+	}
+
+	public void setHoodUnsafe() {
+		hoodUnsafe = true;
 	}
 
 	public void requestSafe() {
@@ -248,37 +261,40 @@ public class ShotCalculator {
 		zone = newZone != null ? newZone : zone;
 
 		switch (zone != null ? zone.type() : zoneType.nothing) {
-			case passingfarleft :
+			case passingfarleft:
 				shootingAllowed = true;
 				targetPose = TargetPoses.leftFarPass;
 				break;
-			case passingfarright :
+			case passingfarright:
 				shootingAllowed = true;
 				targetPose = TargetPoses.rightFarPass;
 				break;
-			case passingcloseleft :
+			case passingcloseleft:
 				shootingAllowed = true;
 				targetPose = TargetPoses.leftClosePass;
 				break;
-			case passingcloseright :
+			case passingcloseright:
 				shootingAllowed = true;
 				targetPose = TargetPoses.rightClosePass;
 				break;
-			case scoring :
+			case scoring:
 				shootingAllowed = true;
 				targetPose = TargetPoses.hub;
 				break;
-			case hoodUnsafe :
+			case hoodUnsafe:
 				hoodUnsafe = true;
 				break;
-			case blockShooting :
+			case blockShooting:
 				shootingAllowed = false;
 				break;
-			case nothing :
+			case nothing:
 				break;
-			default :
+			default:
 				break;
 		}
+
+		// flip target pose
+		targetPose = AllianceFlipUtil.apply(targetPose);
 
 		if (hoodEnableRequest == true && !(zone.type() == zoneType.hoodUnsafe)) {
 			hoodUnsafe = false;
@@ -286,8 +302,6 @@ public class ShotCalculator {
 		} else {
 			hoodEnableRequest = false;
 		}
-
-		// ... [Your zone switch block ends here] ...
 
 		// NEW: 1. Calculate the dynamic pose FIRST using tFlightLast
 		double allVelocityX = (fieldSpeeds.vxMetersPerSecond + velocityAdder.getX()) * (tFlightLast + tReact);
@@ -332,15 +346,25 @@ public class ShotCalculator {
 		double angleSub = Math.toDegrees(hoodAngle) - hoodIdealAngle; // this is in degrees because its just
 																		// comparing.
 
-		if ((rpsMax - last.flyWheelVelocity) < Math.abs(angleSub)) { // TODO: Check
+		if ((rpsMax - last.flyWheelVelocity) < Math.abs(angleSub)) {
 			if (angleSub < 0) {
 				hoodAngle = Math.toRadians(hoodIdealAngle - (rpsMax - last.flyWheelVelocity));
 			} else {
 				hoodAngle = Math.toRadians(hoodIdealAngle + (rpsMax - last.flyWheelVelocity));
 			}
 		}
+		// Is the turret going to be blocked?
+		boolean turretInterference = (MathUtil.inputModulus(last.turretAngle, 0, 360) > 25
+				&& MathUtil.inputModulus(last.turretAngle, 0, 360) < 245);
+
+		if (turretInterference) { // Override angle
+			if (hoodAngle > Math.toRadians(hoodInterferenceAngle)) {
+				hoodAngle = Math.toRadians(hoodInterferenceAngle);
+			}
+		}
+
 		SmartDashboard.putNumber("hoodAngle", hoodAngle);
-		hoodAngle = DataProcessing.rawToSmooth(3, Math.toRadians(90 - last.hoodAngle), hoodAngle); // TODO: Check
+		hoodAngle = DataProcessing.rawToSmooth(3, Math.toRadians(90 - last.hoodAngle), hoodAngle);
 		hoodAngle = DataProcessing.sanitize(Math.toRadians(90 - last.hoodAngle), Math.toRadians(90 - hoodMaxAngle),
 				Math.toRadians(90 - hoodMinAngle), hoodAngle);
 		// Insert lookup up table compariosn with the 1.2 (20%) range thing
@@ -360,37 +384,60 @@ public class ShotCalculator {
 		if (velocityInitial > velocityTarget) {
 			velocityTarget = velocityInitial;
 		}
-
 		double flyWheelVelocity = ((velocityTarget
 				/ (((flyWheelCircum * flyWheelRatio) + (backWheelCircum * backWheelRatio)) / 2)) * rpsMult) + rpsBump;
 
 		double LatVelocity = velocityTarget * Math.cos(hoodAngle);
 
+		// Is the turret going to be blocked?
+		if (turretInterference) {
+			if (!Constants.isComp) { // Not on comp field
+				flyWheelVelocity = Math.min(flyWheelVelocity, rpsInterference);
+			}
+		}
 		flyWheelVelocity = DataProcessing.sanitize(last.flyWheelVelocity, rpsMin, rpsMax, flyWheelVelocity);
 
-		double rpsDiff = flyWheelVelocity - flywheelRpsFeedback; // replace last with feedback
-
+		double rpsDiff = flyWheelVelocity - flywheelRpsFeedback;
 		double flyWheelFeedForward = 0;
 		double latDist = getTurretDistanceToTarget(turretPose3d, targetPose);
-		tFlight = (latDist / LatVelocity)
-				+ ((airEst * (Math.pow(latDist, 2))) / (2 * ballMass * Math.pow(LatVelocity, 2)));
-		tFlight = DataProcessing.sanitize(tFlightLast, 1, 10, tFlight);
+
+		Translation2d translationToTarget = targetPose.getTranslation().toTranslation2d()
+				.minus(robotPose.getTranslation());
+		Rotation2d directionToTarget = translationToTarget.getAngle();
+
+		// 2. Dot Product: How fast is the chassis moving directly towards the hub?
+		double chassisVelTowardsTarget = (fieldSpeeds.vxMetersPerSecond * directionToTarget.getCos())
+				+ (fieldSpeeds.vyMetersPerSecond * directionToTarget.getSin());
+
+		// 3. The ball's true speed across the field is shooter power + chassis momentum
+		double effectiveLatVelocity = LatVelocity + chassisVelTowardsTarget;
+		effectiveLatVelocity = Math.max(0.1, effectiveLatVelocity); // Prevent division by zero if backing up fast
+
+		// 4. Calculate tFlight using the effective velocity across the field
+		tFlight = (latDist / effectiveLatVelocity)
+				+ ((airEst * (Math.pow(latDist, 2))) / (2 * ballMass * Math.pow(effectiveLatVelocity, 2)));
+
+		// 5. SANE CLAMP: Cap the math at 1.5 seconds so it can never infinitely
+		// feedback
+		tFlight = DataProcessing.sanitize(tFlightLast, 0.1, 10, tFlight);
+		// ---------------------------------------
 
 		tFlightLast = tFlight;
 
 		double turretAngle = getWrappedAngleForTurretMotorThingThatIAmTyring(
 				getAngleToTarget(new Pose3d(turretPoseDynamicXY), targetPose).getDegrees()
 						+ Math.toDegrees((angleRate + (angleAccel / 2)) * tReact));
-
 		if ((rpsDiff) > peakRPSS * loopTime) {
 			flyWheelFeedForward = rpsDiff / 100;
 		}
 
 		if (hoodUnsafe) {
 			hoodAngle = Math.toRadians(90 - hoodMinAngle);
+			flyWheelVelocity = rpsMin;
 		}
 
 		boolean isValid = true;
+
 		latest = new ShotParameters(isValid, 90 - Math.toDegrees(hoodAngle), // Degrees FROM HORIZONTAL
 				flyWheelVelocity, // Rps
 				flyWheelFeedForward, turretAngle, // Degrees (Robot forward is 0 degrees)

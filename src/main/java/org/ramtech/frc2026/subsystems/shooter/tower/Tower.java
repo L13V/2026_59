@@ -13,7 +13,6 @@ import org.ramtech.frc2026.subsystems.shooter.tower.TowerIO.TowerIOOutputs;
 import org.ramtech.frc2026.util.FullSubsystem;
 
 public class Tower extends FullSubsystem {
-	private final Object outputsLock = new Object();
 
 	// IO
 	private final TowerIO io;

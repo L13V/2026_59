@@ -31,7 +31,6 @@ import org.ramtech.frc2026.util.ShooterSubsystem;
  */
 public class Robot extends LoggedRobot {
 	private Command autonomousCommand;
-	@SuppressWarnings("unused")
 	private RobotContainer robotContainer;
 	private double lastCalcTs;
 	private double lastShooterTs;
@@ -159,7 +158,7 @@ public class Robot extends LoggedRobot {
 	 */
 	@Override
 	public void autonomousInit() {
-		// autonomousCommand = robotContainer.getAutonomousCommand();
+		autonomousCommand = robotContainer.getAutonomousCommand();
 
 		// schedule the autonomous command (example)
 		if (autonomousCommand != null) {

@@ -9,8 +9,16 @@ package org.ramtech.frc2026;
 
 import static org.ramtech.frc2026.subsystems.vision.VisionConstants.*;
 
+import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
+
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.GenericHID;
+import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 // import org.ramtech.frc2026.subsystems.indexer.IndexerIOSim;
 import org.ramtech.frc2026.commands.DriveCommands;
@@ -49,6 +57,10 @@ import org.ramtech.frc2026.subsystems.vision.Vision;
 import org.ramtech.frc2026.subsystems.vision.VisionIO;
 import org.ramtech.frc2026.subsystems.vision.VisionIOPhotonVision;
 import org.ramtech.frc2026.subsystems.vision.VisionIOPhotonVisionSim;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -75,14 +87,14 @@ public class RobotContainer {
 	private final CommandXboxController controller = new CommandXboxController(0);
 
 	// Dashboard inputs
-	// private final LoggedDashboardChooser<Command> autoChooser;
+	private final LoggedDashboardChooser<Command> autoChooser;
 
 	/**
 	 * The container for the robot. Contains subsystems, OI devices, and commands.
 	 */
 	public RobotContainer() {
 		switch (Constants.currentMode) {
-			case REAL :
+			case REAL:
 				// Real robot, instantiate hardware IO implementations
 				// ModuleIOTalonFX is intended for modules with TalonFX drive, TalonFX turn, and
 				// a CANcoder
@@ -101,7 +113,7 @@ public class RobotContainer {
 				turret = new Turret(new TurretIOReal());
 				break;
 
-			case SIM :
+			case SIM:
 				// Sim robot, instantiate physics sim IO implementations
 				drive = new Drive(new GyroIO() {
 				}, new ModuleIOSim(TunerConstants.FrontLeft), new ModuleIOSim(TunerConstants.FrontRight),
@@ -122,7 +134,7 @@ public class RobotContainer {
 
 				break;
 
-			default :
+			default:
 				// Replayed robot, disable IO implementations
 				drive = new Drive(new GyroIO() {
 				}, new ModuleIO() {
@@ -149,6 +161,35 @@ public class RobotContainer {
 
 				break;
 		}
+
+		NamedCommands.registerCommand("shoot",
+				new StartEndCommand(() -> {
+					ShotCalculator.getInstance().requestSafe();
+					;
+					flywheel.enableCalculation();
+					tower.setVoltage(10);
+					indexer.setVoltage(10);
+					intake.setRollerVoltage(10);
+				}, () -> {
+					// ShotCalculator.getInstance().setHoodUnsafe();
+
+				}, flywheel, tower, indexer,
+						intake));
+
+		NamedCommands.registerCommand("intake",
+				new StartEndCommand(() -> {
+					ShotCalculator.getInstance().setHoodUnsafe();
+					indexer.setVoltage(10);
+					intake.setRollerVoltage(10);
+				}, () -> {
+					ShotCalculator.getInstance().setHoodUnsafe();
+
+				}, flywheel, tower, indexer,
+						intake));
+
+		NamedCommands.registerCommand("lower_hood",
+				new InstantCommand(() -> ShotCalculator.getInstance().setHoodUnsafe()));
+
 		RobotState.getInstance().setPoseSupplier(drive::getPose);
 		RobotState.getInstance().setSpeedSupplier(drive::getChassisSpeeds);
 		RobotState.getInstance().setModuleStateSupplier(drive::getModuleStates);
@@ -159,31 +200,21 @@ public class RobotContainer {
 		RobotState.getInstance().setGyroAngleRateSupplier(drive::getGyroAngleRate);
 
 		// Set up auto routines
-		// autoChooser = new LoggedDashboardChooser<>("Auto Choices",
-		// AutoBuilder.buildAutoChooser());
+		autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
 
 		// Set up SysId routines
-		// autoChooser.addOption(
-		// "Drive Wheel Radius Characterization",
-		// DriveCommands.wheelRadiusCharacterization(drive));
-		// autoChooser.addOption(
-		// "Drive Simple FF Characterization",
-		// DriveCommands.feedforwardCharacterization(drive));
-		// autoChooser.addOption(
-		// "Drive SysId (Quasistatic Forward)",
-		// drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-		// autoChooser.addOption(
-		// "Drive SysId (Quasistatic Reverse)",
-		// drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-		// autoChooser.addOption(
-		// "Drive SysId (Dynamic Forward)",
-		// drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
-		// autoChooser.addOption(
-		// "Drive SysId (Dynamic Reverse)",
-		// drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+		autoChooser.addOption("Drive Wheel Radius Characterization", DriveCommands.wheelRadiusCharacterization(drive));
+		autoChooser.addOption("Drive Simple FF Characterization", DriveCommands.feedforwardCharacterization(drive));
+		autoChooser.addOption("Drive SysId (Quasistatic Forward)",
+				drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+		autoChooser.addOption("Drive SysId (Quasistatic Reverse)",
+				drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+		autoChooser.addOption("Drive SysId (Dynamic Forward)", drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
+		autoChooser.addOption("Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
 
 		// Configure the button bindings
 		configureButtonBindings();
+
 	}
 
 	/**
@@ -197,54 +228,48 @@ public class RobotContainer {
 		drive.setDefaultCommand(DriveCommands.joystickDrive(drive, () -> -controller.getLeftY(),
 				() -> -controller.getLeftX(), () -> -controller.getRightX()));
 
-		// Lock to 0° when A button is held
-		// controller
-		// .a()
-		// .whileTrue(
-		// DriveCommands.joystickDriveAtAngle(
-		// drive,
-		// () -> -controller.getLeftY(),
-		// () -> -controller.getLeftX(),
-		// () -> Rotation2d.kZero));
+		// Reset gyro
+		controller.start().onTrue(Commands
+				.runOnce(() -> drive.setPose(new Pose2d(drive.getPose().getTranslation(), Rotation2d.kZero)), drive)
+				.ignoringDisable(true));
 
-		// Switch to X pattern when X button is pressed
-		controller.povDown().onTrue(Commands.runOnce(drive::stopWithX, drive));
+		// Switch to X pattern when down d-pad pressed
+		controller.povDown().onTrue(Commands.runOnce(drive::stopWithX, drive)); // x pattern
 
-		controller.leftTrigger().onTrue(new InstantCommand(() -> intake.setVoltage(10.0)))
-				.onTrue(new InstantCommand(() -> indexer.setVoltages(0, 6)))
-				.onFalse(new InstantCommand(() -> intake.stop())).onFalse(new InstantCommand(() -> indexer.stop()));
+		// Intake
+		controller.leftTrigger().onTrue(new InstantCommand(() -> intake.setRollerVoltage(10.0)))
+				.onTrue(new InstantCommand(() -> indexer.setVoltage(5)))
+				.onFalse(new InstantCommand(() -> intake.stopRollers())).onFalse(new InstantCommand(() -> indexer.stop()));
+
+		// Request the shooter to renable after an unsafe condition was detected.
 		controller.leftBumper().onTrue(new InstantCommand(() -> ShotCalculator.getInstance().requestSafe()));
-		controller.leftBumper().and(() -> ShotCalculator.getInstance().getLatest().hoodSafe())
-				.onTrue(new InstantCommand(() -> indexer.setVoltages(12.0, 12)))
-				.onTrue(new InstantCommand(() -> intake.setVoltage(10.0)))
-				.onTrue(new InstantCommand(() -> tower.setVoltage(12)))
-				.onFalse(new InstantCommand(() -> indexer.stop())).onFalse(new InstantCommand(() -> tower.stop()))
-				.onFalse(new InstantCommand(() -> intake.stop()));
-		controller.x().onTrue(new InstantCommand(() -> flywheel.setVelocity(40)))
-				.onFalse(new InstantCommand(() -> flywheel.setVelocity(0)));
-		controller.y().onTrue(new InstantCommand(() -> flywheel.enableCalculation()));
 		controller.a().onTrue(new InstantCommand(() -> ShotCalculator.getInstance().requestSafe()));
 
-		// Reset gyro to 0° when B button is pressed
-		// controller
-		// .b()
-		// .onTrue(
-		// Commands.runOnce(
-		// () ->
-		// drive.setPose(
-		// new Pose2d(drive.getPose().getTranslation(), Rotation2d.kZero)),
-		// drive)
-		// .ignoringDisable(true));
-		// }
+		// If the shooter is safe, shoot
+		controller.leftBumper().and(() -> ShotCalculator.getInstance().getLatest().hoodSafe())
+				.onTrue(new InstantCommand(() -> indexer.setVoltage(10.0)))
+				.onTrue(new InstantCommand(() -> intake.setRollerVoltage(10.0)))
+				.onTrue(new InstantCommand(() -> tower.setVoltage(10)))
+				.onFalse(new InstantCommand(() -> indexer.stop())).onFalse(new InstantCommand(() -> tower.stop()))
+				.onFalse(new InstantCommand(() -> intake.stopRollers()));
 
-		// /**
-		// * Use this to pass the autonomous command to the main {@link Robot} class.
-		// *
-		// * @return the command to run in autonomous
-		// */
-		// public Command getAutonomousCommand() {
-		// return autoChooser.get();
-		// }
+		// Overrides for helping battery conservation during auto testing.
+		controller.b().onTrue(new InstantCommand(() -> indexer.setVoltage(0)))
+				.onTrue(new InstantCommand(() -> intake.stopRollers())).onTrue(new InstantCommand(() -> tower.setVoltage(0)))
+				.onTrue(new InstantCommand(() -> flywheel.stop()));
+
+		controller.y().onTrue(new InstantCommand(() -> flywheel.enableCalculation()));
+
+	}
+
+	// /**
+	// * Use this to pass the autonomous command to the main {@link Robot} class.
+	// *
+	// * @return the command to run in autonomous
+	// */
+
+	public Command getAutonomousCommand() {
+		return autoChooser.get();
 	}
 
 }

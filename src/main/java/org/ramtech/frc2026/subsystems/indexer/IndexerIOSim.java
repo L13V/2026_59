@@ -63,18 +63,15 @@ public class IndexerIOSim implements IndexerIO {
 		starSimState.setRotorVelocity(Units.radiansToRotations(starSim.getAngularVelocityRadPerSec()));
 
 		// 3. Update Inputs
-		inputs.ballTunnelConnected = true;
-		inputs.starsConnected = true;
+		inputs.indexerConnected = true;
 	}
 
 	@Override
 	public void applyOutputs(IndexerIOOutputs outputs) {
 		if (outputs.mode == IndexerIOOutputMode.VOLTAGE) {
-			spindexerMotor.setControl(voltageOut.withOutput(outputs.ballTunnelVoltageSetpoint));
-			starMotor.setControl(voltageOut.withOutput(outputs.starVoltageSetpoint));
+			spindexerMotor.setControl(voltageOut.withOutput(outputs.indexerVoltageSetpoint));
 		} else {
 			spindexerMotor.stopMotor();
-			starMotor.stopMotor();
 		}
 	}
 }

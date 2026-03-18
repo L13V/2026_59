@@ -11,6 +11,7 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
+import org.ramtech.frc2026.Constants.TargetPoses;
 import org.ramtech.frc2026.util.Zones;
 
 /** Add your docs here. */
@@ -123,6 +124,11 @@ public class RobotState {
 		Logger.recordOutput("RobotState/Acceleration", RobotState.getInstance().getAcceleration());
 		Logger.recordOutput("RobotState/FlywheelRPS", getFlywheelRps());
 		Logger.recordOutput("RobotState/Zone", zones.getZoneFromPose(RobotState.getInstance().getRobotPose()));
+
+		Logger.recordOutput("RobotState/leftFarPass", TargetPoses.leftFarPass);
+		Logger.recordOutput("RobotState/rightFarPass", TargetPoses.rightFarPass);
+		Logger.recordOutput("RobotState/leftClosePass", TargetPoses.leftClosePass);
+		Logger.recordOutput("RobotState/rightClosePass", TargetPoses.rightClosePass);
 
 	}
 }
