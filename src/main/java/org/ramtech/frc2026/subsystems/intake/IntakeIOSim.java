@@ -62,10 +62,10 @@ public class IntakeIOSim implements IntakeIO {
 	@Override
 	public void applyOutputs(IntakeIOOutputs outputs) {
 		switch (outputs.rollerMode) {
-			case OFF:
+			case OFF :
 				rollerMotor.stopMotor();
 				break;
-			case VOLTAGE:
+			case VOLTAGE :
 				rollerMotor.setControl(rollerVoltageOut.withOutput(outputs.rollerVoltageSetpoint));
 				break;
 

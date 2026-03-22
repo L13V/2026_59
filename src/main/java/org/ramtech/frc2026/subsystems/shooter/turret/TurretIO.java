@@ -39,7 +39,7 @@ public interface TurretIO {
 	}
 
 	public static enum TurretIOSetpointSource {
-		SHOT_CALCULATOR, MANUAL
+		SHOT_CALCULATOR, MANUAL, TURRET_LOCKED
 	}
 
 	public static enum TurretIOOutputMode {
@@ -52,6 +52,8 @@ public interface TurretIO {
 		public TurretIOSetpointSource setpointSource = TurretIOSetpointSource.SHOT_CALCULATOR;
 		public double voltageSetpoint = 0.0;
 		public double positionSetpoint = 0.0;
+		public boolean turretLockedByDriver = true;
+		public boolean turretLockedByIntake = true;
 	}
 
 	default void updateInputs(TurretIOInputs inputs) {

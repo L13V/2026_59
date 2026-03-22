@@ -7,15 +7,16 @@
 
 package org.ramtech.frc2026.subsystems.vision;
 
+import org.ramtech.frc2026.Constants;
+
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
-import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.util.Units;
 
 public class VisionConstants {
 	// AprilTag layout
-	public static AprilTagFieldLayout aprilTagLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2026RebuiltWelded);
+	public static AprilTagFieldLayout aprilTagLayout = Constants.FieldConstants.aprilTagLayout;
 
 	// Camera names, must match names configured on coprocessor
 	public static String FLRamCam = "FLRamCam";
@@ -25,9 +26,9 @@ public class VisionConstants {
 
 	// Robot to camera transforms
 	// (Not used by Limelight, configure in web UI instead)
-	public static Transform3d robotToFL = new Transform3d(0.254, 0.4, 0.527,
+	public static Transform3d robotToFL = new Transform3d(0.0762, 0.4, 0.527,
 			new Rotation3d(Units.degreesToRadians(0), Units.degreesToRadians(-21), Units.degreesToRadians(45)));
-	public static Transform3d robotToFR = new Transform3d(0.254, -0.4, 0.527,
+	public static Transform3d robotToFR = new Transform3d(0.0762, -0.4, 0.527,
 			new Rotation3d(Units.degreesToRadians(0), Units.degreesToRadians(-21), Units.degreesToRadians(315)));
 	public static Transform3d robotToBL = new Transform3d(-0.254, 0.4, 0.527,
 			new Rotation3d(Units.degreesToRadians(0), Units.degreesToRadians(-21), Units.degreesToRadians(135)));

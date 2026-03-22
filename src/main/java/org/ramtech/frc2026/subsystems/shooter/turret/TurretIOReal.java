@@ -101,13 +101,13 @@ public class TurretIOReal implements TurretIO {
 		 * Encoder A
 		 */
 		encoderAConfig.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
-		encoderAConfig.MagnetSensor.MagnetOffset = -0.90576171875;
+		encoderAConfig.MagnetSensor.MagnetOffset = 0.2046875;
 		encoderAConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 1;
 		/*
 		 * Encoder B
 		 */
 		encoderBConfig.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
-		encoderBConfig.MagnetSensor.MagnetOffset = -0.8662109375;
+		encoderBConfig.MagnetSensor.MagnetOffset = 0.6785606971;
 		encoderBConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 1;
 
 		/*
@@ -174,10 +174,12 @@ public class TurretIOReal implements TurretIO {
 		}
 	}
 
-	public double returnangle() {
-		BaseStatusSignal.refreshAll(turretEncoderAPositionSig, turretEncoderBPositionSig);
-		return crt.getAngleOptional().map(mechAngle -> mechAngle.magnitude()).orElse(0.0);
-	}
+	// public double returnangle() {
+	// BaseStatusSignal.refreshAll(turretEncoderAPositionSig,
+	// turretEncoderBPositionSig);
+	// return crt.getAngleOptional().map(mechAngle ->
+	// mechAngle.magnitude()).orElse((null));
+	// }
 
 	@Override
 	public void updateInputs(TurretIOInputs inputs) {
@@ -227,9 +229,15 @@ public class TurretIOReal implements TurretIO {
 				turretMotor.setControl(voltageOut.withOutput(outputs.voltageSetpoint).withEnableFOC(true));
 				break;
 			case POSITION :
-				turretMotor.setControl(
-						MotionMagicVoltage.withPosition(outputs.positionSetpoint + 180).withEnableFOC(true).withSlot(0));
+				if (!outputs.turretLockedByIntake || !outputs.turretLockedByDriver) {
+					turretMotor.setControl(MotionMagicVoltage.withPosition(outputs.positionSetpoint + 180)
+							.withEnableFOC(true).withSlot(0));
+				} else {
+					turretMotor.stopMotor();
+				}
+
 				break;
+
 		}
 	}
 }

@@ -9,6 +9,7 @@ import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.StrictFollower;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import org.ramtech.frc2026.Constants;
@@ -17,6 +18,7 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
+
 import org.ramtech.frc2026.Constants.IntakeConstants;
 
 public class IntakeIOTalonFX implements IntakeIO {
@@ -55,32 +57,51 @@ public class IntakeIOTalonFX implements IntakeIO {
 
 	public IntakeIOTalonFX() {
 		// Complete the config
-		motorAConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+		motorAConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
 		motorAConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
 		motorAConfig.CurrentLimits.StatorCurrentLimit = 90;
 		motorAConfig.CurrentLimits.StatorCurrentLimitEnable = true;
-		motorAConfig.CurrentLimits.SupplyCurrentLimit = 30;
+		motorAConfig.CurrentLimits.SupplyCurrentLimit = 50;
 		motorAConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-		motorAConfig.CurrentLimits.SupplyCurrentLowerLimit = 30;
+		motorAConfig.CurrentLimits.SupplyCurrentLowerLimit = 35;
 		motorAConfig.CurrentLimits.SupplyCurrentLowerTime = 3;
 
-		motorBConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+		motorBConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
 		motorBConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
 		motorBConfig.CurrentLimits.StatorCurrentLimit = 90;
 		motorBConfig.CurrentLimits.StatorCurrentLimitEnable = true;
-		motorBConfig.CurrentLimits.SupplyCurrentLimit = 30;
+		motorBConfig.CurrentLimits.SupplyCurrentLimit = 50;
 		motorBConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-		motorBConfig.CurrentLimits.SupplyCurrentLowerLimit = 30;
+		motorBConfig.CurrentLimits.SupplyCurrentLowerLimit = 35;
 		motorBConfig.CurrentLimits.SupplyCurrentLowerTime = 3;
 
 		pivotMotorConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
-		pivotMotorConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+		pivotMotorConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
 		pivotMotorConfig.CurrentLimits.StatorCurrentLimit = 90;
 		pivotMotorConfig.CurrentLimits.StatorCurrentLimitEnable = true;
 		pivotMotorConfig.CurrentLimits.SupplyCurrentLimit = 30;
 		pivotMotorConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
 		pivotMotorConfig.CurrentLimits.SupplyCurrentLowerLimit = 30;
 		pivotMotorConfig.CurrentLimits.SupplyCurrentLowerTime = 3;
+
+		pivotMotorConfig.Slot0.kP = IntakeConstants.kP_Slot0;
+		pivotMotorConfig.Slot0.kI = IntakeConstants.kI_Slot0;
+		pivotMotorConfig.Slot0.kD = IntakeConstants.kD_Slot0;
+		pivotMotorConfig.Slot0.kS = IntakeConstants.kS_Slot0;
+		pivotMotorConfig.Slot0.kV = IntakeConstants.kV_Slot0;
+		pivotMotorConfig.Slot0.kA = IntakeConstants.kA_Slot0;
+		pivotMotorConfig.Slot0.kG = IntakeConstants.kG_Slot0;
+		pivotMotorConfig.MotionMagic.MotionMagicAcceleration = IntakeConstants.motionMagicAcceleration;
+		pivotMotorConfig.MotionMagic.MotionMagicCruiseVelocity = IntakeConstants.motionMagicCruiseVelocity;
+		pivotMotorConfig.MotionMagic.MotionMagicJerk = IntakeConstants.motionMagicJerk;
+		pivotMotorConfig.Slot0.GravityType = GravityTypeValue.Arm_Cosine;
+
+		pivotMotorConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = IntakeConstants.forwardSoftLimitEnable;
+		pivotMotorConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = IntakeConstants.forwardSoftLimit;
+		pivotMotorConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = IntakeConstants.reverseSoftLimitEnable;
+		pivotMotorConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = IntakeConstants.reverseSoftLimit;
+
+		pivotMotorConfig.Feedback.SensorToMechanismRatio = IntakeConstants.SensorToMechanismRatio;
 
 		// Configure Motors
 		motorAConfigured = tryUntilOkWithStatus(5, () -> motorA.getConfigurator().apply(motorAConfig, 0.25));
@@ -99,7 +120,7 @@ public class IntakeIOTalonFX implements IntakeIO {
 		intakePivotVoltageSig = pivotMotor.getMotorVoltage();
 		intakePivotVelocitySig = pivotMotor.getVelocity();
 		intakePivotPositionSig = pivotMotor.getPosition();
-		intakePivotCurrentSig = pivotMotor.getSupplyCurrent(); // TODO: FINISH
+		intakePivotCurrentSig = pivotMotor.getSupplyCurrent();
 
 		BaseStatusSignal.setUpdateFrequencyForAll(50.0, motorAVoltageSig, motorAVelocitySig, motorACurrentSig,
 				motorBVoltageSig, motorBVelocitySig, motorBCurrentSig, intakePivotVoltageSig, intakePivotVelocitySig,
@@ -107,13 +128,14 @@ public class IntakeIOTalonFX implements IntakeIO {
 
 		motorA.optimizeBusUtilization();
 		motorB.optimizeBusUtilization();
-		pivotMotor.optimizeBusUtilization(); 
+		pivotMotor.optimizeBusUtilization();
 	}
 
 	@Override
 	public void updateInputs(IntakeIOInputs inputs) {
 		inputs.signalsOk = BaseStatusSignal.refreshAll(motorAVoltageSig, motorAVelocitySig, motorACurrentSig,
-				motorBCurrentSig, motorBVelocitySig, motorBCurrentSig,intakePivotVoltageSig,intakePivotVelocitySig,intakePivotCurrentSig,intakePivotPositionSig);
+				motorBCurrentSig, motorBVelocitySig, motorBCurrentSig, intakePivotVoltageSig, intakePivotVelocitySig,
+				intakePivotCurrentSig, intakePivotPositionSig);
 
 		// Configuration
 		inputs.motorAConnected = BaseStatusSignal.isAllGood(motorAVoltageSig);
@@ -133,30 +155,34 @@ public class IntakeIOTalonFX implements IntakeIO {
 		inputs.intakePivotMotorVoltage = intakePivotVoltageSig.getValueAsDouble();
 		inputs.intakePivotMotorRps = intakePivotVelocitySig.getValueAsDouble();
 		inputs.intakePivotMotorSupplyCurrent = intakePivotCurrentSig.getValueAsDouble();
+		inputs.intakePivotMotorPosition = intakePivotPositionSig.getValueAsDouble();
 	}
 
 	@Override
 	public void applyOutputs(IntakeIOOutputs outputs) {
 		switch (outputs.rollerMode) {
-			case OFF:
+			case OFF :
 				motorA.stopMotor();
 				motorB.stopMotor();
 				break;
-			case VOLTAGE:
+			case VOLTAGE :
 				motorA.setControl(voltageOut.withOutput(outputs.rollerVoltageSetpoint).withEnableFOC(true));
 				motorB.setControl(follower);
 				break;
-			default:
+			default :
 				break;
 		}
 		switch (outputs.pivotMode) {
-			case OFF:
+			case OFF :
 				pivotMotor.stopMotor();
 				break;
-			case POSITION:
+			case POSITION :
 				pivotMotor.setControl(pivotPosition.withPosition(outputs.pivotPositionSetpoint).withEnableFOC(true));
 				break;
-			default:
+			case LOWER :
+				pivotMotor.setControl(pivotPosition.withPosition(0).withEnableFOC(true));
+				break;
+			default :
 				break;
 		}
 	}

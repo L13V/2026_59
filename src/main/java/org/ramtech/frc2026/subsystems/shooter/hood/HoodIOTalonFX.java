@@ -84,7 +84,8 @@ public class HoodIOTalonFX implements HoodIO {
 	@Override
 	public void updateInputs(HoodIOInputs inputs) { // TODO: FIX ALL THE CODE
 		// Configuration
-		inputs.signalsOk = BaseStatusSignal.refreshAll(hoodMotorVoltageSig, hoodMotorVelocitySig, hoodMotorCurrentSig);
+		inputs.signalsOk = BaseStatusSignal.refreshAll(hoodMotorVoltageSig, hoodMotorVelocitySig, hoodMotorCurrentSig,
+				hoodMotorPositionSig);
 
 		inputs.hoodConnected = BaseStatusSignal.isAllGood(hoodMotorVoltageSig);
 

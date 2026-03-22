@@ -19,6 +19,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.wpilibj.Preferences;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import org.ramtech.frc2026.Constants;
@@ -36,26 +37,21 @@ public class ShotCalculator {
 	 * Represents the calculated parameters for a shot.
 	 *
 	 * @param isValid
-	 *                            Whether the shot calculation is valid and safe to
-	 *                            execute.
+	 *            Whether the shot calculation is valid and safe to execute.
 	 * @param hoodAngle
-	 *                            The angle of the hood in degrees from horizontal.
+	 *            The angle of the hood in degrees from horizontal.
 	 * @param flyWheelVelocity
-	 *                            The target velocity of the flywheel in rotations
-	 *                            per second (RPS).
+	 *            The target velocity of the flywheel in rotations per second (RPS).
 	 * @param flyWheelFeedForward
-	 *                            The target feed forward the flywheel in rotations
-	 *                            per second
-	 *                            (RPS).
+	 *            The target feed forward the flywheel in rotations per second
+	 *            (RPS).
 	 * @param turretAngle
-	 *                            The target anturretAngleOffsetForZerogle of the
-	 *                            turret in degrees (Robot
-	 *                            forward is 0
-	 *                            degrees).
+	 *            The target anturretAngleOffsetForZerogle of the turret in degrees
+	 *            (Robot forward is 0 degrees).
 	 * @param hoodSafe
-	 *                            Is the hood safe to raise?
+	 *            Is the hood safe to raise?
 	 * @param shootingAllowed
-	 *                            Is the robot allowed to index to shoot?
+	 *            Is the robot allowed to index to shoot?
 	 */
 	public record ShotParameters(boolean isValid, double hoodAngle, double flyWheelVelocity, double flyWheelFeedForward,
 			double turretAngle, boolean hoodSafe, boolean shootingAllowed) {
@@ -93,14 +89,14 @@ public class ShotCalculator {
 	private static final double rpsMin = 30;
 	private static final double rpsInterference = 50; // rps when the turret is gonna hit the polycarb
 	private static final double rpsMax = 80;
-	private static final double rpsBump = 0;
+	// private static final double rpsBump = 0;
 	private static final double rpsMult = 1.135;
 	private static final double peakRPSS = 5000;
 
 	public static final double hoodMinAngle = 10; // deg TODO: Verify
 	private static final double hoodMaxAngle = 51; // deg
 	private static final double hoodIdealAngle = 42;
-	private static final double hoodInterferenceAngle = 33;
+	private static final double hoodInterferenceAngle = 30; // TODO: Check
 
 	private static final double g = 9.83069; // m/s^2
 	private static final double ballMass = 0.226796; // kg
@@ -214,7 +210,15 @@ public class ShotCalculator {
 		hoodEnableRequest = true;
 	}
 
+	public double gettFlight() {
+		return tFlight;
+	}
+
+	// public double getRps
+
 	public void update(double loopTime) {
+		double rpsBump = Preferences.getDouble("rpsBump", 0.0);
+
 		double tReact = 0.05 + loopTime;
 
 		RobotState robotState = RobotState.getInstance();
@@ -261,35 +265,35 @@ public class ShotCalculator {
 		zone = newZone != null ? newZone : zone;
 
 		switch (zone != null ? zone.type() : zoneType.nothing) {
-			case passingfarleft:
+			case passingfarleft :
 				shootingAllowed = true;
 				targetPose = TargetPoses.leftFarPass;
 				break;
-			case passingfarright:
+			case passingfarright :
 				shootingAllowed = true;
 				targetPose = TargetPoses.rightFarPass;
 				break;
-			case passingcloseleft:
+			case passingcloseleft :
 				shootingAllowed = true;
 				targetPose = TargetPoses.leftClosePass;
 				break;
-			case passingcloseright:
+			case passingcloseright :
 				shootingAllowed = true;
 				targetPose = TargetPoses.rightClosePass;
 				break;
-			case scoring:
+			case scoring :
 				shootingAllowed = true;
 				targetPose = TargetPoses.hub;
 				break;
-			case hoodUnsafe:
+			case hoodUnsafe :
 				hoodUnsafe = true;
 				break;
-			case blockShooting:
+			case blockShooting :
 				shootingAllowed = false;
 				break;
-			case nothing:
+			case nothing :
 				break;
-			default:
+			default :
 				break;
 		}
 
@@ -354,12 +358,20 @@ public class ShotCalculator {
 			}
 		}
 		// Is the turret going to be blocked?
-		boolean turretInterference = (MathUtil.inputModulus(last.turretAngle, 0, 360) > 25
-				&& MathUtil.inputModulus(last.turretAngle, 0, 360) < 245);
+
+		boolean turretInterference = (MathUtil.inputModulus(last.turretAngle, -180.0, 180.0) >= -75.0
+				&& MathUtil.inputModulus(last.turretAngle, -180.0, 180.0) <= 155.0);
+
+		// boolean turretInterference = (MathUtil.inputModulus(last.turretAngle, 0, 360)
+		// > -75
+		// && MathUtil.inputModulus(last.turretAngle, 0, 360) < 150);
 
 		if (turretInterference) { // Override angle
-			if (hoodAngle > Math.toRadians(hoodInterferenceAngle)) {
-				hoodAngle = Math.toRadians(hoodInterferenceAngle);
+			// System.out.println("Override");
+			if (hoodAngle < Math.toRadians(90 - hoodInterferenceAngle)) {
+				// System.out.println("Overrid2");
+
+				hoodAngle = Math.toRadians(90 - hoodInterferenceAngle);
 			}
 		}
 
@@ -419,7 +431,7 @@ public class ShotCalculator {
 
 		// 5. SANE CLAMP: Cap the math at 1.5 seconds so it can never infinitely
 		// feedback
-		tFlight = DataProcessing.sanitize(tFlightLast, 0.1, 10, tFlight);
+		tFlight = DataProcessing.sanitize(tFlightLast, 0.1, 1.5, tFlight);
 		// ---------------------------------------
 
 		tFlightLast = tFlight;
@@ -456,6 +468,7 @@ public class ShotCalculator {
 		Logger.recordOutput("ShotCalculator/ShotParameters", params);
 		Logger.recordOutput("ShotCalculator/DynamicPose", dynamicPose);
 		Logger.recordOutput("RobotState/ZoneName", zone != null ? zone.name() : "hello!");
+		Logger.recordOutput("ShotCalculator/TargetPose", targetPose);
 		// Logger.recordOutput("ShotCalculator/AngleToTarget",
 		// getTurretAngleToTarget().getDegrees());
 

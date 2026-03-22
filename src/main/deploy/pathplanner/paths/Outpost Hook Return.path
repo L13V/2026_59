@@ -1,0 +1,151 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 7.744312865497077,
+        "y": 3.547777777777778
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 6.436505847953217,
+        "y": 2.1566301169590636
+      },
+      "isLocked": false,
+      "linkedName": "Outpost Center Intake End"
+    },
+    {
+      "anchor": {
+        "x": 3.1413450292397664,
+        "y": 2.451527777777778
+      },
+      "prevControl": {
+        "x": 4.211951754385965,
+        "y": 2.7977119883040937
+      },
+      "nextControl": {
+        "x": 2.6854855927750023,
+        "y": 2.3041241276634237
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 0.3718713450292397,
+        "y": 0.6500877192982455
+      },
+      "prevControl": {
+        "x": 1.3911915204678362,
+        "y": 0.7526608187134491
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": null
+    }
+  ],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.45283018867925207,
+      "rotationDegrees": 0.0
+    }
+  ],
+  "constraintZones": [
+    {
+      "name": "2-wheels",
+      "minWaypointRelativePos": 0.473967684021544,
+      "maxWaypointRelativePos": 0.6654697785757007,
+      "constraints": {
+        "maxVelocity": 4.0,
+        "maxAcceleration": 4.0,
+        "maxAngularVelocity": 540.0,
+        "maxAngularAcceleration": 720.0,
+        "nominalVoltage": 11.0,
+        "unlimited": false
+      }
+    },
+    {
+      "name": "end",
+      "minWaypointRelativePos": 1.7402752842609206,
+      "maxWaypointRelativePos": 2.0,
+      "constraints": {
+        "maxVelocity": 1.0,
+        "maxAcceleration": 3.0,
+        "maxAngularVelocity": 540.0,
+        "maxAngularAcceleration": 1464.0,
+        "nominalVoltage": 11.0,
+        "unlimited": false
+      }
+    },
+    {
+      "name": "4-wheels",
+      "minWaypointRelativePos": 0.6463195691202823,
+      "maxWaypointRelativePos": 0.8569718731298533,
+      "constraints": {
+        "maxVelocity": 4.5,
+        "maxAcceleration": 0.5,
+        "maxAngularVelocity": 540.0,
+        "maxAngularAcceleration": 1464.0,
+        "nominalVoltage": 11.0,
+        "unlimited": false
+      }
+    },
+    {
+      "name": "Constraints Zone",
+      "minWaypointRelativePos": 0.7995212447636162,
+      "maxWaypointRelativePos": 1.3692399760622416,
+      "constraints": {
+        "maxVelocity": 2.0,
+        "maxAcceleration": 9.4,
+        "maxAngularVelocity": 540.0,
+        "maxAngularAcceleration": 1464.0,
+        "nominalVoltage": 11.0,
+        "unlimited": false
+      }
+    }
+  ],
+  "pointTowardsZones": [],
+  "eventMarkers": [
+    {
+      "name": "shoot",
+      "waypointRelativePos": 1.4643499101258302,
+      "endWaypointRelativePos": 2.0,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "shoot"
+        }
+      }
+    },
+    {
+      "name": "intake",
+      "waypointRelativePos": 2.0,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "intake"
+        }
+      }
+    }
+  ],
+  "globalConstraints": {
+    "maxVelocity": 4.5,
+    "maxAcceleration": 9.4,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 1464.0,
+    "nominalVoltage": 11.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": 0.0
+  },
+  "reversed": false,
+  "folder": null,
+  "idealStartingState": {
+    "velocity": 0,
+    "rotation": 73.777
+  },
+  "useDefaultConstraints": true
+}

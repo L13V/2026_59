@@ -8,7 +8,9 @@
 package org.ramtech.frc2026;
 
 import edu.wpi.first.wpilibj.Notifier;
+import edu.wpi.first.wpilibj.Preferences;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import org.littletonrobotics.junction.LogFileUtil;
@@ -20,6 +22,8 @@ import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 import org.ramtech.frc2026.Constants.Mode;
 import org.ramtech.frc2026.subsystems.shooter.ShotCalculator;
 import org.ramtech.frc2026.util.FullSubsystem;
+import org.ramtech.frc2026.util.HubShiftUtil;
+import org.ramtech.frc2026.util.HubShiftUtil.ShiftInfo;
 import org.ramtech.frc2026.util.ShooterSubsystem;
 
 /**
@@ -55,10 +59,13 @@ public class Robot extends LoggedRobot {
 
 	@Override
 	public void robotInit() {
+		Preferences.initDouble("rpsBump", 0.0);
+
 		lastCalcTs = Timer.getFPGATimestamp();
 		CalculationLoop.startPeriodic(0.005);
 		lastShooterTs = Timer.getFPGATimestamp();
 		shooterLoop.startPeriodic(0.005);
+
 	}
 
 	@Override
@@ -133,6 +140,22 @@ public class Robot extends LoggedRobot {
 		ShotCalculator.getInstance().publishShotParameters();
 		FullSubsystem.runAllPeriodicAfterScheduler();
 		RobotState.getInstance().publishState();
+
+		ShiftInfo currentInfo = HubShiftUtil.getShiftedShiftInfo();
+
+		// 2. Publish the key variables to SmartDashboard
+		// Using the "Hub/" prefix creates a nice folder layout in your dashboard
+		// software
+
+		SmartDashboard.putString("Hub/Current State", currentInfo.currentShift().name());
+		SmartDashboard.putBoolean("Hub/Is Target Active", currentInfo.active());
+
+		double remainingTime = currentInfo.remainingTime();
+		SmartDashboard.putNumber("Hub/Time Remaining", remainingTime);
+
+		if (remainingTime < 3 && remainingTime > 2.5) {
+
+		}
 	}
 
 	// Return to non-RT thread priority (do not modify the first argument)
@@ -181,6 +204,8 @@ public class Robot extends LoggedRobot {
 		if (autonomousCommand != null) {
 			autonomousCommand.cancel();
 		}
+		HubShiftUtil.initialize();
+
 	}
 
 	/** This function is called periodically during operator control. */

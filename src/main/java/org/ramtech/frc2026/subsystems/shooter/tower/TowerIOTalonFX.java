@@ -34,13 +34,13 @@ public class TowerIOTalonFX implements TowerIO {
 
 	public TowerIOTalonFX() {
 		// Complete the config
-		towerConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+		towerConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 		towerConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
 		towerConfig.CurrentLimits.StatorCurrentLimit = 120;
 		towerConfig.CurrentLimits.StatorCurrentLimitEnable = true;
-		towerConfig.CurrentLimits.SupplyCurrentLimit = 30;
+		towerConfig.CurrentLimits.SupplyCurrentLimit = 70;
 		towerConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-		towerConfig.CurrentLimits.SupplyCurrentLowerLimit = 30;
+		towerConfig.CurrentLimits.SupplyCurrentLowerLimit = 60;
 		towerConfig.CurrentLimits.SupplyCurrentLowerTime = 3;
 
 		towerConfigured = tryUntilOkWithStatus(5, () -> towerMotor.getConfigurator().apply(towerConfig));

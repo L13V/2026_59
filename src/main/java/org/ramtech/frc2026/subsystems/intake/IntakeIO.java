@@ -37,8 +37,8 @@ public interface IntakeIO {
 	public static enum IntakeIORollerOutputMode {
 		OFF, VOLTAGE
 	}
-		public static enum IntakeIOPivotOutputMode {
-		OFF, POSITION
+	public static enum IntakeIOPivotOutputMode {
+		OFF, POSITION, LOWER
 	}
 
 	@AutoLog

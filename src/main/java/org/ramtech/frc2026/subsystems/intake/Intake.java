@@ -13,7 +13,6 @@ import org.ramtech.frc2026.subsystems.intake.IntakeIO.IntakeIOOutputs;
 import org.ramtech.frc2026.subsystems.intake.IntakeIO.IntakeIOPivotOutputMode;
 import org.ramtech.frc2026.util.FullSubsystem;
 
-
 public class Intake extends FullSubsystem {
 	// IO
 	private final IntakeIO io;
@@ -37,12 +36,16 @@ public class Intake extends FullSubsystem {
 	@Override
 	public void periodic() {
 		// This method will be called once per scheduler run
-		io.updateInputs(inputs);
+		// io.updateInputs(inputs);
 		Logger.processInputs("Intake", inputs);
 		motorADisconnected.set(Robot.showHardwareAlerts() && !motorADebouncer.calculate(inputs.motorAConnected));
 		motorBDisconnected.set(Robot.showHardwareAlerts() && !motorBDebouncer.calculate(inputs.motorBConnected));
 		intakePivotMotorDisconnected.set(
 				Robot.showHardwareAlerts() && !intakePivotMotorDebouncer.calculate(inputs.intakePivotMotorConnected));
+
+		if (outputs.pivotMode == IntakeIOPivotOutputMode.LOWER && inputs.intakePivotMotorPosition < 0.01) {
+			outputs.pivotMode = IntakeIOPivotOutputMode.OFF;
+		}
 
 	}
 
@@ -56,6 +59,10 @@ public class Intake extends FullSubsystem {
 		Logger.recordOutput("Intake/Pivot/PositionSetpoint", outputs.pivotPositionSetpoint);
 	}
 
+	public double getPivotPosition() {
+		return inputs.intakePivotMotorPosition;
+	}
+
 	public void setRollerVoltage(double voltage) {
 		outputs.rollerMode = IntakeIORollerOutputMode.VOLTAGE;
 		outputs.rollerVoltageSetpoint = voltage;
@@ -64,6 +71,9 @@ public class Intake extends FullSubsystem {
 	public void setPivotPosition(double position) {
 		outputs.pivotMode = IntakeIOPivotOutputMode.POSITION;
 		outputs.pivotPositionSetpoint = position;
+	}
+	public void lowerPivot() {
+		outputs.pivotMode = IntakeIOPivotOutputMode.LOWER;
 	}
 
 	public void stopRollers() {

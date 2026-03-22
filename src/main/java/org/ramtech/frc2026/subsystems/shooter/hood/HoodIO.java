@@ -33,6 +33,8 @@ public interface HoodIO {
 		public HoodIOSetpointSource setpointSource = HoodIOSetpointSource.SHOT_CALCULATOR;
 		public double voltageSetpoint = 0.0;
 		public double positionSetpoint = 0.0;
+		public boolean hoodLockedByDriver = true;
+
 	}
 
 	default void updateInputs(HoodIOInputs inputs) {

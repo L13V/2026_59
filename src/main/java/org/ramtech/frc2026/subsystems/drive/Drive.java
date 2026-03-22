@@ -54,6 +54,7 @@ import org.ramtech.frc2026.generated.TunerConstants;
 import org.ramtech.frc2026.util.LocalADStarAK;
 
 public class Drive extends SubsystemBase {
+
 	// TunerConstants doesn't include these constants, so they are declared locally
 	static final double ODOMETRY_FREQUENCY = TunerConstants.kCANBus.isNetworkFD() ? 200.0 : 100.0; // Hz
 	public static final double DRIVE_BASE_RADIUS = Math.max(
@@ -83,8 +84,8 @@ public class Drive extends SubsystemBase {
 	private SwerveDriveKinematics kinematics = new SwerveDriveKinematics(getModuleTranslations());
 	private Rotation2d rawGyroRotation = Rotation2d.kZero;
 	private SwerveModulePosition[] lastModulePositions = // For delta tracking
-			new SwerveModulePosition[] { new SwerveModulePosition(), new SwerveModulePosition(),
-					new SwerveModulePosition(), new SwerveModulePosition() };
+			new SwerveModulePosition[]{new SwerveModulePosition(), new SwerveModulePosition(),
+					new SwerveModulePosition(), new SwerveModulePosition()};
 	private SwerveDrivePoseEstimator poseEstimator = new SwerveDrivePoseEstimator(kinematics, rawGyroRotation,
 			lastModulePositions, Pose2d.kZero);
 
@@ -107,7 +108,7 @@ public class Drive extends SubsystemBase {
 		// Configure AutoBuilder for PathPlanner
 		AutoBuilder.configure(this::getPose, this::setPose, this::getChassisSpeeds, this::runVelocity,
 				new PPHolonomicDriveController(new PIDConstants(7.4, 0.0016, 0.00085), new PIDConstants(4.0, 0.0, 0.0)),
-																															// Tune
+				// Tune
 				PP_CONFIG, () -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red, this);
 		Pathfinding.setPathfinder(new LocalADStarAK());
 		PathPlannerLogging.setLogActivePathCallback((activePath) -> {
@@ -153,8 +154,8 @@ public class Drive extends SubsystemBase {
 
 		// Log empty setpoint states when disabled
 		if (DriverStation.isDisabled()) {
-			Logger.recordOutput("SwerveStates/Setpoints", new SwerveModuleState[] {});
-			Logger.recordOutput("SwerveStates/SetpointsOptimized", new SwerveModuleState[] {});
+			Logger.recordOutput("SwerveStates/Setpoints", new SwerveModuleState[]{});
+			Logger.recordOutput("SwerveStates/SetpointsOptimized", new SwerveModuleState[]{});
 		}
 
 		// Update odometry
@@ -194,7 +195,7 @@ public class Drive extends SubsystemBase {
 	 * Runs the drive at the desired velocity.
 	 *
 	 * @param speeds
-	 *               Speeds in meters/sec
+	 *            Speeds in meters/sec
 	 */
 	public void runVelocity(ChassisSpeeds speeds) {
 		// Calculate module setpoints
@@ -285,7 +286,7 @@ public class Drive extends SubsystemBase {
 
 	/** Returns the current acceleration in Gs [x, y, z]. */
 	public double[] getAcceleration() {
-		return new double[] { gyroInputs.accelX, gyroInputs.accelY, gyroInputs.accelZ };
+		return new double[]{gyroInputs.accelX, gyroInputs.accelY, gyroInputs.accelZ};
 	}
 
 	/** Returns the position of each module in radians. */
@@ -351,10 +352,10 @@ public class Drive extends SubsystemBase {
 
 	/** Returns an array of module translations. */
 	public static Translation2d[] getModuleTranslations() {
-		return new Translation2d[] {
+		return new Translation2d[]{
 				new Translation2d(TunerConstants.FrontLeft.LocationX, TunerConstants.FrontLeft.LocationY),
 				new Translation2d(TunerConstants.FrontRight.LocationX, TunerConstants.FrontRight.LocationY),
 				new Translation2d(TunerConstants.BackLeft.LocationX, TunerConstants.BackLeft.LocationY),
-				new Translation2d(TunerConstants.BackRight.LocationX, TunerConstants.BackRight.LocationY) };
+				new Translation2d(TunerConstants.BackRight.LocationX, TunerConstants.BackRight.LocationY)};
 	}
 }

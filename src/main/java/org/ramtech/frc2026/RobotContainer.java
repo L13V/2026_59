@@ -1,10 +1,3 @@
-// Copyright (c) 2021-2026 Littleton Robotics
-// http://github.com/Mechanical-Advantage
-//
-// Use of this source code is governed by a BSD
-// license that can be found in the LICENSE file
-// at the root directory of this project.
-
 package org.ramtech.frc2026;
 
 import static org.ramtech.frc2026.subsystems.vision.VisionConstants.*;
@@ -14,14 +7,18 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.GenericHID;
+import edu.wpi.first.wpilibj.GenericHID.RumbleType;
+import edu.wpi.first.wpilibj.Preferences;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-// import org.ramtech.frc2026.subsystems.indexer.IndexerIOSim;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
+
 import org.ramtech.frc2026.commands.DriveCommands;
+import org.ramtech.frc2026.commands.LowerIntake;
 import org.ramtech.frc2026.generated.TunerConstants;
 import org.ramtech.frc2026.subsystems.drive.Drive;
 import org.ramtech.frc2026.subsystems.drive.GyroIO;
@@ -57,6 +54,10 @@ import org.ramtech.frc2026.subsystems.vision.Vision;
 import org.ramtech.frc2026.subsystems.vision.VisionIO;
 import org.ramtech.frc2026.subsystems.vision.VisionIOPhotonVision;
 import org.ramtech.frc2026.subsystems.vision.VisionIOPhotonVisionSim;
+import org.ramtech.frc2026.util.HubShiftUtil;
+import org.ramtech.frc2026.util.HubShiftUtil.ShiftEnum;
+import org.ramtech.frc2026.util.HubShiftUtil.ShiftInfo;
+
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -84,17 +85,20 @@ public class RobotContainer {
 	private final Turret turret;
 
 	// Controller
-	private final CommandXboxController controller = new CommandXboxController(0);
+	private final CommandXboxController drivercontroller = new CommandXboxController(0);
+	private final CommandXboxController operatorcontroller = new CommandXboxController(1);
 
 	// Dashboard inputs
 	private final LoggedDashboardChooser<Command> autoChooser;
+
+	private double slowMult = 1.0;
 
 	/**
 	 * The container for the robot. Contains subsystems, OI devices, and commands.
 	 */
 	public RobotContainer() {
 		switch (Constants.currentMode) {
-			case REAL:
+			case REAL :
 				// Real robot, instantiate hardware IO implementations
 				// ModuleIOTalonFX is intended for modules with TalonFX drive, TalonFX turn, and
 				// a CANcoder
@@ -113,7 +117,7 @@ public class RobotContainer {
 				turret = new Turret(new TurretIOReal());
 				break;
 
-			case SIM:
+			case SIM :
 				// Sim robot, instantiate physics sim IO implementations
 				drive = new Drive(new GyroIO() {
 				}, new ModuleIOSim(TunerConstants.FrontLeft), new ModuleIOSim(TunerConstants.FrontRight),
@@ -134,7 +138,7 @@ public class RobotContainer {
 
 				break;
 
-			default:
+			default :
 				// Replayed robot, disable IO implementations
 				drive = new Drive(new GyroIO() {
 				}, new ModuleIO() {
@@ -162,33 +166,12 @@ public class RobotContainer {
 				break;
 		}
 
-		NamedCommands.registerCommand("shoot",
-				new StartEndCommand(() -> {
-					ShotCalculator.getInstance().requestSafe();
-					;
-					flywheel.enableCalculation();
-					tower.setVoltage(10);
-					indexer.setVoltage(10);
-					intake.setRollerVoltage(10);
-				}, () -> {
-					// ShotCalculator.getInstance().setHoodUnsafe();
-
-				}, flywheel, tower, indexer,
-						intake));
-
-		NamedCommands.registerCommand("intake",
-				new StartEndCommand(() -> {
-					ShotCalculator.getInstance().setHoodUnsafe();
-					indexer.setVoltage(10);
-					intake.setRollerVoltage(10);
-				}, () -> {
-					ShotCalculator.getInstance().setHoodUnsafe();
-
-				}, flywheel, tower, indexer,
-						intake));
-
 		NamedCommands.registerCommand("lower_hood",
 				new InstantCommand(() -> ShotCalculator.getInstance().setHoodUnsafe()));
+		NamedCommands.registerCommand("shoot", shoot());
+
+		NamedCommands.registerCommand("deploy_intake", deploy_intake());
+		NamedCommands.registerCommand("intake", intake());
 
 		RobotState.getInstance().setPoseSupplier(drive::getPose);
 		RobotState.getInstance().setSpeedSupplier(drive::getChassisSpeeds);
@@ -215,6 +198,16 @@ public class RobotContainer {
 		// Configure the button bindings
 		configureButtonBindings();
 
+		new Trigger(() -> {
+			ShiftInfo info = HubShiftUtil.getShiftedShiftInfo();
+			double remainingTime = info.remainingTime();
+			return remainingTime <= 5 && remainingTime >= 4.5 && info.currentShift() != ShiftEnum.DISABLED;
+		}).whileTrue(
+				// Command to run while the trigger is true, and what to do when it ends
+				Commands.startEnd(() -> drivercontroller.setRumble(RumbleType.kBothRumble, 1.0), // Start rumble
+						() -> drivercontroller.setRumble(RumbleType.kBothRumble, 0.0) // Stop rumble
+				));
+
 	}
 
 	/**
@@ -224,42 +217,71 @@ public class RobotContainer {
 	 * passing it to a {@link edu.wpi.first.wpilibj2.command.button.JoystickButton}.
 	 */
 	private void configureButtonBindings() {
-		// Default command, normal field-relative drive
-		drive.setDefaultCommand(DriveCommands.joystickDrive(drive, () -> -controller.getLeftY(),
-				() -> -controller.getLeftX(), () -> -controller.getRightX()));
-
+		/*
+		 * Driving
+		 */
+		// Drive
+		drive.setDefaultCommand(DriveCommands.joystickDrive(drive, () -> -drivercontroller.getLeftY() * slowMult,
+				() -> -drivercontroller.getLeftX() * slowMult, () -> -drivercontroller.getRightX()));
 		// Reset gyro
-		controller.start().onTrue(Commands
+		drivercontroller.start().onTrue(Commands
 				.runOnce(() -> drive.setPose(new Pose2d(drive.getPose().getTranslation(), Rotation2d.kZero)), drive)
 				.ignoringDisable(true));
+		// X pattern
+		drivercontroller.povDown().onTrue(Commands.runOnce(drive::stopWithX, drive)); // x pattern
+		// Slow Mode
+		drivercontroller.rightBumper().whileTrue(slowMode());
 
-		// Switch to X pattern when down d-pad pressed
-		controller.povDown().onTrue(Commands.runOnce(drive::stopWithX, drive)); // x pattern
-
+		/*
+		 * Intaking
+		 */
 		// Intake
-		controller.leftTrigger().onTrue(new InstantCommand(() -> intake.setRollerVoltage(10.0)))
-				.onTrue(new InstantCommand(() -> indexer.setVoltage(5)))
-				.onFalse(new InstantCommand(() -> intake.stopRollers())).onFalse(new InstantCommand(() -> indexer.stop()));
+		drivercontroller.leftTrigger().whileTrue(intake());
+		// Raise Intake
+		drivercontroller.y().onTrue(raise_intake());
 
-		// Request the shooter to renable after an unsafe condition was detected.
-		controller.leftBumper().onTrue(new InstantCommand(() -> ShotCalculator.getInstance().requestSafe()));
-		controller.a().onTrue(new InstantCommand(() -> ShotCalculator.getInstance().requestSafe()));
+		/*
+		 * Shooting
+		 */
+		// Re-enable shooter
+		drivercontroller.leftBumper().onTrue(new InstantCommand(() -> ShotCalculator.getInstance().requestSafe()));
 
-		// If the shooter is safe, shoot
-		controller.leftBumper().and(() -> ShotCalculator.getInstance().getLatest().hoodSafe())
-				.onTrue(new InstantCommand(() -> indexer.setVoltage(10.0)))
-				.onTrue(new InstantCommand(() -> intake.setRollerVoltage(10.0)))
-				.onTrue(new InstantCommand(() -> tower.setVoltage(10)))
-				.onFalse(new InstantCommand(() -> indexer.stop())).onFalse(new InstantCommand(() -> tower.stop()))
-				.onFalse(new InstantCommand(() -> intake.stopRollers()));
+		// Shoot
+		drivercontroller.leftBumper().and(() -> ShotCalculator.getInstance().getLatest().hoodSafe()).whileTrue(shoot());
 
 		// Overrides for helping battery conservation during auto testing.
-		controller.b().onTrue(new InstantCommand(() -> indexer.setVoltage(0)))
-				.onTrue(new InstantCommand(() -> intake.stopRollers())).onTrue(new InstantCommand(() -> tower.setVoltage(0)))
-				.onTrue(new InstantCommand(() -> flywheel.stop()));
+		drivercontroller.b().onTrue(conserve());
 
-		controller.y().onTrue(new InstantCommand(() -> flywheel.enableCalculation()));
+		/*
+		 * Operator Overrides
+		 */
+		// Lock Turret
+		operatorcontroller.leftBumper().onTrue(new InstantCommand(() -> turret.setTurretDriverLock(true)));
+		operatorcontroller.rightBumper().onTrue(new InstantCommand(() -> turret.setTurretDriverLock(false)));
 
+		operatorcontroller.a().onTrue(new InstantCommand(() -> hood.setHoodDriverLock(true)));
+		operatorcontroller.y().onTrue(new InstantCommand(() -> hood.setHoodDriverLock(false)));
+
+		// drivercontroller.povDown().onTrue(new InstantCommand(() ->
+		// flywheel.enableCalculation()));
+
+		// Raise Rps
+		operatorcontroller.povUp().onTrue(Commands.runOnce(() -> {
+			double currentBump = Preferences.getDouble("rpsBump", 0.0);
+			double newBump = currentBump + 0.5;
+
+			Preferences.setDouble("ShooterRPM", newBump);
+
+			System.out.println("Shooter RPM bumped to: " + newBump);
+
+		}));
+
+		// Lower Rps
+		operatorcontroller.povDown().onTrue(Commands.runOnce(() -> {
+			double currentBump = Preferences.getDouble("rpsBump", 0.0);
+			Preferences.setDouble("ShooterRPM", currentBump - 0.5);
+			System.out.println("Shooter RPM dropped to: " + (currentBump - 0.5));
+		}));
 	}
 
 	// /**
@@ -270,6 +292,54 @@ public class RobotContainer {
 
 	public Command getAutonomousCommand() {
 		return autoChooser.get();
+	}
+
+	public Command slowMode() {
+		return new StartEndCommand(() -> slowMult = 0.8, () -> slowMult = 1);
+	}
+
+	public Command shoot() {
+		return Commands.startEnd(() -> {
+			ShotCalculator.getInstance().requestSafe();
+			flywheel.enableCalculation();
+			indexer.setVoltage(10);
+			intake.setRollerVoltage(10);
+			tower.setVoltage(10);
+		}, () -> {
+			indexer.stop();
+			tower.stop();
+			intake.stopRollers();
+		}, flywheel, indexer, intake, tower);
+	}
+
+	public Command deploy_intake() {
+		return new LowerIntake(intake, turret);
+	}
+
+	public Command raise_intake() {
+		return Commands.run(() -> intake.setPivotPosition(0.13), intake);
+	}
+
+	public Command intake() {
+		return Commands.either(new LowerIntake(intake, turret), // Run this if true
+				Commands.none(), // Do nothing if false
+				turret::isIntakeLocked).alongWith(Commands.startEnd(() -> {
+					intake.lowerPivot();
+					intake.setRollerVoltage(10.0);
+					indexer.setVoltage(0);
+				}, () -> {
+					intake.stopRollers();
+					indexer.stop();
+				}, indexer));
+	}
+
+	public Command conserve() {
+		return Commands.runOnce(() -> {
+			indexer.setVoltage(0);
+			intake.stopRollers();
+			tower.setVoltage(0);
+			flywheel.stop();
+		}, indexer, intake, flywheel);
 	}
 
 }

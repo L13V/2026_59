@@ -54,6 +54,9 @@ public class Turret extends ShooterSubsystem {
 			Logger.recordOutput("Shooter/Turret/VoltageSetpoint", outputs.voltageSetpoint);
 			Logger.recordOutput("Shooter/Turret/PositionSetpoint", outputs.positionSetpoint);
 			Logger.recordOutput("Shooter/Turret/SetpointSource", outputs.setpointSource);
+			Logger.recordOutput("Shooter/Turret/turretLockedByIntake", outputs.turretLockedByIntake);
+			Logger.recordOutput("Shooter/Turret/turretLockedByDriver", outputs.turretLockedByDriver);
+
 		}
 	}
 
@@ -69,6 +72,14 @@ public class Turret extends ShooterSubsystem {
 			}
 			io.applyOutputs(outputs); // Set the targets for the motor
 		}
+	}
+
+	public boolean isIntakeLocked() {
+		return outputs.turretLockedByIntake;
+	}
+
+	public boolean isDriverLocked() {
+		return outputs.turretLockedByDriver;
 	}
 
 	public void enableCalculation() {
@@ -96,6 +107,18 @@ public class Turret extends ShooterSubsystem {
 			outputs.setpointSource = TurretIOSetpointSource.MANUAL;
 			outputs.mode = TurretIOOutputMode.POSITION;
 			outputs.positionSetpoint = position; // Applied offset for making zero straight
+		}
+	}
+
+	public void setTurretIntakeLock(boolean lock) {
+		synchronized (outputsLock) {
+			outputs.turretLockedByIntake = lock;
+		}
+	}
+
+	public void setTurretDriverLock(boolean lock) {
+		synchronized (outputsLock) {
+			outputs.turretLockedByDriver = lock;
 		}
 	}
 

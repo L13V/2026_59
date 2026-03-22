@@ -22,6 +22,7 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.LinkedList;
@@ -31,6 +32,8 @@ import java.util.function.Supplier;
 import org.ramtech.frc2026.subsystems.drive.Drive;
 
 public class DriveCommands {
+	static double slowMult = 1.0;
+
 	private static final double DEADBAND = 0.1;
 	private static final double ANGLE_KP = 5.0;
 	private static final double ANGLE_KD = 0.4;
@@ -75,8 +78,9 @@ public class DriveCommands {
 			omega = Math.copySign(omega * omega, omega);
 
 			// Convert to field relative speeds & send command
-			ChassisSpeeds speeds = new ChassisSpeeds(linearVelocity.getX() * drive.getMaxLinearSpeedMetersPerSec(),
-					linearVelocity.getY() * drive.getMaxLinearSpeedMetersPerSec(),
+			ChassisSpeeds speeds = new ChassisSpeeds(
+					slowMult * linearVelocity.getX() * drive.getMaxLinearSpeedMetersPerSec(),
+					slowMult * linearVelocity.getY() * drive.getMaxLinearSpeedMetersPerSec(),
 					omega * drive.getMaxAngularSpeedRadPerSec());
 			boolean isFlipped = DriverStation.getAlliance().isPresent()
 					&& DriverStation.getAlliance().get() == Alliance.Red;

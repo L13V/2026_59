@@ -20,8 +20,8 @@ public class IndexerIOSim implements IndexerIO {
 	private static final DCMotor GEARBOX = DCMotor.getKrakenX60(1);
 
 	// Hardware (Simulated)
-	private final TalonFX spindexerMotor = new TalonFX(IndexerConstants.ballTunnelMotorID);
-	private final TalonFX starMotor = new TalonFX(IndexerConstants.starMotorID);
+	private final TalonFX spindexerMotor = new TalonFX(IndexerConstants.indexerMotorID);
+	private final TalonFX starMotor = new TalonFX(IndexerConstants.indexerMotorID);
 	private final TalonFXSimState spindexerSimState = spindexerMotor.getSimState();
 	private final TalonFXSimState starSimState = starMotor.getSimState();
 

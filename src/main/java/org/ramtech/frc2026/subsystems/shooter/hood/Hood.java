@@ -61,6 +61,10 @@ public class Hood extends ShooterSubsystem {
 		}
 	}
 
+	public boolean isDriverLocked() {
+		return outputs.hoodLockedByDriver;
+	}
+
 	public void enableCalculation() {
 		synchronized (outputsLock) {
 			outputs.setpointSource = HoodIOSetpointSource.SHOT_CALCULATOR;
@@ -70,6 +74,12 @@ public class Hood extends ShooterSubsystem {
 	public void disableCalculation() {
 		synchronized (outputsLock) {
 			outputs.setpointSource = HoodIOSetpointSource.MANUAL;
+		}
+	}
+
+	public void setHoodDriverLock(boolean lock) {
+		synchronized (outputsLock) {
+			outputs.hoodLockedByDriver = lock;
 		}
 	}
 

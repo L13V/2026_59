@@ -7,9 +7,10 @@
 
 package org.ramtech.frc2026;
 
-import static org.ramtech.frc2026.subsystems.vision.VisionConstants.aprilTagLayout;
-
 import com.ctre.phoenix6.CANBus;
+
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
@@ -45,6 +46,9 @@ public final class Constants {
 	}
 
 	public static final class FieldConstants {
+		public static final AprilTagFieldLayout aprilTagLayout = AprilTagFieldLayout
+				.loadField(AprilTagFields.k2026RebuiltWelded);
+
 		public static final double fieldLength = aprilTagLayout.getFieldLength();
 		public static final double fieldWidth = aprilTagLayout.getFieldWidth();
 	}
@@ -69,11 +73,30 @@ public final class Constants {
 		public static final int motorAID = 47;
 		public static final int motorBID = 48;
 		public static final int intakeEncoderId = 0;
+
+		public static final double rotorToSensorRatio = 1;
+		public static final double SensorToMechanismRatio = 50.8;
+
+		public static final double kP_Slot0 = 25.0;
+		public static final double kI_Slot0 = 0.13;
+		public static final double kD_Slot0 = 0.0;
+		public static final double kS_Slot0 = 0.0;
+		public static final double kV_Slot0 = 0.0;
+		public static final double kA_Slot0 = 0.0;
+		public static final double kG_Slot0 = 0.6;
+		public static final double motionMagicAcceleration = 100;
+		public static final double motionMagicCruiseVelocity = 25;
+		public static final double motionMagicJerk = 0;
+
+		public static final double forwardSoftLimit = 0.29;
+		public static final boolean forwardSoftLimitEnable = true;
+
+		public static final double reverseSoftLimit = 0.0;
+		public static final boolean reverseSoftLimitEnable = true;
 	}
 
 	public static final class IndexerConstants {
-		public static final int starMotorID = 50;
-		public static final int ballTunnelMotorID = 51;
+		public static final int indexerMotorID = 50;
 	}
 
 	public static final class TowerConstants {
@@ -107,10 +130,10 @@ public final class Constants {
 
 		public static final double turretAngleOffsetForZero = 180;
 
-		public static final double forwardSoftLimit = 600;
+		public static final double forwardSoftLimit = 800;
 		public static final boolean forwardSoftLimitEnable = true;
 
-		public static final double reverseSoftLimit = 60;
+		public static final double reverseSoftLimit = 90;
 		public static final boolean reverseSoftLimitEnable = true;
 
 	}

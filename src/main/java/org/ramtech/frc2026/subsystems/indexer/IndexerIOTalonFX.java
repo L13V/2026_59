@@ -16,7 +16,7 @@ import org.ramtech.frc2026.Constants.IndexerConstants;
 
 public class IndexerIOTalonFX implements IndexerIO {
 	// Motors
-	private final TalonFX indexerMotor = new TalonFX(IndexerConstants.ballTunnelMotorID, Constants.CANivore);
+	private final TalonFX indexerMotor = new TalonFX(IndexerConstants.indexerMotorID, Constants.CANivore);
 
 	// Configuration
 	private final TalonFXConfiguration indexer = new TalonFXConfiguration();
@@ -32,8 +32,8 @@ public class IndexerIOTalonFX implements IndexerIO {
 
 	public IndexerIOTalonFX() {
 		// Build Configs
-		// Ball Tunnel
-		indexer.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+		// Roller
+		indexer.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 		indexer.MotorOutput.NeutralMode = NeutralModeValue.Coast;
 		indexer.CurrentLimits.StatorCurrentLimit = 120;
 		indexer.CurrentLimits.StatorCurrentLimitEnable = true;
@@ -43,8 +43,7 @@ public class IndexerIOTalonFX implements IndexerIO {
 		indexer.CurrentLimits.SupplyCurrentLowerTime = 3;
 
 		// Configure Motors
-		indexerConfigured = tryUntilOkWithStatus(5,
-				() -> indexerMotor.getConfigurator().apply(indexer, 0.25));
+		indexerConfigured = tryUntilOkWithStatus(5, () -> indexerMotor.getConfigurator().apply(indexer, 0.25));
 
 		// Initialize signals
 		indexerVoltageSig = indexerMotor.getMotorVoltage();
