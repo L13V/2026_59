@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.506761695906433,
-        "y": 2.188684210526316
+        "x": 3.586331269349845,
+        "y": 2.589171826625387
       },
       "prevControl": null,
       "nextControl": {
-        "x": 4.674867756512491,
-        "y": 2.188684210526316
+        "x": 4.754437329955903,
+        "y": 2.589171826625387
       },
       "isLocked": false,
       "linkedName": "Outpost Start"
@@ -48,12 +48,12 @@
     },
     {
       "anchor": {
-        "x": 7.744312865497077,
-        "y": 3.547777777777778
+        "x": 7.618359133126935,
+        "y": 3.5666331269349847
       },
       "prevControl": {
-        "x": 7.827653508771933,
-        "y": 2.0412353801169596
+        "x": 7.7016997764017905,
+        "y": 2.060090729274166
       },
       "nextControl": null,
       "isLocked": false,
@@ -72,12 +72,25 @@
   ],
   "constraintZones": [
     {
+      "name": "Landing",
+      "minWaypointRelativePos": 0.48742746615086446,
+      "maxWaypointRelativePos": 1.2301740812379074,
+      "constraints": {
+        "maxVelocity": 2.5,
+        "maxAcceleration": 3.0,
+        "maxAngularVelocity": 540.0,
+        "maxAngularAcceleration": 1464.0,
+        "nominalVoltage": 11.0,
+        "unlimited": false
+      }
+    },
+    {
       "name": "Intake",
-      "minWaypointRelativePos": 2.4301977231875616,
+      "minWaypointRelativePos": 2.030947775628626,
       "maxWaypointRelativePos": 3.0,
       "constraints": {
-        "maxVelocity": 2.0,
-        "maxAcceleration": 9.4,
+        "maxVelocity": 1.2,
+        "maxAcceleration": 5.0,
         "maxAngularVelocity": 540.0,
         "maxAngularAcceleration": 720.0,
         "nominalVoltage": 11.0,
@@ -87,7 +100,7 @@
     {
       "name": "2-wheels",
       "minWaypointRelativePos": 0.06104129263913527,
-      "maxWaypointRelativePos": 0.30879712746858623,
+      "maxWaypointRelativePos": 0.2785299806576343,
       "constraints": {
         "maxVelocity": 4.5,
         "maxAcceleration": 4.0,
@@ -99,13 +112,26 @@
     },
     {
       "name": "4-wheels",
-      "minWaypointRelativePos": 0.2728904847396785,
-      "maxWaypointRelativePos": 1.3177737881508187,
+      "minWaypointRelativePos": 0.17408123791103097,
+      "maxWaypointRelativePos": 0.5106382978723752,
       "constraints": {
-        "maxVelocity": 4.5,
-        "maxAcceleration": 0.5,
+        "maxVelocity": 3.0,
+        "maxAcceleration": 0.4,
         "maxAngularVelocity": 540.0,
         "maxAngularAcceleration": 1464.0,
+        "nominalVoltage": 11.0,
+        "unlimited": false
+      }
+    },
+    {
+      "name": "Travel",
+      "minWaypointRelativePos": 0.4874274661508815,
+      "maxWaypointRelativePos": 1.7524177949709854,
+      "constraints": {
+        "maxVelocity": 4.0,
+        "maxAcceleration": 2.5,
+        "maxAngularVelocity": 180.0,
+        "maxAngularAcceleration": 360.0,
         "nominalVoltage": 11.0,
         "unlimited": false
       }
@@ -114,19 +140,19 @@
   "pointTowardsZones": [],
   "eventMarkers": [
     {
-      "name": "lower_hood",
-      "waypointRelativePos": 0.0,
-      "endWaypointRelativePos": null,
+      "name": "raise_intake",
+      "waypointRelativePos": 0,
+      "endWaypointRelativePos": 0.05,
       "command": {
         "type": "named",
         "data": {
-          "name": "lower_hood"
+          "name": "raise_intake"
         }
       }
     },
     {
       "name": "intake",
-      "waypointRelativePos": 1.1324146195326439,
+      "waypointRelativePos": 1.1953578336557005,
       "endWaypointRelativePos": 3.0,
       "command": {
         "type": "named",

@@ -180,7 +180,7 @@ public class IntakeIOTalonFX implements IntakeIO {
 				pivotMotor.setControl(pivotPosition.withPosition(outputs.pivotPositionSetpoint).withEnableFOC(true));
 				break;
 			case LOWER :
-				pivotMotor.setControl(pivotPosition.withPosition(0).withEnableFOC(true));
+				pivotMotor.setControl(pivotPosition.withPosition(-0.05).withEnableFOC(true));
 				break;
 			default :
 				break;

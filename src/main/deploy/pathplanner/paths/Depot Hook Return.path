@@ -3,76 +3,113 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 7.7317550505050505,
-        "y": 4.500715488215488
+        "x": 7.5,
+        "y": 4.6
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.639995791245792,
-        "y": 5.332895622895623
+        "x": 7.13548568866736,
+        "y": 4.96451431133264
       },
       "isLocked": false,
       "linkedName": "Depot Center Intake End"
     },
     {
       "anchor": {
-        "x": 5.166502525252525,
-        "y": 5.630648148148148
+        "x": 5.7200711743772255,
+        "y": 5.5
       },
       "prevControl": {
-        "x": 6.617091750841753,
-        "y": 5.615378787878786
+        "x": 6.73140350877193,
+        "y": 5.226291804541008
       },
       "nextControl": {
-        "x": 4.6988975051425195,
-        "y": 5.63557030625457
+        "x": 5.478752886069966,
+        "y": 5.565310670862082
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 0.34901936026936076,
-        "y": 5.943670033670034
+        "x": 3.0,
+        "y": 5.9
       },
       "prevControl": {
-        "x": 1.3748103513502605,
-        "y": 5.85330249995931
+        "x": 4.0,
+        "y": 5.9
+      },
+      "nextControl": {
+        "x": 2.0,
+        "y": 5.9
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 0.5,
+        "y": 5.9
+      },
+      "prevControl": {
+        "x": 2.5,
+        "y": 5.9
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "Inside Depot"
     }
   ],
   "rotationTargets": [
     {
       "waypointRelativePos": 0.8,
-      "rotationDegrees": 0.0
+      "rotationDegrees": -90.0
+    },
+    {
+      "waypointRelativePos": 1.8993710691823917,
+      "rotationDegrees": -90.0
+    },
+    {
+      "waypointRelativePos": 2.701257861635218,
+      "rotationDegrees": 180.0
     }
   ],
   "constraintZones": [
     {
-      "name": "Constraints Zone",
-      "minWaypointRelativePos": 0.8819652486518832,
-      "maxWaypointRelativePos": 1.4140203714799395,
+      "name": "Bump",
+      "minWaypointRelativePos": 0.8,
+      "maxWaypointRelativePos": 1.8,
       "constraints": {
-        "maxVelocity": 4.0,
+        "maxVelocity": 2.5,
         "maxAcceleration": 0.5,
-        "maxAngularVelocity": 540.0,
-        "maxAngularAcceleration": 720.0,
+        "maxAngularVelocity": 10.0,
+        "maxAngularAcceleration": 10.0,
         "nominalVoltage": 11.0,
         "unlimited": false
       }
     },
     {
-      "name": "Constraints Zone",
-      "minWaypointRelativePos": 1.7807070101857585,
-      "maxWaypointRelativePos": 2.0,
+      "name": "Intake",
+      "minWaypointRelativePos": 2.700179533213632,
+      "maxWaypointRelativePos": 3.0,
       "constraints": {
-        "maxVelocity": 1.0,
-        "maxAcceleration": 3.0,
+        "maxVelocity": 0.8,
+        "maxAcceleration": 1.0,
         "maxAngularVelocity": 540.0,
         "maxAngularAcceleration": 1464.0,
+        "nominalVoltage": 11.0,
+        "unlimited": false
+      }
+    },
+    {
+      "name": "Rotation",
+      "minWaypointRelativePos": 0.9982046678635608,
+      "maxWaypointRelativePos": 3.0,
+      "constraints": {
+        "maxVelocity": 4.0,
+        "maxAcceleration": 1.0,
+        "maxAngularVelocity": 360.0,
+        "maxAngularAcceleration": 120.0,
         "nominalVoltage": 11.0,
         "unlimited": false
       }
@@ -82,23 +119,12 @@
   "eventMarkers": [
     {
       "name": "shoot",
-      "waypointRelativePos": 1.4643499101258302,
-      "endWaypointRelativePos": 2.0,
+      "waypointRelativePos": 1.5928008998875374,
+      "endWaypointRelativePos": 3.0,
       "command": {
         "type": "named",
         "data": {
           "name": "shoot"
-        }
-      }
-    },
-    {
-      "name": "intake",
-      "waypointRelativePos": 2.0,
-      "endWaypointRelativePos": null,
-      "command": {
-        "type": "named",
-        "data": {
-          "name": "intake"
         }
       }
     }
@@ -112,14 +138,14 @@
     "unlimited": false
   },
   "goalEndState": {
-    "velocity": 0,
-    "rotation": 0.0
+    "velocity": 0.0,
+    "rotation": 180.0
   },
   "reversed": false,
   "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -69.92847413546109
+    "rotation": -59.99999999999999
   },
   "useDefaultConstraints": true
 }

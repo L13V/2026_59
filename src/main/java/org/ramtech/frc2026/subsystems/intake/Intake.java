@@ -37,14 +37,14 @@ public class Intake extends FullSubsystem {
 	public void periodic() {
 		// This method will be called once per scheduler run
 		// io.updateInputs(inputs);
-		Logger.processInputs("Intake", inputs);
+		// Logger.processInputs("Intake", inputs);
 		motorADisconnected.set(Robot.showHardwareAlerts() && !motorADebouncer.calculate(inputs.motorAConnected));
 		motorBDisconnected.set(Robot.showHardwareAlerts() && !motorBDebouncer.calculate(inputs.motorBConnected));
 		intakePivotMotorDisconnected.set(
 				Robot.showHardwareAlerts() && !intakePivotMotorDebouncer.calculate(inputs.intakePivotMotorConnected));
 
 		if (outputs.pivotMode == IntakeIOPivotOutputMode.LOWER && inputs.intakePivotMotorPosition < 0.01) {
-			outputs.pivotMode = IntakeIOPivotOutputMode.OFF;
+			// outputs.pivotMode = IntakeIOPivotOutputMode.OFF;
 		}
 
 	}

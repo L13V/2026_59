@@ -6,6 +6,7 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.Preferences;
@@ -171,7 +172,9 @@ public class RobotContainer {
 		NamedCommands.registerCommand("shoot", shoot());
 
 		NamedCommands.registerCommand("deploy_intake", deploy_intake());
-		NamedCommands.registerCommand("intake", intake());
+		NamedCommands.registerCommand("raise_intake", raise_intake());
+
+		NamedCommands.registerCommand("intake", intake_auto());
 
 		RobotState.getInstance().setPoseSupplier(drive::getPose);
 		RobotState.getInstance().setSpeedSupplier(drive::getChassisSpeeds);
@@ -282,6 +285,8 @@ public class RobotContainer {
 			Preferences.setDouble("ShooterRPM", currentBump - 0.5);
 			System.out.println("Shooter RPM dropped to: " + (currentBump - 0.5));
 		}));
+
+		DriverStation.silenceJoystickConnectionWarning(true);
 	}
 
 	// /**
@@ -299,17 +304,25 @@ public class RobotContainer {
 	}
 
 	public Command shoot() {
-		return Commands.startEnd(() -> {
+		return Commands.run(() -> {
+			// This runs continuously, checking the condition every 20ms loop
+			if (!ShotCalculator.getInstance().transitionInProgress) {
+				tower.setVoltage(10);
+				indexer.setVoltage(10);
+				intake.setRollerVoltage(10);
+			} else {
+				tower.stop();
+				indexer.stop();
+				intake.stopRollers();
+			}
+		}).alongWith(Commands.startEnd(() -> {
 			ShotCalculator.getInstance().requestSafe();
 			flywheel.enableCalculation();
-			indexer.setVoltage(10);
-			intake.setRollerVoltage(10);
-			tower.setVoltage(10);
 		}, () -> {
 			indexer.stop();
 			tower.stop();
 			intake.stopRollers();
-		}, flywheel, indexer, intake, tower);
+		}, flywheel, indexer, intake, tower));
 	}
 
 	public Command deploy_intake() {
@@ -317,7 +330,7 @@ public class RobotContainer {
 	}
 
 	public Command raise_intake() {
-		return Commands.run(() -> intake.setPivotPosition(0.13), intake);
+		return Commands.run(() -> intake.setPivotPosition(0.26), intake);
 	}
 
 	public Command intake() {
@@ -326,6 +339,19 @@ public class RobotContainer {
 				turret::isIntakeLocked).alongWith(Commands.startEnd(() -> {
 					intake.lowerPivot();
 					intake.setRollerVoltage(10.0);
+					indexer.setVoltage(-10);
+				}, () -> {
+					intake.stopRollers();
+					indexer.stop();
+				}, indexer));
+	}
+
+	public Command intake_auto() {
+		return Commands.either(new LowerIntake(intake, turret), // Run this if true
+				Commands.none(), // Do nothing if false
+				turret::isIntakeLocked).alongWith(Commands.startEnd(() -> {
+					intake.lowerPivot();
+					intake.setRollerVoltage(13.0);
 					indexer.setVoltage(0);
 				}, () -> {
 					intake.stopRollers();

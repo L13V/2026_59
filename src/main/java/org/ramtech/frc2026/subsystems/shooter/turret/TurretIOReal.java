@@ -166,8 +166,10 @@ public class TurretIOReal implements TurretIO {
 			if (turretMotorConfigured & turretEncoderAConfigured & turretEncoderBConfigured) {
 				// Solve and push to motor
 				crt.getAngleOptional().ifPresent(mechAngle -> {
-					turretCrtComplete = tryUntilOkWithStatus(5,
-							() -> turretMotor.setPosition(mechAngle.magnitude() * 360.0));
+					if (!Double.isNaN(mechAngle.magnitude())) {
+						turretCrtComplete = tryUntilOkWithStatus(5,
+								() -> turretMotor.setPosition(mechAngle.magnitude() * 360.0));
+					}
 				});
 				break; // if it worked, cancel the loop
 			}

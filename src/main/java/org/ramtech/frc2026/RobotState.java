@@ -11,7 +11,6 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
-import org.ramtech.frc2026.Constants.TargetPoses;
 import org.ramtech.frc2026.util.Zones;
 
 /** Add your docs here. */
@@ -120,15 +119,15 @@ public class RobotState {
 	public void publishState() {
 		Logger.recordOutput("RobotState/BaseRobotPose", RobotState.getInstance().getRobotPose());
 		Logger.recordOutput("RobotState/BaseRobotRotation", RobotState.getInstance().getRotation());
-		Logger.recordOutput("RobotState/ModuleStats", RobotState.getInstance().getModuleStates());
+		Logger.recordOutput("RobotState/ModuleStates", RobotState.getInstance().getModuleStates());
 		Logger.recordOutput("RobotState/Acceleration", RobotState.getInstance().getAcceleration());
-		Logger.recordOutput("RobotState/FlywheelRPS", getFlywheelRps());
 		Logger.recordOutput("RobotState/Zone", zones.getZoneFromPose(RobotState.getInstance().getRobotPose()));
+		// SmartDashboard.putData(new );
 
-		Logger.recordOutput("RobotState/leftFarPass", TargetPoses.leftFarPass);
-		Logger.recordOutput("RobotState/rightFarPass", TargetPoses.rightFarPass);
-		Logger.recordOutput("RobotState/leftClosePass", TargetPoses.leftClosePass);
-		Logger.recordOutput("RobotState/rightClosePass", TargetPoses.rightClosePass);
+		// Logger.recordOutput("RobotState/leftFarPass", TargetPoses.leftFarPass);
+		// Logger.recordOutput("RobotState/rightFarPass", TargetPoses.rightFarPass);
+		// Logger.recordOutput("RobotState/leftClosePass", TargetPoses.leftClosePass);
+		// Logger.recordOutput("RobotState/rightClosePass", TargetPoses.rightClosePass);
 
 	}
 }

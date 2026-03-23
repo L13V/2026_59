@@ -55,10 +55,10 @@ public final class Constants {
 
 	public static final class TargetPoses {
 		public static Pose3d hub = new Pose3d(4.65594, 4.034663, 1.8288, new Rotation3d());
-		public static Pose3d leftFarPass = new Pose3d(5.6, 4.034663 + 1.5, 0.0, new Rotation3d());
-		public static Pose3d rightFarPass = new Pose3d(5.6, 4.034663 - 1.5, 0.0, new Rotation3d());
-		public static Pose3d leftClosePass = new Pose3d(4.1, 4.034663 + 1.5, 0.0, new Rotation3d());
-		public static Pose3d rightClosePass = new Pose3d(4.1, 4.034663 - 1.5, 0.0, new Rotation3d());
+		public static Pose3d leftFarPass = new Pose3d(5, 4.034663 + 1.5, 0.0, new Rotation3d());
+		public static Pose3d rightFarPass = new Pose3d(5, 4.034663 - 1.5, 0.0, new Rotation3d());
+		public static Pose3d leftClosePass = new Pose3d(3.95, 4.034663 + 1.5, 0.0, new Rotation3d());
+		public static Pose3d rightClosePass = new Pose3d(3.95, 4.034663 - 1.5, 0.0, new Rotation3d());
 	}
 
 	public static final class Offsets {
@@ -77,21 +77,21 @@ public final class Constants {
 		public static final double rotorToSensorRatio = 1;
 		public static final double SensorToMechanismRatio = 50.8;
 
-		public static final double kP_Slot0 = 25.0;
-		public static final double kI_Slot0 = 0.13;
+		public static final double kP_Slot0 = 30;
+		public static final double kI_Slot0 = 0.2;
 		public static final double kD_Slot0 = 0.0;
 		public static final double kS_Slot0 = 0.0;
 		public static final double kV_Slot0 = 0.0;
 		public static final double kA_Slot0 = 0.0;
-		public static final double kG_Slot0 = 0.6;
-		public static final double motionMagicAcceleration = 100;
-		public static final double motionMagicCruiseVelocity = 25;
+		public static final double kG_Slot0 = 0.5;
+		public static final double motionMagicAcceleration = 150;
+		public static final double motionMagicCruiseVelocity = 35;
 		public static final double motionMagicJerk = 0;
 
 		public static final double forwardSoftLimit = 0.29;
 		public static final boolean forwardSoftLimitEnable = true;
 
-		public static final double reverseSoftLimit = 0.0;
+		public static final double reverseSoftLimit = -0.1;
 		public static final boolean reverseSoftLimitEnable = true;
 	}
 
@@ -166,11 +166,11 @@ public final class Constants {
 		public static final int leftMotorId = 58;
 		public static final int rightMotorId = 59;
 
-		public static final Double kP_Slot0 = 0.5;
-		public static final Double kI_Slot0 = 2.0;
+		public static final Double kP_Slot0 = 0.55;
+		public static final Double kI_Slot0 = 2.7;
 		public static final Double kD_Slot0 = 0.0;
 		public static final Double kS_Slot0 = 0.0;
-		public static final Double kV_Slot0 = 0.2;
+		public static final Double kV_Slot0 = 0.25;
 		public static final Double kA_Slot0 = 0.0;
 		public static final Double kG_Slot0 = 0.0;
 		public static final Double peakForwardVoltage = 10.0;

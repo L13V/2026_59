@@ -103,6 +103,6 @@ public class Flywheel extends ShooterSubsystem {
 	}
 
 	public double getAverageVelocity() {
-		return (inputs.leftSideVelocity + inputs.rightSideVelocity) / 2.0;
+		return (Math.abs(inputs.leftSideVelocity) + Math.abs(inputs.rightSideVelocity)) / 2.0;
 	}
 }

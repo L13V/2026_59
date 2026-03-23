@@ -66,7 +66,7 @@ public class Drive extends SubsystemBase {
 	// PathPlanner config constants
 	private static final double ROBOT_MASS_KG = 50.3488;
 	private static final double ROBOT_MOI = 8.0;
-	private static final double WHEEL_COF = 1.0;
+	private static final double WHEEL_COF = 1.5;
 	private static final RobotConfig PP_CONFIG = new RobotConfig(ROBOT_MASS_KG, ROBOT_MOI,
 			new ModuleConfig(TunerConstants.FrontLeft.WheelRadius, TunerConstants.kSpeedAt12Volts.in(MetersPerSecond),
 					WHEEL_COF, DCMotor.getKrakenX60Foc(1).withReduction(TunerConstants.FrontLeft.DriveMotorGearRatio),
@@ -107,7 +107,10 @@ public class Drive extends SubsystemBase {
 
 		// Configure AutoBuilder for PathPlanner
 		AutoBuilder.configure(this::getPose, this::setPose, this::getChassisSpeeds, this::runVelocity,
-				new PPHolonomicDriveController(new PIDConstants(7.4, 0.0016, 0.00085), new PIDConstants(4.0, 0.0, 0.0)),
+				// new PPHolonomicDriveController(new PIDConstants(7, 0.004, 0.00045), new
+				// PIDConstants(4.0, 0.0, 0.0)),
+				new PPHolonomicDriveController(new PIDConstants(4.3, 0.08, 0.0), new PIDConstants(3.2, 0.037, 0.0)),
+
 				// Tune
 				PP_CONFIG, () -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red, this);
 		Pathfinding.setPathfinder(new LocalADStarAK());
@@ -198,6 +201,25 @@ public class Drive extends SubsystemBase {
 	 *            Speeds in meters/sec
 	 */
 	public void runVelocity(ChassisSpeeds speeds) {
+		// Calculate module setpoints
+		ChassisSpeeds discreteSpeeds = ChassisSpeeds.discretize(speeds, 0.02);
+		SwerveModuleState[] setpointStates = kinematics.toSwerveModuleStates(discreteSpeeds);
+		SwerveDriveKinematics.desaturateWheelSpeeds(setpointStates, TunerConstants.kSpeedAt12Volts);
+
+		// Log unoptimized setpoints and setpoint speeds
+		Logger.recordOutput("SwerveStates/Setpoints", setpointStates);
+		Logger.recordOutput("SwerveChassisSpeeds/Setpoints", discreteSpeeds);
+
+		// Send setpoints to modules
+		for (int i = 0; i < 4; i++) {
+			modules[i].runSetpoint(setpointStates[i]);
+		}
+
+		// Log optimized setpoints (runSetpoint mutates each state)
+		Logger.recordOutput("SwerveStates/SetpointsOptimized", setpointStates);
+	}
+
+	public void runVelocityForAutos(ChassisSpeeds speeds) {
 		// Calculate module setpoints
 		ChassisSpeeds discreteSpeeds = ChassisSpeeds.discretize(speeds, 0.02);
 		previousSetpoint = setpointGenerator.generateSetpoint(previousSetpoint, speeds, 0.02);

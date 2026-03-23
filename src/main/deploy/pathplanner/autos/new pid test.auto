@@ -7,13 +7,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Outpost Hook"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Outpost Hook Return"
+            "pathName": "PID Test"
           }
         }
       ]
