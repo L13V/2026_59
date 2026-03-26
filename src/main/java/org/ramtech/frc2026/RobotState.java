@@ -8,12 +8,15 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 import org.ramtech.frc2026.util.Zones;
 
-/** Add your docs here. */
 public class RobotState {
 	private static RobotState instance;
 	private Zones zones = new Zones();
@@ -34,6 +37,11 @@ public class RobotState {
 	private Supplier<Double> turretAngleSupplier = () -> 0.0;
 	private Supplier<Double> hoodAngleSupplier = () -> 0.0;
 	private Supplier<Double> gyroAngleRateSupplier = () -> 0.0;
+
+	private Pose2d[] activePPTrajectory = new Pose2d[0];
+	private Pose2d[] previewPPTrajectory = new Pose2d[0];
+
+	Field2d field = new Field2d();
 
 	/*
 	 * Setting Suppliers
@@ -68,6 +76,14 @@ public class RobotState {
 
 	public void setGyroAngleRateSupplier(Supplier<Double> supplier) {
 		this.gyroAngleRateSupplier = supplier;
+	}
+
+	public void setActivePathPlannerTrajectory(Pose2d[] trajectory) {
+		activePPTrajectory = trajectory;
+	}
+
+	public void setPreviewPathPlannerTrajectory(Pose2d[] trajectory) {
+		previewPPTrajectory = trajectory;
 	}
 	/*
 	 * Getters
@@ -113,15 +129,40 @@ public class RobotState {
 		return gyroAngleRateSupplier.get();
 	}
 
+	public Double getBatteryVoltage() {
+		return RobotController.getBatteryVoltage();
+	}
+
 	/*
 	 * Misc
 	 */
 	public void publishState() {
-		Logger.recordOutput("RobotState/BaseRobotPose", RobotState.getInstance().getRobotPose());
+		Pose2d robotpose = RobotState.getInstance().getRobotPose();
+
+		Logger.recordOutput("RobotState/BaseRobotPose", robotpose);
 		Logger.recordOutput("RobotState/BaseRobotRotation", RobotState.getInstance().getRotation());
 		Logger.recordOutput("RobotState/ModuleStates", RobotState.getInstance().getModuleStates());
 		Logger.recordOutput("RobotState/Acceleration", RobotState.getInstance().getAcceleration());
 		Logger.recordOutput("RobotState/Zone", zones.getZoneFromPose(RobotState.getInstance().getRobotPose()));
+
+		field.setRobotPose(robotpose);
+
+		if (DriverStation.isAutonomousEnabled()) {
+			field.getObject("currentTrajectory").setPoses(activePPTrajectory);
+
+		} else if (DriverStation.isDisabled()) {
+			field.getObject("currentTrajectory").setPoses(previewPPTrajectory);
+		} else {
+			field.getObject("currentTrajectory").setPoses(new Pose2d[0]);
+		}
+
+		SmartDashboard.putData("Field", field);
+		// Logger.recordOutput("RobotState/TurretPosition",
+		// new Pose2d(getRobotPose().transformBy(Offsets.turretOffset2d).getX(),
+		// getRobotPose().transformBy(Offsets.turretOffset2d).getY(),
+		// new
+		// Rotation2d(Units.degreesToRadians(ShotCalculator.getInstance().getLatest().turretAngle())
+		// + getRobotPose().getRotation().getDegrees())));
 		// SmartDashboard.putData(new );
 
 		// Logger.recordOutput("RobotState/leftFarPass", TargetPoses.leftFarPass);

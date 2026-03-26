@@ -5,6 +5,7 @@ import static org.ramtech.frc2026.util.PhoenixUtil.tryUntilOkWithStatus;
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.TorqueCurrentFOC;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -13,8 +14,11 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
+
 import org.ramtech.frc2026.Constants;
+import org.ramtech.frc2026.RobotState;
 import org.ramtech.frc2026.Constants.TowerConstants;
+import org.ramtech.frc2026.util.DataProcessing;
 
 public class TowerIOTalonFX implements TowerIO {
 	// Motors
@@ -31,6 +35,7 @@ public class TowerIOTalonFX implements TowerIO {
 	// Control Methods
 	private final VoltageOut voltageOut = new VoltageOut(0); // Control Method
 	private final VelocityVoltage velocityVoltage = new VelocityVoltage(0);
+	private final TorqueCurrentFOC torqueCurrentFOC = new TorqueCurrentFOC(0.0);
 
 	public TowerIOTalonFX() {
 		// Complete the config
@@ -79,6 +84,19 @@ public class TowerIOTalonFX implements TowerIO {
 				break;
 			case VELOCITY :
 				towerMotor.setControl(velocityVoltage.withVelocity(outputs.velocitySetpoint).withEnableFOC(true));
+				break;
+			case AUTO :
+				double setpoint = DataProcessing.rawToSmooth(10, towerMotor.getTorqueCurrent().getValueAsDouble(),
+						DataProcessing.rampControl(7, 12, RobotState.getInstance().getBatteryVoltage(), 30, 90));
+
+				if (outputs.directionSetpoint == TowerIOAutoDirections.REVERSE) {
+					setpoint *= -1;
+				}
+
+				towerMotor.setControl(torqueCurrentFOC.withOutput(setpoint));
+				break;
+
 		}
+
 	}
 }

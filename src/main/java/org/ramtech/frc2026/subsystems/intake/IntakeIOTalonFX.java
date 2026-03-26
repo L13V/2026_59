@@ -7,6 +7,7 @@ import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.StrictFollower;
+import com.ctre.phoenix6.controls.TorqueCurrentFOC;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.GravityTypeValue;
@@ -20,6 +21,8 @@ import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
 
 import org.ramtech.frc2026.Constants.IntakeConstants;
+import org.ramtech.frc2026.RobotState;
+import org.ramtech.frc2026.util.DataProcessing;
 
 public class IntakeIOTalonFX implements IntakeIO {
 	// Motors
@@ -52,6 +55,7 @@ public class IntakeIOTalonFX implements IntakeIO {
 	// Control Methods
 	private final VoltageOut voltageOut = new VoltageOut(0); // Control Method
 	private final StrictFollower follower = new StrictFollower(IntakeConstants.motorAID);
+	private final TorqueCurrentFOC torqueCurrentFOC = new TorqueCurrentFOC(0.0);
 
 	private final MotionMagicVoltage pivotPosition = new MotionMagicVoltage(0.0);
 
@@ -169,6 +173,17 @@ public class IntakeIOTalonFX implements IntakeIO {
 				motorA.setControl(voltageOut.withOutput(outputs.rollerVoltageSetpoint).withEnableFOC(true));
 				motorB.setControl(follower);
 				break;
+			case AUTO :
+				double setpoint = DataProcessing.rawToSmooth(10, motorA.getTorqueCurrent().getValueAsDouble(),
+						DataProcessing.rampControl(9, 12, RobotState.getInstance().getBatteryVoltage(), 5, 30));
+
+				if (outputs.directionSetpoint == IntakeIOAutoDirections.REVERSE) {
+					setpoint *= -1;
+				}
+
+				motorA.setControl(torqueCurrentFOC.withOutput(setpoint));
+				motorB.setControl(follower);
+
 			default :
 				break;
 		}
@@ -182,6 +197,7 @@ public class IntakeIOTalonFX implements IntakeIO {
 			case LOWER :
 				pivotMotor.setControl(pivotPosition.withPosition(-0.05).withEnableFOC(true));
 				break;
+
 			default :
 				break;
 		}

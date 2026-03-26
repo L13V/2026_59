@@ -4,44 +4,44 @@
     {
       "anchor": {
         "x": 3.6,
-        "y": 5.4
+        "y": 5.44
       },
       "prevControl": null,
       "nextControl": {
-        "x": 4.548285564550537,
-        "y": 5.5672083304466184
+        "x": 4.596194698091746,
+        "y": 5.5271557427476585
       },
       "isLocked": false,
       "linkedName": "Depot Start"
     },
     {
       "anchor": {
-        "x": 5.709311981020167,
-        "y": 5.815646500593119
+        "x": 5.7,
+        "y": 5.84
       },
       "prevControl": {
-        "x": 5.0458154721886705,
-        "y": 5.432576612612878
+        "x": 5.020269159722512,
+        "y": 5.523036303694475
       },
       "nextControl": {
-        "x": 6.1817158118806015,
-        "y": 6.088388979506601
+        "x": 6.153153893518325,
+        "y": 6.05130913087035
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 6.817508896797153,
-        "y": 7.009916963226572
+        "x": 6.8,
+        "y": 7.04
       },
       "prevControl": {
-        "x": 6.198147525374278,
-        "y": 6.84395958393078
+        "x": 6.317037086855466,
+        "y": 6.91059047744874
       },
       "nextControl": {
-        "x": 7.299759385793803,
-        "y": 7.139135592302738
+        "x": 7.282962913144534,
+        "y": 7.16940952255126
       },
       "isLocked": false,
       "linkedName": null
@@ -49,11 +49,11 @@
     {
       "anchor": {
         "x": 7.5,
-        "y": 4.6
+        "y": 4.64
       },
       "prevControl": {
         "x": 7.5,
-        "y": 6.6
+        "y": 6.64
       },
       "nextControl": null,
       "isLocked": false,
@@ -66,18 +66,18 @@
       "rotationDegrees": -90.0
     },
     {
-      "waypointRelativePos": 2.15,
+      "waypointRelativePos": 2.0,
       "rotationDegrees": -59.99999999999999
     }
   ],
   "constraintZones": [
     {
       "name": "Landing",
-      "minWaypointRelativePos": 0.7109515260323492,
-      "maxWaypointRelativePos": 1.2387791741472172,
+      "minWaypointRelativePos": 0.75,
+      "maxWaypointRelativePos": 1.25,
       "constraints": {
         "maxVelocity": 2.5,
-        "maxAcceleration": 3.0,
+        "maxAcceleration": 1.0,
         "maxAngularVelocity": 540.0,
         "maxAngularAcceleration": 1464.0,
         "nominalVoltage": 11.0,
@@ -89,8 +89,8 @@
       "minWaypointRelativePos": 2.25,
       "maxWaypointRelativePos": 3.0,
       "constraints": {
-        "maxVelocity": 1.2,
-        "maxAcceleration": 5.0,
+        "maxVelocity": 2.0,
+        "maxAcceleration": 9.4,
         "maxAngularVelocity": 540.0,
         "maxAngularAcceleration": 720.0,
         "nominalVoltage": 11.0,
@@ -125,8 +125,8 @@
     },
     {
       "name": "Travel",
-      "minWaypointRelativePos": 0.8,
-      "maxWaypointRelativePos": 2.1,
+      "minWaypointRelativePos": 0.75,
+      "maxWaypointRelativePos": 2.0,
       "constraints": {
         "maxVelocity": 4.0,
         "maxAcceleration": 2.5,

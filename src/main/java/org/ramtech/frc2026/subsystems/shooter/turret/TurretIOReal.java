@@ -231,11 +231,12 @@ public class TurretIOReal implements TurretIO {
 				turretMotor.setControl(voltageOut.withOutput(outputs.voltageSetpoint).withEnableFOC(true));
 				break;
 			case POSITION :
-				if (!outputs.turretLockedByIntake || !outputs.turretLockedByDriver) {
+				if (outputs.turretLockedByIntake || outputs.turretLockedByDriver) {
+					turretMotor.stopMotor();
+
+				} else {
 					turretMotor.setControl(MotionMagicVoltage.withPosition(outputs.positionSetpoint + 180)
 							.withEnableFOC(true).withSlot(0));
-				} else {
-					turretMotor.stopMotor();
 				}
 
 				break;

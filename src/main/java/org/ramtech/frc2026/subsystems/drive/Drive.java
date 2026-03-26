@@ -49,6 +49,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 import org.ramtech.frc2026.Constants;
+import org.ramtech.frc2026.RobotState;
 import org.ramtech.frc2026.Constants.Mode;
 import org.ramtech.frc2026.generated.TunerConstants;
 import org.ramtech.frc2026.util.LocalADStarAK;
@@ -116,6 +117,8 @@ public class Drive extends SubsystemBase {
 		Pathfinding.setPathfinder(new LocalADStarAK());
 		PathPlannerLogging.setLogActivePathCallback((activePath) -> {
 			Logger.recordOutput("Odometry/Trajectory", activePath.toArray(new Pose2d[0]));
+			RobotState.getInstance().setActivePathPlannerTrajectory(activePath.toArray(new Pose2d[0]));
+
 		});
 		PathPlannerLogging.setLogTargetPoseCallback((targetPose) -> {
 			Logger.recordOutput("Odometry/TrajectorySetpoint", targetPose);

@@ -15,6 +15,18 @@
           "data": {
             "pathName": "Outpost Hook Return"
           }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "shoot"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 10.0
+          }
         }
       ]
     }

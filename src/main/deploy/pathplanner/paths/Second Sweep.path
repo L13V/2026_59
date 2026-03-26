@@ -4,12 +4,12 @@
     {
       "anchor": {
         "x": 0.5,
-        "y": 5.9
+        "y": 5.94
       },
       "prevControl": null,
       "nextControl": {
         "x": 0.75,
-        "y": 5.9
+        "y": 5.94
       },
       "isLocked": false,
       "linkedName": "Inside Depot"

@@ -35,10 +35,15 @@ public interface IntakeIO {
 	}
 
 	public static enum IntakeIORollerOutputMode {
-		OFF, VOLTAGE
+		OFF, VOLTAGE, AUTO
 	}
+
 	public static enum IntakeIOPivotOutputMode {
 		OFF, POSITION, LOWER
+	}
+
+	public static enum IntakeIOAutoDirections {
+		FORWARD, REVERSE
 	}
 
 	@AutoLog
@@ -47,6 +52,8 @@ public interface IntakeIO {
 		public IntakeIOPivotOutputMode pivotMode = IntakeIOPivotOutputMode.OFF;
 		public double rollerVoltageSetpoint = 0.0;
 		public double pivotPositionSetpoint = 0.0;
+
+		public IntakeIOAutoDirections directionSetpoint = IntakeIOAutoDirections.FORWARD;
 
 	}
 

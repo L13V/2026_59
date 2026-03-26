@@ -3,57 +3,57 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.586331269349845,
-        "y": 2.589171826625387
+        "x": 3.6,
+        "y": 2.6
       },
       "prevControl": null,
       "nextControl": {
-        "x": 4.754437329955903,
-        "y": 2.589171826625387
+        "x": 4.596194698091746,
+        "y": 2.512844257252342
       },
       "isLocked": false,
       "linkedName": "Outpost Start"
     },
     {
       "anchor": {
-        "x": 6.186483918128655,
-        "y": 1.9899488304093564
+        "x": 5.7,
+        "y": 2.2
       },
       "prevControl": {
-        "x": 6.0165176977308175,
-        "y": 2.173283180501406
+        "x": 5.020269159722512,
+        "y": 2.5169636963055244
       },
       "nextControl": {
-        "x": 6.757046783625731,
-        "y": 1.3745102339181279
+        "x": 6.153153893518325,
+        "y": 1.9886908691296505
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 7.257090643274854,
-        "y": 0.9449853801169581
+        "x": 6.8,
+        "y": 1.0
       },
       "prevControl": {
-        "x": 6.896580161930897,
-        "y": 0.9270730039449935
+        "x": 6.317037086855466,
+        "y": 1.1294095225512608
       },
       "nextControl": {
-        "x": 7.608270429507774,
-        "y": 0.9624341500155305
+        "x": 7.282962913144534,
+        "y": 0.8705904774487397
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 7.618359133126935,
-        "y": 3.5666331269349847
+        "x": 7.5,
+        "y": 3.3
       },
       "prevControl": {
-        "x": 7.7016997764017905,
-        "y": 2.060090729274166
+        "x": 7.5,
+        "y": 1.2999999999999998
       },
       "nextControl": null,
       "isLocked": false,
@@ -62,22 +62,22 @@
   ],
   "rotationTargets": [
     {
-      "waypointRelativePos": 0.6792452830188821,
+      "waypointRelativePos": 1.0,
       "rotationDegrees": 90.0
     },
     {
-      "waypointRelativePos": 2.2798742138364827,
-      "rotationDegrees": 73.77667396157426
+      "waypointRelativePos": 2.0,
+      "rotationDegrees": 59.99999999999999
     }
   ],
   "constraintZones": [
     {
       "name": "Landing",
-      "minWaypointRelativePos": 0.48742746615086446,
-      "maxWaypointRelativePos": 1.2301740812379074,
+      "minWaypointRelativePos": 0.75,
+      "maxWaypointRelativePos": 1.25,
       "constraints": {
         "maxVelocity": 2.5,
-        "maxAcceleration": 3.0,
+        "maxAcceleration": 1.0,
         "maxAngularVelocity": 540.0,
         "maxAngularAcceleration": 1464.0,
         "nominalVoltage": 11.0,
@@ -86,11 +86,11 @@
     },
     {
       "name": "Intake",
-      "minWaypointRelativePos": 2.030947775628626,
+      "minWaypointRelativePos": 2.25,
       "maxWaypointRelativePos": 3.0,
       "constraints": {
-        "maxVelocity": 1.2,
-        "maxAcceleration": 5.0,
+        "maxVelocity": 2.0,
+        "maxAcceleration": 9.4,
         "maxAngularVelocity": 540.0,
         "maxAngularAcceleration": 720.0,
         "nominalVoltage": 11.0,
@@ -99,8 +99,8 @@
     },
     {
       "name": "2-wheels",
-      "minWaypointRelativePos": 0.06104129263913527,
-      "maxWaypointRelativePos": 0.2785299806576343,
+      "minWaypointRelativePos": 0.0,
+      "maxWaypointRelativePos": 0.3,
       "constraints": {
         "maxVelocity": 4.5,
         "maxAcceleration": 4.0,
@@ -112,8 +112,8 @@
     },
     {
       "name": "4-wheels",
-      "minWaypointRelativePos": 0.17408123791103097,
-      "maxWaypointRelativePos": 0.5106382978723752,
+      "minWaypointRelativePos": 0.25,
+      "maxWaypointRelativePos": 0.75,
       "constraints": {
         "maxVelocity": 3.0,
         "maxAcceleration": 0.4,
@@ -125,8 +125,8 @@
     },
     {
       "name": "Travel",
-      "minWaypointRelativePos": 0.4874274661508815,
-      "maxWaypointRelativePos": 1.7524177949709854,
+      "minWaypointRelativePos": 0.75,
+      "maxWaypointRelativePos": 2.0,
       "constraints": {
         "maxVelocity": 4.0,
         "maxAcceleration": 2.5,
@@ -152,7 +152,7 @@
     },
     {
       "name": "intake",
-      "waypointRelativePos": 1.1953578336557005,
+      "waypointRelativePos": 1.5,
       "endWaypointRelativePos": 3.0,
       "command": {
         "type": "named",
@@ -172,13 +172,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 73.777
+    "rotation": 59.99999999999999
   },
   "reversed": false,
   "folder": null,
   "idealStartingState": {
     "velocity": 0.0,
-    "rotation": 89.73977392312375
+    "rotation": 90.0
   },
   "useDefaultConstraints": true
 }

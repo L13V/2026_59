@@ -55,4 +55,10 @@ public class DataProcessing {
 		smoothed = (raw + ((samplecount - 1) * last)) / samplecount;
 		return smoothed;
 	}
+
+	public static double rampControl(double minRef, double maxRef, double reference, double minOut, double maxOut) {
+		double outputRaw = (((reference - minRef) / (maxRef - minRef)) * (maxOut - minOut)) + minOut;
+		double output = sanitize(reference, minOut, maxOut, outputRaw);
+		return output;
+	}
 }

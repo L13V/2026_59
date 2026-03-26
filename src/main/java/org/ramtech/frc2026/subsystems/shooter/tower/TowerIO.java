@@ -18,7 +18,11 @@ public interface TowerIO {
 	}
 
 	public static enum TowerIOOutputMode {
-		OFF, VOLTAGE, VELOCITY
+		OFF, VOLTAGE, VELOCITY, AUTO
+	}
+
+	public static enum TowerIOAutoDirections {
+		FORWARD, REVERSE
 	}
 
 	@AutoLog
@@ -26,6 +30,7 @@ public interface TowerIO {
 		public TowerIOOutputMode mode = TowerIOOutputMode.OFF;
 		public double voltageSetpoint = 0.0;
 		public double velocitySetpoint = 0.0;
+		public TowerIOAutoDirections directionSetpoint = TowerIOAutoDirections.FORWARD;
 	}
 
 	default void updateInputs(TowerIOInputs inputs) {

@@ -5,6 +5,7 @@ import static org.ramtech.frc2026.util.PhoenixUtil.*;
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.TorqueCurrentFOC;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.*;
@@ -13,6 +14,8 @@ import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
 import org.ramtech.frc2026.Constants;
 import org.ramtech.frc2026.Constants.IndexerConstants;
+import org.ramtech.frc2026.RobotState;
+import org.ramtech.frc2026.util.DataProcessing;
 
 public class IndexerIOTalonFX implements IndexerIO {
 	// Motors
@@ -29,6 +32,7 @@ public class IndexerIOTalonFX implements IndexerIO {
 
 	// Control Methods
 	private final VoltageOut ballTunnelVoltageOut = new VoltageOut(0);
+	private final TorqueCurrentFOC torqueCurrentFOC = new TorqueCurrentFOC(0.0);
 
 	public IndexerIOTalonFX() {
 		// Build Configs
@@ -80,6 +84,14 @@ public class IndexerIOTalonFX implements IndexerIO {
 				indexerMotor.setControl(
 						ballTunnelVoltageOut.withOutput(outputs.indexerVoltageSetpoint).withEnableFOC(true));
 				break;
+			case AUTO :
+				double setpoint = DataProcessing.rawToSmooth(10, indexerMotor.getTorqueCurrent().getValueAsDouble(),
+						DataProcessing.rampControl(9, 12, RobotState.getInstance().getBatteryVoltage(), 10, 60));
+
+				if (outputs.directionSetpoint == IndexerIOAutoDirections.REVERSE) {
+					setpoint *= -1;
+				}
+				indexerMotor.setControl(torqueCurrentFOC.withOutput(setpoint));
 		}
 	}
 }

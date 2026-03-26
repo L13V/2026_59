@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj.Alert;
 import org.littletonrobotics.junction.Logger;
 import org.ramtech.frc2026.Robot;
 import org.ramtech.frc2026.subsystems.intake.IntakeIO.IntakeIORollerOutputMode;
+import org.ramtech.frc2026.subsystems.intake.IntakeIO.IntakeIOAutoDirections;
 import org.ramtech.frc2026.subsystems.intake.IntakeIO.IntakeIOOutputs;
 import org.ramtech.frc2026.subsystems.intake.IntakeIO.IntakeIOPivotOutputMode;
 import org.ramtech.frc2026.util.FullSubsystem;
@@ -72,6 +73,12 @@ public class Intake extends FullSubsystem {
 		outputs.pivotMode = IntakeIOPivotOutputMode.POSITION;
 		outputs.pivotPositionSetpoint = position;
 	}
+
+	public void setAutoMode(IntakeIOAutoDirections direction) {
+		outputs.rollerMode = IntakeIORollerOutputMode.AUTO;
+		outputs.directionSetpoint = direction;
+	}
+
 	public void lowerPivot() {
 		outputs.pivotMode = IntakeIOPivotOutputMode.LOWER;
 	}

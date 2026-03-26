@@ -25,7 +25,7 @@ import edu.wpi.first.wpilibj.RobotBase;
  * between "sim" (physics sim) and "replay" (log replay from a file).
  */
 public final class Constants {
-	public static final boolean isComp = false;
+	public static final boolean isComp = true;
 
 	public static final Mode simMode = Mode.SIM;
 	public static final Mode currentMode = RobotBase.isReal() ? Mode.REAL : simMode;

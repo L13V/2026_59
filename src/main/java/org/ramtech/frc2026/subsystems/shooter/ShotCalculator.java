@@ -8,6 +8,7 @@ import org.ramtech.frc2026.Constants.TargetPoses;
 import org.ramtech.frc2026.Constants.TurretConstants;
 import org.ramtech.frc2026.util.AllianceFlipUtil;
 import org.ramtech.frc2026.util.DataProcessing;
+import org.ramtech.frc2026.util.HubShiftUtil;
 import org.ramtech.frc2026.util.Zones;
 import org.ramtech.frc2026.util.Zones.Zone;
 import org.ramtech.frc2026.util.Zones.zoneType;
@@ -20,6 +21,7 @@ import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.Preferences;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import org.ramtech.frc2026.Constants;
@@ -86,6 +88,7 @@ public class ShotCalculator {
 	private double turretDiffLast = 0.0;
 
 	private Pose2d dynamicPose = new Pose2d();
+	// private Pose2d angleRatePose = new Pose2d();
 
 	/*
 	 * Constants
@@ -94,14 +97,16 @@ public class ShotCalculator {
 	private static final double rpsMin = 30;
 	private static final double rpsInterference = 65; // rps when the turret is gonna hit the polycarb
 	private static final double rpsMax = 84;
-	private static final double rpsBump = -6;
+	public static double defaultRpsBump = -6.0;
+
+	private static double rpsBump = Preferences.getDouble("rpsBump", defaultRpsBump);
 	private static final double rpsMult = 1.22;
 	private static final double peakRPSS = 5000;
 
 	public static final double hoodMinAngle = 10; // deg TODO: Verify
 	private static final double hoodMaxAngle = 51; // deg
 	private static final double hoodIdealAngle = 42;
-	private static final double hoodInterferenceAngle = 30; // TODO: Check
+	private static final double hoodInterferenceAngle = 30;
 
 	private static final double g = 9.83069; // m/s^2
 	private static final double ballMass = 0.226796; // kg
@@ -112,7 +117,7 @@ public class ShotCalculator {
 	private static final double ballArea = Math.PI * Math.pow(ballDiameter / 2, 2); // m^2
 	private static final double ballCompression = 0.02; // m
 
-	private static final double lookupTollerance = 1.2; // *100% // TODO: MAKE TUNABLE
+	private static final double lookupTollerance = 1.2; // *100%
 
 	private static final double flyWheelDiam = Units.inchesToMeters(6); // m
 	private static final double flyWheelCircum = flyWheelDiam * Math.PI; // m
@@ -226,12 +231,15 @@ public class ShotCalculator {
 		return tFlight;
 	}
 
+	public void refreshRpsBump() {
+		rpsBump = Preferences.getDouble("rpsBump", rpsBump);
+	}
+
 	// public double getRps
 
 	public void update(double loopTime) {
-		// double rpsBump = Preferences.getDouble("rpsBump", 0.0);
 
-		double tReact = 0.05 + loopTime;
+		double tReact = 0.06 + loopTime;
 
 		RobotState robotState = RobotState.getInstance();
 		ChassisSpeeds chassisSpeeds = robotState.getChassisSpeeds();
@@ -244,7 +252,8 @@ public class ShotCalculator {
 		// Logger.recordOutput("hello2", robotPose);
 		Pose2d turretPose = robotPose.transformBy(
 				new Transform2d(Offsets.turretOffset.getX(), Offsets.turretOffset.getY(), new Rotation2d()));
-		Pose3d turretPose3d = new Pose3d(robotPose).transformBy(Offsets.turretOffset);
+		// Pose3d turretPose3d = new
+		// Pose3d(robotPose).transformBy(Offsets.turretOffset);
 		// the current zone (may return null)
 		Zone newZone = zoneUtil.getZoneFromPose(turretPose);
 
@@ -258,7 +267,7 @@ public class ShotCalculator {
 		// gyroAngleRateLast = gyroAngleRateRaw;
 
 		angleRate = DataProcessing.rawToSmooth(5, angleRate,
-				(gyroAngleRateRaw * angleBias) + (chassisSpeeds.omegaRadiansPerSecond * (1 - angleBias)));
+				(gyroAngleRateRaw * angleBias) + (chassisSpeeds.omegaRadiansPerSecond * (1 - angleBias))) * 1;
 
 		// angleAccel = DataProcessing.rawToSmooth(5, angleAccel,
 		// (gyroRadAccel * angleBias) + (gyroRadAccel * (1 - angleBias)));
@@ -294,11 +303,11 @@ public class ShotCalculator {
 				targetPose = TargetPoses.rightClosePass;
 				break;
 			case scoring :
-				shootingAllowed = true;
+				shootingAllowed = HubShiftUtil.getShiftedShiftInfo().active();
 				targetPose = TargetPoses.hub;
 				break;
 			case hoodUnsafe :
-				hoodUnsafe = true;
+				// hoodUnsafe = true;
 				break;
 			case blockShooting :
 				shootingAllowed = false;
@@ -358,9 +367,9 @@ public class ShotCalculator {
 
 		double latStatic = (turretStaticToTarget + latExit - 0.10795);
 
-		double hoodAngle = Math.atan(((2 * trajectoryCeiling)
-				+ (2 * Math.sqrt(Math.max(0.0, trajectoryCeiling * (trajectoryCeiling - vertFinal)))))
-				/ Math.max(0.1, latFinal));
+		double hoodAngle = Math
+				.atan(((2 * trajectoryCeiling) + (2 * Math.sqrt((trajectoryCeiling * (trajectoryCeiling - vertFinal)))))
+						/ Math.max(0.1, latFinal));
 		// TODO: Lookup table
 		double angleSub = Math.toDegrees(hoodAngle) - hoodIdealAngle; // this is in degrees because its just
 																		// comparing.
@@ -391,19 +400,20 @@ public class ShotCalculator {
 		}
 
 		SmartDashboard.putNumber("hoodAngle", hoodAngle);
-		hoodAngle = DataProcessing.rawToSmooth(3, Math.toRadians(90 - last.hoodAngle), hoodAngle);
+		hoodAngle = DataProcessing.rawToSmooth(7, Math.toRadians(90 - last.hoodAngle), hoodAngle);
 		hoodAngle = DataProcessing.sanitize(Math.toRadians(90 - last.hoodAngle), Math.toRadians(90 - hoodMaxAngle),
 				Math.toRadians(90 - hoodMinAngle), hoodAngle);
 		// Insert lookup up table compariosn with the 1.2 (20%) range thing
-		double velocityInitial = (latFinal / Math.max(0.001, Math.cos(hoodAngle)))
-				* Math.sqrt(g / Math.max(0.001, 2 * ((latFinal * Math.tan(hoodAngle)) - vertFinal)));
-		// double velocityInitial = 1;
+		double velocityInitial = (latFinal / Math.cos(hoodAngle))
+				* Math.sqrt(g / (2 * ((latFinal * Math.tan(hoodAngle)) - vertFinal)));
+
 		SmartDashboard.putNumber("velinit", velocityInitial);
 
 		// NEW: 3. Add the chassis momentum to the initial velocity requirement
+
 		double velocityCombo = velocityInitial + Math.abs(Math.hypot(allVelocityX, allVelocityY));
 
-		double airEst = (airDensity * ballArea * dragCoeff * velocityCombo * 0.5);
+		double airEst = (airDensity * ballArea * dragCoeff * velocityInitial * 0.5);
 
 		double velocityTarget = velocityInitial
 				* (1 + ((airEst * latFinal) / (3 * ballMass * velocityInitial * Math.cos(hoodAngle))));
@@ -413,8 +423,6 @@ public class ShotCalculator {
 		}
 		double flyWheelVelocity = ((velocityTarget
 				/ (((flyWheelCircum * flyWheelRatio) + (backWheelCircum * backWheelRatio)) / 2)) * rpsMult) + rpsBump;
-
-		double LatVelocity = velocityTarget * Math.cos(hoodAngle);
 
 		// Is the turret going to be blocked?
 		if (turretInterference) {
@@ -429,23 +437,22 @@ public class ShotCalculator {
 
 		Translation2d translationToTarget = targetPose.getTranslation().toTranslation2d()
 				.minus(robotPose.getTranslation());
-		Rotation2d directionToTarget = translationToTarget.getAngle();
+		// Rotation2d directionToTarget = translationToTarget.getAngle();
 
-		// 2. Dot Product: How fast is the chassis moving directly towards the hub?
-		double chassisVelTowardsTarget = (fieldSpeeds.vxMetersPerSecond * directionToTarget.getCos())
-				+ (fieldSpeeds.vyMetersPerSecond * directionToTarget.getSin());
+		double velocityInitStatic = Math.min((latStatic / Math.cos(hoodAngle))
+				* Math.sqrt(g / (2 * ((latStatic * Math.tan(hoodAngle)) - vertFinal))), velocityTarget);
 
-		// 3. The ball's true speed across the field is shooter power + chassis momentum
-		double effectiveLatVelocity = LatVelocity + chassisVelTowardsTarget;
-		effectiveLatVelocity = Math.max(0.1, effectiveLatVelocity); // Prevent division by zero if backing up fast
+		double LatVelocity = velocityInitStatic
+				* (1 + ((airEst * latStatic) / (3 * ballMass * velocityInitStatic * Math.cos(hoodAngle))))
+				* Math.cos(hoodAngle);
 
 		// 4. Calculate tFlight using the effective velocity across the field
-		tFlight = (latStatic / effectiveLatVelocity)
-				+ ((airEst * (Math.pow(latFinal, 2))) / (2 * ballMass * Math.pow(effectiveLatVelocity, 2)));
+		tFlight = (latStatic / LatVelocity)
+				+ ((airEst * (Math.pow(latStatic, 2))) / (2 * ballMass * Math.pow(LatVelocity, 2)));
 
 		// 5. SANE CLAMP: Cap the math at 1.5 seconds so it can never infinitely
 		// feedback
-		tFlight = DataProcessing.sanitize(tFlightLast, 1, 10, tFlight);
+		tFlight = DataProcessing.rawToSmooth(10, tFlightLast, DataProcessing.sanitize(tFlightLast, 0.5, 10, tFlight));
 		// ---------------------------------------
 
 		tFlightLast = tFlight;
@@ -472,11 +479,13 @@ public class ShotCalculator {
 
 		last = latest;
 
-		double turretDiff = DataProcessing.rawToSmooth(2, turretDiffLast,
+		double turretDiff = DataProcessing.rawToSmooth(6, turretDiffLast,
 				Math.abs((turretAngle + 90) - turretAngleFeedback));
 		turretDiffLast = turretDiff;
 
 		transitionInProgress = ((turretDiff > 60) || switchCommanded);
+
+		// angleRatePose = robotPose.rotateBy(new Rotation2d(angleRate));
 
 	}
 
@@ -492,6 +501,8 @@ public class ShotCalculator {
 		Logger.recordOutput("ShotCalculator/TargetPose", targetPose);
 		Logger.recordOutput("switch orsometihn", switchCommanded);
 		Logger.recordOutput("tranny orsometihn", transitionInProgress);
+
+		// Logger.recordOutput("anglerratepose", angleRatePose);
 
 		// Logger.recordOutput("ShotCalculator/AngleToTarget",
 		// getTurretAngleToTarget().getDegrees());

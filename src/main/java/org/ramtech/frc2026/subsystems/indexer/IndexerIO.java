@@ -20,12 +20,17 @@ public interface IndexerIO {
 	}
 
 	public static enum IndexerIOOutputMode {
-		OFF, VOLTAGE
+		OFF, VOLTAGE, AUTO
+	}
+
+	public static enum IndexerIOAutoDirections {
+		FORWARD, REVERSE
 	}
 
 	public static class IndexerIOOutputs {
 		public IndexerIOOutputMode mode = IndexerIOOutputMode.OFF;
 		public double indexerVoltageSetpoint = 0.0;
+		public IndexerIOAutoDirections directionSetpoint = IndexerIOAutoDirections.FORWARD;
 	}
 
 	default void updateInputs(IndexerIOInputs inputs) {

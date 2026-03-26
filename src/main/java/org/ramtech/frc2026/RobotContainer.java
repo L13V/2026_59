@@ -2,6 +2,9 @@ package org.ramtech.frc2026;
 
 import static org.ramtech.frc2026.subsystems.vision.VisionConstants.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -31,10 +34,12 @@ import org.ramtech.frc2026.subsystems.indexer.Indexer;
 import org.ramtech.frc2026.subsystems.indexer.IndexerIO;
 import org.ramtech.frc2026.subsystems.indexer.IndexerIOSim;
 import org.ramtech.frc2026.subsystems.indexer.IndexerIOTalonFX;
+import org.ramtech.frc2026.subsystems.indexer.IndexerIO.IndexerIOAutoDirections;
 import org.ramtech.frc2026.subsystems.intake.Intake;
 import org.ramtech.frc2026.subsystems.intake.IntakeIO;
 import org.ramtech.frc2026.subsystems.intake.IntakeIOSim;
 import org.ramtech.frc2026.subsystems.intake.IntakeIOTalonFX;
+import org.ramtech.frc2026.subsystems.intake.IntakeIO.IntakeIOAutoDirections;
 import org.ramtech.frc2026.subsystems.shooter.ShotCalculator;
 import org.ramtech.frc2026.subsystems.shooter.flywheel.Flywheel;
 import org.ramtech.frc2026.subsystems.shooter.flywheel.FlywheelIO;
@@ -48,6 +53,7 @@ import org.ramtech.frc2026.subsystems.shooter.tower.Tower;
 import org.ramtech.frc2026.subsystems.shooter.tower.TowerIO;
 import org.ramtech.frc2026.subsystems.shooter.tower.TowerIOSim;
 import org.ramtech.frc2026.subsystems.shooter.tower.TowerIOTalonFX;
+import org.ramtech.frc2026.subsystems.shooter.tower.TowerIO.TowerIOAutoDirections;
 import org.ramtech.frc2026.subsystems.shooter.turret.Turret;
 import org.ramtech.frc2026.subsystems.shooter.turret.TurretIO;
 import org.ramtech.frc2026.subsystems.shooter.turret.TurretIOReal;
@@ -63,6 +69,8 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
+import com.pathplanner.lib.commands.PathPlannerAuto;
+import com.pathplanner.lib.path.PathPlannerPath;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -92,7 +100,7 @@ public class RobotContainer {
 	// Dashboard inputs
 	private final LoggedDashboardChooser<Command> autoChooser;
 
-	private double slowMult = 1.0;
+	private double slowModeMultiplier = 1.0;
 
 	/**
 	 * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -224,8 +232,9 @@ public class RobotContainer {
 		 * Driving
 		 */
 		// Drive
-		drive.setDefaultCommand(DriveCommands.joystickDrive(drive, () -> -drivercontroller.getLeftY() * slowMult,
-				() -> -drivercontroller.getLeftX() * slowMult, () -> -drivercontroller.getRightX()));
+		drive.setDefaultCommand(
+				DriveCommands.joystickDrive(drive, () -> -drivercontroller.getLeftY() * slowModeMultiplier,
+						() -> -drivercontroller.getLeftX() * slowModeMultiplier, () -> -drivercontroller.getRightX()));
 		// Reset gyro
 		drivercontroller.start().onTrue(Commands
 				.runOnce(() -> drive.setPose(new Pose2d(drive.getPose().getTranslation(), Rotation2d.kZero)), drive)
@@ -250,10 +259,12 @@ public class RobotContainer {
 		drivercontroller.leftBumper().onTrue(new InstantCommand(() -> ShotCalculator.getInstance().requestSafe()));
 
 		// Shoot
-		drivercontroller.leftBumper().and(() -> ShotCalculator.getInstance().getLatest().hoodSafe()).whileTrue(shoot());
+		drivercontroller.leftBumper().and(() -> ShotCalculator.getInstance().getLatest().hoodSafe())
+				.and(() -> ShotCalculator.getInstance().getLatest().shootingAllowed()).whileTrue(shoot());
+		drivercontroller.rightBumper().whileTrue(shoot());
 
 		// Overrides for helping battery conservation during auto testing.
-		drivercontroller.b().onTrue(conserve());
+		// drivercontroller.b().onTrue(conserve());
 
 		/*
 		 * Operator Overrides
@@ -269,22 +280,22 @@ public class RobotContainer {
 		// flywheel.enableCalculation()));
 
 		// Raise Rps
-		operatorcontroller.povUp().onTrue(Commands.runOnce(() -> {
+		operatorcontroller.povUp().onTrue(Commands.sequence(Commands.runOnce(() -> {
 			double currentBump = Preferences.getDouble("rpsBump", 0.0);
 			double newBump = currentBump + 0.5;
 
-			Preferences.setDouble("ShooterRPM", newBump);
+			Preferences.setDouble("rpsBump", newBump);
 
 			System.out.println("Shooter RPM bumped to: " + newBump);
 
-		}));
+		}), new InstantCommand(() -> ShotCalculator.getInstance().refreshRpsBump())));
 
 		// Lower Rps
-		operatorcontroller.povDown().onTrue(Commands.runOnce(() -> {
+		operatorcontroller.povDown().onTrue(Commands.sequence(Commands.runOnce(() -> {
 			double currentBump = Preferences.getDouble("rpsBump", 0.0);
-			Preferences.setDouble("ShooterRPM", currentBump - 0.5);
+			Preferences.setDouble("rpsBump", currentBump - 0.5);
 			System.out.println("Shooter RPM dropped to: " + (currentBump - 0.5));
-		}));
+		}), new InstantCommand(() -> ShotCalculator.getInstance().refreshRpsBump())));
 
 		DriverStation.silenceJoystickConnectionWarning(true);
 	}
@@ -299,17 +310,46 @@ public class RobotContainer {
 		return autoChooser.get();
 	}
 
+	public void updateAutoTrajectoryPreview() {
+		// 1. You need the string name of the auto.
+		// (If using a custom String chooser, get it here. For example: String
+		// selectedAuto = myStringChooser.get();)
+		String selectedAuto = autoChooser.get().getName(); // Replace with your chooser's string output
+
+		if (selectedAuto != null && !selectedAuto.isEmpty()) {
+			try {
+				// 2. Load the path group from the auto file
+				List<PathPlannerPath> paths = PathPlannerAuto.getPathGroupFromAutoFile(selectedAuto);
+				List<Pose2d> pathPoses = new ArrayList<>();
+
+				// 3. Extract all Pose2d points from each path in the auto
+				for (PathPlannerPath path : paths) {
+					pathPoses.addAll(path.getPathPoses());
+				}
+				// 4. Send to RobotState
+				RobotState.getInstance().setPreviewPathPlannerTrajectory(pathPoses.toArray(new Pose2d[0]));
+			} catch (Exception e) {
+				// Failsafe in case the auto file doesn't exist or is purely command-based
+				// without paths
+				RobotState.getInstance().setPreviewPathPlannerTrajectory(new Pose2d[0]);
+			}
+		}
+	}
+
 	public Command slowMode() {
-		return new StartEndCommand(() -> slowMult = 0.8, () -> slowMult = 1);
+		return new StartEndCommand(() -> slowModeMultiplier = 0.8, () -> slowModeMultiplier = 1);
 	}
 
 	public Command shoot() {
 		return Commands.run(() -> {
 			// This runs continuously, checking the condition every 20ms loop
 			if (!ShotCalculator.getInstance().transitionInProgress) {
-				tower.setVoltage(10);
-				indexer.setVoltage(10);
-				intake.setRollerVoltage(10);
+				// tower.setVoltage(10);
+				// indexer.setVoltage(10);
+				// intake.setRollerVoltage(10);
+				tower.setAutoMode(TowerIOAutoDirections.FORWARD);
+				indexer.setAutoMode(IndexerIOAutoDirections.FORWARD);
+				intake.setAutoMode(IntakeIOAutoDirections.FORWARD);
 			} else {
 				tower.stop();
 				indexer.stop();
@@ -338,8 +378,10 @@ public class RobotContainer {
 				Commands.none(), // Do nothing if false
 				turret::isIntakeLocked).alongWith(Commands.startEnd(() -> {
 					intake.lowerPivot();
-					intake.setRollerVoltage(10.0);
-					indexer.setVoltage(-10);
+					intake.setAutoMode(IntakeIOAutoDirections.FORWARD);
+					indexer.setAutoMode(IndexerIOAutoDirections.REVERSE);
+					// intake.setRollerVoltage(10.0);
+					// indexer.setVoltage(-10);
 				}, () -> {
 					intake.stopRollers();
 					indexer.stop();
@@ -351,8 +393,11 @@ public class RobotContainer {
 				Commands.none(), // Do nothing if false
 				turret::isIntakeLocked).alongWith(Commands.startEnd(() -> {
 					intake.lowerPivot();
-					intake.setRollerVoltage(13.0);
-					indexer.setVoltage(0);
+					intake.setAutoMode(IntakeIOAutoDirections.FORWARD);
+					indexer.stop();
+					// intake.setRollerVoltage(13.0);
+					// indexer.setVoltage(0);
+
 				}, () -> {
 					intake.stopRollers();
 					indexer.stop();

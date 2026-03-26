@@ -93,9 +93,10 @@ public class HubShiftUtil {
 			// Adjust the current offset if the time difference is above the threshold
 			if (Math.abs(fieldTeleopTime - currentTime) >= timeResetThreshold && fieldTeleopTime <= 135
 					&& DriverStation.isFMSAttached()) {
-				shiftTimerOffset += currentTime - fieldTeleopTime;
-				currentTime = timerValue + shiftTimerOffset;
+				shiftTimerOffset = timerValue - fieldTeleopTime;
+				currentTime = fieldTeleopTime;
 			}
+
 			int currentShiftIndex = -1;
 			for (int i = 0; i < startTimes.length; i++) {
 				if (currentTime >= startTimes[i] && currentTime < endTimes[i]) {
@@ -143,8 +144,11 @@ public class HubShiftUtil {
 		// 1. Get current flight time safely
 		double tFlight = Math.max(0.0, ShotCalculator.getInstance().gettFlight());
 
-		// 2. Calculate dynamic fudges based on whether the hub is opening or closing
+		// 2. Calculate dynamic fudges based on the physical reality of the hub
+		// Start early so fuel arrives and processes right as it opens
 		double dynApproachingFudge = -1.0 * (tFlight + minFuelCountDelay);
+
+		// Stop early enough that fuel flies and processes before the grace period ends
 		double dynEndingFudge = shiftEndFuelCountExtension - (tFlight + maxFuelCountDelay);
 
 		double[] shiftedStarts;
@@ -176,11 +180,25 @@ public class HubShiftUtil {
 			if (current.ordinal() > highestTeleopShift.ordinal()) {
 				highestTeleopShift = current; // Latch to the new, higher state
 			} else if (current.ordinal() < highestTeleopShift.ordinal()) {
-				// If driving closer caused the math to push us backwards in time,
-				// override and force the state to remain at the highest reached.
-				boolean latchedActive = shiftSchedule[highestTeleopShift.ordinal()];
+				// We are latched. Recalculate time remaining/elapsed based on the latched
+				// bounds
+				int latchedIndex = highestTeleopShift.ordinal();
+				boolean latchedActive = shiftSchedule[latchedIndex];
 
-				return new ShiftInfo(highestTeleopShift, rawInfo.elapsedTime(), rawInfo.remainingTime(), latchedActive);
+				double currentTime = shiftTimer.get() - shiftTimerOffset;
+				double latchedElapsed = currentTime - shiftedStarts[latchedIndex];
+				double latchedRemaining = shiftedEnds[latchedIndex] - currentTime;
+
+				// Apply combining logic for the latched state
+				if (latchedIndex > 0 && shiftSchedule[latchedIndex] == shiftSchedule[latchedIndex - 1]) {
+					latchedElapsed = currentTime - shiftedStarts[latchedIndex - 1];
+				}
+				if (latchedIndex < shiftedEnds.length - 1
+						&& shiftSchedule[latchedIndex] == shiftSchedule[latchedIndex + 1]) {
+					latchedRemaining = shiftedEnds[latchedIndex + 1] - currentTime;
+				}
+
+				return new ShiftInfo(highestTeleopShift, latchedElapsed, latchedRemaining, latchedActive);
 			}
 		}
 

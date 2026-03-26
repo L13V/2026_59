@@ -7,6 +7,7 @@
 
 package org.ramtech.frc2026;
 
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.Preferences;
 import edu.wpi.first.wpilibj.Timer;
@@ -59,7 +60,7 @@ public class Robot extends LoggedRobot {
 
 	@Override
 	public void robotInit() {
-		Preferences.initDouble("rpsBump", 0.0);
+		Preferences.initDouble("rpsBump", ShotCalculator.defaultRpsBump);
 
 		lastCalcTs = Timer.getFPGATimestamp();
 		CalculationLoop.startPeriodic(0.005);
@@ -141,21 +142,23 @@ public class Robot extends LoggedRobot {
 		FullSubsystem.runAllPeriodicAfterScheduler();
 		RobotState.getInstance().publishState();
 
-		ShiftInfo currentInfo = HubShiftUtil.getShiftedShiftInfo();
+		/*
+		 * Shifts
+		 */
+		ShiftInfo realShiftInfo = HubShiftUtil.getOfficialShiftInfo();
+		ShiftInfo shiftedShiftInfo = HubShiftUtil.getShiftedShiftInfo();
 
-		// 2. Publish the key variables to SmartDashboard
-		// Using the "Hub/" prefix creates a nice folder layout in your dashboard
-		// software
+		SmartDashboard.putString("Hub/Shifted State", shiftedShiftInfo.currentShift().name());
+		SmartDashboard.putBoolean("Hub/Shifted Hub Active", shiftedShiftInfo.active());
 
-		SmartDashboard.putString("Hub/Current State", currentInfo.currentShift().name());
-		SmartDashboard.putBoolean("Hub/Is Target Active", currentInfo.active());
+		double realRemainingTime = realShiftInfo.remainingTime();
+		SmartDashboard.putNumber("Hub/Time Remaining", Math.round(realRemainingTime * 10.0) / 10.0);
 
-		double remainingTime = currentInfo.remainingTime();
-		SmartDashboard.putNumber("Hub/Time Remaining", remainingTime);
+		double shiftedRemainingTime = shiftedShiftInfo.remainingTime();
+		SmartDashboard.putNumber("Hub/Shifted Time Remaining", Math.round(shiftedRemainingTime * 10.0) / 10.0);
 
-		if (remainingTime < 3 && remainingTime > 2.5) {
-
-		}
+		double matchTime = DriverStation.getMatchTime();
+		SmartDashboard.putNumber("Match Time", matchTime);
 	}
 
 	// Return to non-RT thread priority (do not modify the first argument)
@@ -173,6 +176,7 @@ public class Robot extends LoggedRobot {
 	/** This function is called periodically when disabled. */
 	@Override
 	public void disabledPeriodic() {
+		robotContainer.updateAutoTrajectoryPreview();
 	}
 
 	/**

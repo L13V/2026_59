@@ -107,8 +107,13 @@ public class HoodIOTalonFX implements HoodIO {
 				hoodMotor.setControl(voltageOut.withOutput(outputs.voltageSetpoint).withEnableFOC(true));
 				break;
 			case POSITION :
-				hoodMotor.setControl(motionMagicVoltage
-						.withPosition(outputs.positionSetpoint - ShotCalculator.hoodMinAngle).withEnableFOC(true));
+				if (outputs.hoodLockedByDriver) {
+					hoodMotor.stopMotor();
+				} else {
+					hoodMotor.setControl(motionMagicVoltage
+							.withPosition(outputs.positionSetpoint - ShotCalculator.hoodMinAngle).withEnableFOC(true));
+				}
+
 				break;
 		}
 	}
