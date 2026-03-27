@@ -14,8 +14,6 @@ import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
 import org.ramtech.frc2026.Constants;
 import org.ramtech.frc2026.Constants.IndexerConstants;
-import org.ramtech.frc2026.RobotState;
-import org.ramtech.frc2026.util.DataProcessing;
 
 public class IndexerIOTalonFX implements IndexerIO {
 	// Motors
@@ -39,12 +37,12 @@ public class IndexerIOTalonFX implements IndexerIO {
 		// Roller
 		indexer.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 		indexer.MotorOutput.NeutralMode = NeutralModeValue.Coast;
-		indexer.CurrentLimits.StatorCurrentLimit = 120;
+		indexer.CurrentLimits.StatorCurrentLimit = 40;
 		indexer.CurrentLimits.StatorCurrentLimitEnable = true;
-		indexer.CurrentLimits.SupplyCurrentLimit = 30;
+		indexer.CurrentLimits.SupplyCurrentLimit = 40;
 		indexer.CurrentLimits.SupplyCurrentLimitEnable = true;
-		indexer.CurrentLimits.SupplyCurrentLowerLimit = 30;
-		indexer.CurrentLimits.SupplyCurrentLowerTime = 3;
+		indexer.CurrentLimits.SupplyCurrentLowerLimit = 40;
+		indexer.CurrentLimits.SupplyCurrentLowerTime = 1;
 
 		// Configure Motors
 		indexerConfigured = tryUntilOkWithStatus(5, () -> indexerMotor.getConfigurator().apply(indexer, 0.25));
@@ -85,9 +83,12 @@ public class IndexerIOTalonFX implements IndexerIO {
 						ballTunnelVoltageOut.withOutput(outputs.indexerVoltageSetpoint).withEnableFOC(true));
 				break;
 			case AUTO :
-				double setpoint = DataProcessing.rawToSmooth(10, indexerMotor.getTorqueCurrent().getValueAsDouble(),
-						DataProcessing.rampControl(9, 12, RobotState.getInstance().getBatteryVoltage(), 10, 60));
-
+				// double setpoint = DataProcessing.rawToSmooth(10,
+				// indexerMotor.getTorqueCurrent().getValueAsDouble(),
+				// DataProcessing.rampControl(9, 12,
+				// RobotState.getInstance().getBatteryVoltage(), 30, 100));
+				double setpoint = 40;// DataProcessing.rampControl(7, 13,
+										// RobotState.getInstance().getBatteryVoltage(), 20,100);
 				if (outputs.directionSetpoint == IndexerIOAutoDirections.REVERSE) {
 					setpoint *= -1;
 				}

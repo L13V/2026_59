@@ -16,9 +16,7 @@ import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
 
 import org.ramtech.frc2026.Constants;
-import org.ramtech.frc2026.RobotState;
 import org.ramtech.frc2026.Constants.TowerConstants;
-import org.ramtech.frc2026.util.DataProcessing;
 
 public class TowerIOTalonFX implements TowerIO {
 	// Motors
@@ -41,12 +39,12 @@ public class TowerIOTalonFX implements TowerIO {
 		// Complete the config
 		towerConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 		towerConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
-		towerConfig.CurrentLimits.StatorCurrentLimit = 120;
+		towerConfig.CurrentLimits.StatorCurrentLimit = 90;
 		towerConfig.CurrentLimits.StatorCurrentLimitEnable = true;
-		towerConfig.CurrentLimits.SupplyCurrentLimit = 70;
+		towerConfig.CurrentLimits.SupplyCurrentLimit = 90;
 		towerConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-		towerConfig.CurrentLimits.SupplyCurrentLowerLimit = 60;
-		towerConfig.CurrentLimits.SupplyCurrentLowerTime = 3;
+		towerConfig.CurrentLimits.SupplyCurrentLowerLimit = 90;
+		towerConfig.CurrentLimits.SupplyCurrentLowerTime = 2;
 
 		towerConfigured = tryUntilOkWithStatus(5, () -> towerMotor.getConfigurator().apply(towerConfig));
 
@@ -86,9 +84,11 @@ public class TowerIOTalonFX implements TowerIO {
 				towerMotor.setControl(velocityVoltage.withVelocity(outputs.velocitySetpoint).withEnableFOC(true));
 				break;
 			case AUTO :
-				double setpoint = DataProcessing.rawToSmooth(10, towerMotor.getTorqueCurrent().getValueAsDouble(),
-						DataProcessing.rampControl(7, 12, RobotState.getInstance().getBatteryVoltage(), 30, 90));
-
+				// double setpoint = DataProcessing.rawToSmooth(10,
+				// towerMotor.getTorqueCurrent().getValueAsDouble(),
+				// DataProcessing.rampControl(7, 12,
+				// RobotState.getInstance().getBatteryVoltage(), 30, 90));
+				double setpoint = 100;
 				if (outputs.directionSetpoint == TowerIOAutoDirections.REVERSE) {
 					setpoint *= -1;
 				}

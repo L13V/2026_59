@@ -65,8 +65,6 @@ import org.ramtech.frc2026.util.HubShiftUtil;
 import org.ramtech.frc2026.util.HubShiftUtil.ShiftEnum;
 import org.ramtech.frc2026.util.HubShiftUtil.ShiftInfo;
 
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
@@ -198,13 +196,16 @@ public class RobotContainer {
 
 		// Set up SysId routines
 		autoChooser.addOption("Drive Wheel Radius Characterization", DriveCommands.wheelRadiusCharacterization(drive));
-		autoChooser.addOption("Drive Simple FF Characterization", DriveCommands.feedforwardCharacterization(drive));
-		autoChooser.addOption("Drive SysId (Quasistatic Forward)",
-				drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-		autoChooser.addOption("Drive SysId (Quasistatic Reverse)",
-				drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-		autoChooser.addOption("Drive SysId (Dynamic Forward)", drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
-		autoChooser.addOption("Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+		// autoChooser.addOption("Drive Simple FF Characterization",
+		// DriveCommands.feedforwardCharacterization(drive));
+		// autoChooser.addOption("Drive SysId (Quasistatic Forward)",
+		// drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+		// autoChooser.addOption("Drive SysId (Quasistatic Reverse)",
+		// drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+		// autoChooser.addOption("Drive SysId (Dynamic Forward)",
+		// drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
+		// autoChooser.addOption("Drive SysId (Dynamic Reverse)",
+		// drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
 
 		// Configure the button bindings
 		configureButtonBindings();
@@ -249,6 +250,8 @@ public class RobotContainer {
 		 */
 		// Intake
 		drivercontroller.leftTrigger().whileTrue(intake());
+		drivercontroller.rightTrigger().whileTrue(outtake());
+
 		// Raise Intake
 		drivercontroller.y().onTrue(raise_intake());
 
@@ -261,7 +264,7 @@ public class RobotContainer {
 		// Shoot
 		drivercontroller.leftBumper().and(() -> ShotCalculator.getInstance().getLatest().hoodSafe())
 				.and(() -> ShotCalculator.getInstance().getLatest().shootingAllowed()).whileTrue(shoot());
-		drivercontroller.rightBumper().whileTrue(shoot());
+		drivercontroller.b().whileTrue(shoot());
 
 		// Overrides for helping battery conservation during auto testing.
 		// drivercontroller.b().onTrue(conserve());
@@ -379,6 +382,21 @@ public class RobotContainer {
 				turret::isIntakeLocked).alongWith(Commands.startEnd(() -> {
 					intake.lowerPivot();
 					intake.setAutoMode(IntakeIOAutoDirections.FORWARD);
+					indexer.setAutoMode(IndexerIOAutoDirections.REVERSE);
+					// intake.setRollerVoltage(10.0);
+					// indexer.setVoltage(-10);
+				}, () -> {
+					intake.stopRollers();
+					indexer.stop();
+				}, indexer));
+	}
+
+	public Command outtake() {
+		return Commands.either(new LowerIntake(intake, turret), // Run this if true
+				Commands.none(), // Do nothing if false
+				turret::isIntakeLocked).alongWith(Commands.startEnd(() -> {
+					intake.lowerPivot();
+					intake.setAutoMode(IntakeIOAutoDirections.REVERSE);
 					indexer.setAutoMode(IndexerIOAutoDirections.REVERSE);
 					// intake.setRollerVoltage(10.0);
 					// indexer.setVoltage(-10);

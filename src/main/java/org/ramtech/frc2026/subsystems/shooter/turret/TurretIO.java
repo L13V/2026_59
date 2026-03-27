@@ -52,8 +52,8 @@ public interface TurretIO {
 		public TurretIOSetpointSource setpointSource = TurretIOSetpointSource.SHOT_CALCULATOR;
 		public double voltageSetpoint = 0.0;
 		public double positionSetpoint = 0.0;
-		public boolean turretLockedByDriver = true;
-		public boolean turretLockedByIntake = true;
+		public boolean turretLockedByDriver = false;
+		public boolean turretLockedByIntake = false;
 	}
 
 	default void updateInputs(TurretIOInputs inputs) {

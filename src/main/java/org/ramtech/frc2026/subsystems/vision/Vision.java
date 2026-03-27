@@ -65,7 +65,9 @@ public class Vision extends SubsystemBase {
 
 	@Override
 	public void periodic() {
-		boolean logThisCycle = (Timer.getFPGATimestamp() - lastLogTimestamp) >= LOG_PERIOD_SEC;
+		// boolean logThisCycle = (Timer.getFPGATimestamp() - lastLogTimestamp) >=
+		// LOG_PERIOD_SEC;
+		boolean logThisCycle = false;
 		if (logThisCycle) {
 			lastLogTimestamp = Timer.getFPGATimestamp();
 		}

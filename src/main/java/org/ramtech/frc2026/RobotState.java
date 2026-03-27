@@ -140,9 +140,12 @@ public class RobotState {
 		Pose2d robotpose = RobotState.getInstance().getRobotPose();
 
 		Logger.recordOutput("RobotState/BaseRobotPose", robotpose);
-		Logger.recordOutput("RobotState/BaseRobotRotation", RobotState.getInstance().getRotation());
-		Logger.recordOutput("RobotState/ModuleStates", RobotState.getInstance().getModuleStates());
-		Logger.recordOutput("RobotState/Acceleration", RobotState.getInstance().getAcceleration());
+		// Logger.recordOutput("RobotState/BaseRobotRotation",
+		// RobotState.getInstance().getRotation());
+		// Logger.recordOutput("RobotState/ModuleStates",
+		// RobotState.getInstance().getModuleStates());
+		// Logger.recordOutput("RobotState/Acceleration",
+		// RobotState.getInstance().getAcceleration());
 		Logger.recordOutput("RobotState/Zone", zones.getZoneFromPose(RobotState.getInstance().getRobotPose()));
 
 		field.setRobotPose(robotpose);
