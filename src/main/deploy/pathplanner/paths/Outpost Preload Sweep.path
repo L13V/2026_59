@@ -8,92 +8,80 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 4.596194698091745,
-        "y": 2.512844257252342
+        "x": 3.6,
+        "y": 2.35
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 5.7,
+        "x": 3.6,
         "y": 2.2
       },
       "prevControl": {
-        "x": 5.020269159722512,
-        "y": 2.516963696305525
+        "x": 3.35,
+        "y": 2.2
       },
       "nextControl": {
-        "x": 6.153153893518325,
-        "y": 1.9886908691296503
+        "x": 3.85,
+        "y": 2.2
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 6.6,
-        "y": 1.0
+        "x": 5.9,
+        "y": 2.3
       },
       "prevControl": {
-        "x": 6.117037086855466,
-        "y": 1.1294095225512604
+        "x": 5.220269159722513,
+        "y": 1.9830363036944751
       },
       "nextControl": {
-        "x": 7.0829629131445335,
-        "y": 0.8705904774487396
+        "x": 6.353153893518326,
+        "y": 2.5113091308703495
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 7.4,
-        "y": 1.5
+        "x": 5.9,
+        "y": 5.34
       },
       "prevControl": {
-        "x": 7.4,
-        "y": 1.25
-      },
-      "nextControl": {
-        "x": 7.4,
-        "y": 2.0
-      },
-      "isLocked": false,
-      "linkedName": null
-    },
-    {
-      "anchor": {
-        "x": 7.4,
-        "y": 3.4
-      },
-      "prevControl": {
-        "x": 7.4,
-        "y": 3.15
+        "x": 6.718872041831415,
+        "y": 5.268357979461426
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Outpost Hook FR"
+      "linkedName": "Depot Sweep"
     }
   ],
   "rotationTargets": [
     {
-      "waypointRelativePos": 1.0,
+      "waypointRelativePos": 2.0,
       "rotationDegrees": 90.0
     },
     {
-      "waypointRelativePos": 2.0,
-      "rotationDegrees": 59.99999999999999
+      "waypointRelativePos": 2.1,
+      "rotationDegrees": 105.00000000000001
+    },
+    {
+      "waypointRelativePos": 2.45,
+      "rotationDegrees": 105.00000000000001
     }
   ],
   "constraintZones": [
     {
-      "name": "Landing",
-      "minWaypointRelativePos": 0.75,
-      "maxWaypointRelativePos": 1.25,
+      "name": "Stall",
+      "minWaypointRelativePos": 0.0,
+      "maxWaypointRelativePos": 0.8,
       "constraints": {
-        "maxVelocity": 4.5,
-        "maxAcceleration": 3.0,
+        "maxVelocity": 0.25,
+        "maxAcceleration": 4.0,
         "maxAngularVelocity": 540.0,
         "maxAngularAcceleration": 1464.0,
         "nominalVoltage": 11.0,
@@ -102,8 +90,8 @@
     },
     {
       "name": "Intake",
-      "minWaypointRelativePos": 2.5,
-      "maxWaypointRelativePos": 4.0,
+      "minWaypointRelativePos": 2.0,
+      "maxWaypointRelativePos": 3.0,
       "constraints": {
         "maxVelocity": 1.2,
         "maxAcceleration": 9.4,
@@ -114,9 +102,22 @@
       }
     },
     {
+      "name": "Landing",
+      "minWaypointRelativePos": 1.5,
+      "maxWaypointRelativePos": 2.1,
+      "constraints": {
+        "maxVelocity": 4.5,
+        "maxAcceleration": 5.0,
+        "maxAngularVelocity": 540.0,
+        "maxAngularAcceleration": 1464.0,
+        "nominalVoltage": 11.0,
+        "unlimited": false
+      }
+    },
+    {
       "name": "2-wheels",
       "minWaypointRelativePos": 0.0,
-      "maxWaypointRelativePos": 0.3,
+      "maxWaypointRelativePos": 1.6,
       "constraints": {
         "maxVelocity": 4.5,
         "maxAcceleration": 6.0,
@@ -128,8 +129,8 @@
     },
     {
       "name": "4-wheels",
-      "minWaypointRelativePos": 0.25,
-      "maxWaypointRelativePos": 0.75,
+      "minWaypointRelativePos": 0.0,
+      "maxWaypointRelativePos": 2.5,
       "constraints": {
         "maxVelocity": 4.5,
         "maxAcceleration": 0.5,
@@ -141,8 +142,8 @@
     },
     {
       "name": "Travel",
-      "minWaypointRelativePos": 0.75,
-      "maxWaypointRelativePos": 2.0,
+      "minWaypointRelativePos": 2.0,
+      "maxWaypointRelativePos": 3.0,
       "constraints": {
         "maxVelocity": 4.5,
         "maxAcceleration": 6.0,
@@ -156,9 +157,31 @@
   "pointTowardsZones": [],
   "eventMarkers": [
     {
-      "name": "raise_intake",
+      "name": "deploy_intake",
       "waypointRelativePos": 0,
-      "endWaypointRelativePos": 0.1,
+      "endWaypointRelativePos": 0.11,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "deploy_intake"
+        }
+      }
+    },
+    {
+      "name": "shoot",
+      "waypointRelativePos": 0.12,
+      "endWaypointRelativePos": 1.1,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "shoot"
+        }
+      }
+    },
+    {
+      "name": "raise_intake",
+      "waypointRelativePos": 1.11,
+      "endWaypointRelativePos": 1.4,
       "command": {
         "type": "named",
         "data": {
@@ -168,8 +191,8 @@
     },
     {
       "name": "intake",
-      "waypointRelativePos": 1.5,
-      "endWaypointRelativePos": 4.0,
+      "waypointRelativePos": 2.0,
+      "endWaypointRelativePos": 3.0,
       "command": {
         "type": "named",
         "data": {
@@ -188,7 +211,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 59.99999999999999
+    "rotation": 90.0
   },
   "reversed": false,
   "folder": null,

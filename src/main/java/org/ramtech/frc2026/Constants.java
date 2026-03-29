@@ -55,10 +55,10 @@ public final class Constants {
 
 	public static final class TargetPoses {
 		public static Pose3d hub = new Pose3d(4.645, 4.02, 1.82, new Rotation3d());
-		public static Pose3d leftFarPass = new Pose3d(3.5, 4.02 + 1.5, 0.50, new Rotation3d());
-		public static Pose3d rightFarPass = new Pose3d(3.5, 4.02 - 1.5, 0.50, new Rotation3d());
-		public static Pose3d leftClosePass = new Pose3d(3.5, 4.02 + 1.5, 0.50, new Rotation3d());
-		public static Pose3d rightClosePass = new Pose3d(3.5, 4.02 - 1.5, 0.50, new Rotation3d());
+		public static Pose3d leftFarPass = new Pose3d(1, 4.02 + 1.5, 0.50, new Rotation3d());
+		public static Pose3d rightFarPass = new Pose3d(1, 4.02 - 1.5, 0.50, new Rotation3d());
+		public static Pose3d leftClosePass = new Pose3d(1, 4.02 + 1.5, 0.50, new Rotation3d());
+		public static Pose3d rightClosePass = new Pose3d(1, 4.02 - 1.5, 0.50, new Rotation3d());
 	}
 
 	public static final class Offsets {
@@ -130,10 +130,10 @@ public final class Constants {
 
 		public static final double turretAngleOffsetForZero = 180;
 
-		public static final double forwardSoftLimit = 795;
+		public static final double forwardSoftLimit = 800;
 		public static final boolean forwardSoftLimitEnable = true;
 
-		public static final double reverseSoftLimit = 120;
+		public static final double reverseSoftLimit = 45;
 		public static final boolean reverseSoftLimitEnable = true;
 
 	}

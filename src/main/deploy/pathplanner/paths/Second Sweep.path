@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 0.4,
-        "y": 5.94
+        "x": 0.6,
+        "y": 5.95
       },
       "prevControl": null,
       "nextControl": {
-        "x": 0.6500000000000001,
-        "y": 5.94
+        "x": 0.8500000000000001,
+        "y": 5.95
       },
       "isLocked": false,
       "linkedName": "Inside Depot"

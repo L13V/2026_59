@@ -7,25 +7,19 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Depot Hook"
+            "pathName": "Outpost Close Sweep"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Depot Hook Return"
+            "pathName": "Outpost Sweep Return"
           }
         },
         {
           "type": "named",
           "data": {
             "name": "shoot"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "intake"
           }
         },
         {

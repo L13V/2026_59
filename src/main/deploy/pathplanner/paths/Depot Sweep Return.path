@@ -3,58 +3,75 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 7.4,
-        "y": 3.4
+        "x": 5.8,
+        "y": 2.7
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.586594427244581,
-        "y": 2.453413312693499
+        "x": 4.57095662532134,
+        "y": 2.7
       },
       "isLocked": false,
-      "linkedName": "Outpost Hook FR"
+      "linkedName": "Outpost Center Intake End"
     },
     {
       "anchor": {
-        "x": 3.1111764705882354,
-        "y": 2.2769272445820423
+        "x": 2.2,
+        "y": 3.0
       },
       "prevControl": {
-        "x": 4.088637770897834,
-        "y": 2.54844427244582
+        "x": 3.1659258262890684,
+        "y": 2.741180954897479
       },
       "nextControl": {
-        "x": 1.9747372619504997,
-        "y": 1.9612496866271152
+        "x": 1.717037086855466,
+        "y": 3.1294095225512604
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 0.898312693498452,
-        "y": 0.7835835913312701
+        "x": 0.6,
+        "y": 5.95
       },
       "prevControl": {
-        "x": 2.473111455108359,
-        "y": 0.7292801857585152
+        "x": 2.6,
+        "y": 5.95
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "Inside Depot"
     }
   ],
   "rotationTargets": [
     {
-      "waypointRelativePos": 0.42970822281166454,
-      "rotationDegrees": 90.0
+      "waypointRelativePos": 1.0,
+      "rotationDegrees": -90.0
     },
     {
-      "waypointRelativePos": 1.0,
-      "rotationDegrees": 90.0
+      "waypointRelativePos": 1.6436058700209617,
+      "rotationDegrees": -90.0
+    },
+    {
+      "waypointRelativePos": 1.8,
+      "rotationDegrees": 180.0
     }
   ],
   "constraintZones": [
+    {
+      "name": "Depot Surge",
+      "minWaypointRelativePos": 1.96,
+      "maxWaypointRelativePos": 2.0,
+      "constraints": {
+        "maxVelocity": 4.5,
+        "maxAcceleration": 5.0,
+        "maxAngularVelocity": 540.0,
+        "maxAngularAcceleration": 1464.0,
+        "nominalVoltage": 11.0,
+        "unlimited": false
+      }
+    },
     {
       "name": "Bump Launch",
       "minWaypointRelativePos": 0,
@@ -70,10 +87,10 @@
     },
     {
       "name": "Shooting",
-      "minWaypointRelativePos": 1.0,
+      "minWaypointRelativePos": 0.5647969052224638,
       "maxWaypointRelativePos": 2.0,
       "constraints": {
-        "maxVelocity": 0.5,
+        "maxVelocity": 0.6,
         "maxAcceleration": 5.0,
         "maxAngularVelocity": 540.0,
         "maxAngularAcceleration": 1464.0,
@@ -110,8 +127,8 @@
     },
     {
       "name": "shoot",
-      "waypointRelativePos": 0.95,
-      "endWaypointRelativePos": null,
+      "waypointRelativePos": 0.55,
+      "endWaypointRelativePos": 2.0,
       "command": {
         "type": "named",
         "data": {
@@ -130,13 +147,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -178.69804732742125
+    "rotation": 180.0
   },
   "reversed": false,
   "folder": null,
   "idealStartingState": {
     "velocity": 0.0,
-    "rotation": 59.99999999999999
+    "rotation": -90.0
   },
   "useDefaultConstraints": true
 }

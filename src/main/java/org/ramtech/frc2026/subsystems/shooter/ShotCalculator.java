@@ -102,7 +102,7 @@ public class ShotCalculator {
 	// private static double rpsBump = Preferences.getDouble("rpsBump",
 	// defaultRpsBump);
 	private static double rpsBump = -6;
-	private static final double rpsMult = 1.25;
+	private static final double rpsMult = 1.27;
 	private static final double peakRPSS = 5000;
 
 	public static final double hoodMinAngle = 11; // deg TODO: Verify
@@ -453,11 +453,25 @@ public class ShotCalculator {
 				* (1 + ((airEst * latStatic) / (3 * ballMass * velocityInitStatic * Math.cos(hoodAngle))))
 				* Math.cos(hoodAngle);
 
-		// 4. Calculate tFlight using the effective velocity across the field
-		tFlight = (latStatic / LatVelocity)
-				+ ((airEst * (Math.pow(latStatic, 2))) / (2 * ballMass * Math.pow(LatVelocity, 2)));
+		// --- NEW: Factor in chassis radial velocity towards the target ---
+		double dx = targetPose.getX() - turretPoseStatic3d.getX();
+		double dy = targetPose.getY() - turretPoseStatic3d.getY();
+		double distance = Math.hypot(dx, dy);
 
-		tFlight = DataProcessing.rawToSmooth(4, tFlightLast, DataProcessing.sanitize(tFlightLast, 0.5, 3, tFlight));
+		double dirX = dx / distance;
+		double dirY = dy / distance;
+
+		// Dot product to find how fast the chassis is moving directly towards the
+		// target
+		double vRadial = (fieldSpeeds.vxMetersPerSecond * dirX) + (fieldSpeeds.vyMetersPerSecond * dirY);
+
+		// Add chassis momentum to the ball's horizontal velocity (prevent
+		// divide-by-zero or negative flight times)
+		double actualLatVelocity = Math.max(0.1, LatVelocity + vRadial);
+
+		// 4. Calculate tFlight using the TRUE field-relative velocity
+		tFlight = (latStatic / actualLatVelocity)
+				+ ((airEst * Math.pow(latStatic, 2)) / (2 * ballMass * Math.pow(actualLatVelocity, 2)));
 		// ---------------------------------------
 
 		tFlightLast = tFlight;

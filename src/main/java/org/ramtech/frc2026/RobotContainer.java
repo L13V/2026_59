@@ -349,10 +349,10 @@ public class RobotContainer {
 			if (!ShotCalculator.getInstance().transitionInProgress) {
 				// tower.setVoltage(10);
 				// indexer.setVoltage(10);
-				// intake.setRollerVoltage(10);
+				intake.setRollerVoltage(10);
 				tower.setAutoMode(TowerIOAutoDirections.FORWARD);
 				indexer.setAutoMode(IndexerIOAutoDirections.FORWARD);
-				intake.setAutoMode(IntakeIOAutoDirections.FORWARD);
+				// intake.setAutoMode(IntakeIOAutoDirections.FORWARD);
 			} else {
 				tower.stop();
 				indexer.stop();
@@ -369,7 +369,7 @@ public class RobotContainer {
 	}
 
 	public Command deploy_intake() {
-		return new LowerIntake(intake, turret);
+		return (Commands.run(() -> intake.lowerPivot()));
 	}
 
 	public Command raise_intake() {
@@ -382,6 +382,7 @@ public class RobotContainer {
 				turret::isIntakeLocked).alongWith(Commands.startEnd(() -> {
 					intake.lowerPivot();
 					intake.setAutoMode(IntakeIOAutoDirections.FORWARD);
+					intake.setRollerVoltage(12);;
 					indexer.setAutoMode(IndexerIOAutoDirections.REVERSE);
 					// intake.setRollerVoltage(10.0);
 					// indexer.setVoltage(-10);
@@ -396,7 +397,7 @@ public class RobotContainer {
 				Commands.none(), // Do nothing if false
 				turret::isIntakeLocked).alongWith(Commands.startEnd(() -> {
 					intake.lowerPivot();
-					intake.setAutoMode(IntakeIOAutoDirections.REVERSE);
+					intake.setRollerVoltage(-10);;
 					indexer.setAutoMode(IndexerIOAutoDirections.REVERSE);
 					// intake.setRollerVoltage(10.0);
 					// indexer.setVoltage(-10);
@@ -411,9 +412,8 @@ public class RobotContainer {
 				Commands.none(), // Do nothing if false
 				turret::isIntakeLocked).alongWith(Commands.startEnd(() -> {
 					intake.lowerPivot();
-					intake.setAutoMode(IntakeIOAutoDirections.FORWARD);
 					indexer.stop();
-					// intake.setRollerVoltage(13.0);
+					intake.setRollerVoltage(13.0);
 					// indexer.setVoltage(0);
 
 				}, () -> {

@@ -7,25 +7,19 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Depot Hook"
+            "pathName": "Depot Preload Sweep"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Depot Hook Return"
+            "pathName": "Depot Sweep Return"
           }
         },
         {
           "type": "named",
           "data": {
             "name": "shoot"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "intake"
           }
         },
         {

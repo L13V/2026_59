@@ -60,20 +60,20 @@ public class IntakeIOTalonFX implements IntakeIO {
 		// Complete the config
 		motorAConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
 		motorAConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
-		motorAConfig.CurrentLimits.StatorCurrentLimit = 30;
+		motorAConfig.CurrentLimits.StatorCurrentLimit = 38;
 		motorAConfig.CurrentLimits.StatorCurrentLimitEnable = true;
-		motorAConfig.CurrentLimits.SupplyCurrentLimit = 30;
+		motorAConfig.CurrentLimits.SupplyCurrentLimit = 38;
 		motorAConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-		motorAConfig.CurrentLimits.SupplyCurrentLowerLimit = 30;
+		motorAConfig.CurrentLimits.SupplyCurrentLowerLimit = 38;
 		motorAConfig.CurrentLimits.SupplyCurrentLowerTime = 3;
 
 		motorBConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
 		motorBConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
-		motorBConfig.CurrentLimits.StatorCurrentLimit = 30;
+		motorBConfig.CurrentLimits.StatorCurrentLimit = 38;
 		motorBConfig.CurrentLimits.StatorCurrentLimitEnable = true;
-		motorBConfig.CurrentLimits.SupplyCurrentLimit = 30;
+		motorBConfig.CurrentLimits.SupplyCurrentLimit = 38;
 		motorBConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-		motorBConfig.CurrentLimits.SupplyCurrentLowerLimit = 30;
+		motorBConfig.CurrentLimits.SupplyCurrentLowerLimit = 388;
 		motorBConfig.CurrentLimits.SupplyCurrentLowerTime = 3;
 
 		pivotMotorConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
@@ -183,8 +183,8 @@ public class IntakeIOTalonFX implements IntakeIO {
 				// }
 
 				// motorA.setControl(torqueCurrentFOC.withOutput(setpoint));
-				motorA.setControl(voltageOut.withOutput(12).withEnableFOC(true));
-				motorB.setControl(follower);
+				// motorA.setControl(voltageOut.withOutput(12).withEnableFOC(true));
+				// motorB.setControl(follower);
 
 			default :
 				break;
