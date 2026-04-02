@@ -33,6 +33,14 @@ public class AllianceFlipUtil {
 		return shouldFlip() ? new Pose2d(apply(pose.getTranslation()), apply(pose.getRotation())) : pose;
 	}
 
+	public static Pose2d[] apply(Pose2d[] poses) {
+		Pose2d[] flippedPoses = new Pose2d[poses.length];
+		for (int i = 0; i < poses.length; i++) {
+			flippedPoses[i] = apply(poses[i]);
+		}
+		return flippedPoses;
+	}
+
 	public static Translation3d apply(Translation3d translation) {
 		return new Translation3d(applyX(translation.getX()), applyY(translation.getY()), translation.getZ());
 	}

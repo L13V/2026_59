@@ -50,8 +50,10 @@ import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 import org.ramtech.frc2026.Constants;
 import org.ramtech.frc2026.RobotState;
+import org.ramtech.frc2026.RobotState.GlobalStates;
 import org.ramtech.frc2026.Constants.Mode;
 import org.ramtech.frc2026.generated.TunerConstants;
+import org.ramtech.frc2026.util.DynamicRateLimiter;
 import org.ramtech.frc2026.util.LocalADStarAK;
 
 public class Drive extends SubsystemBase {
@@ -63,6 +65,11 @@ public class Drive extends SubsystemBase {
 					Math.hypot(TunerConstants.FrontRight.LocationX, TunerConstants.FrontRight.LocationY)),
 			Math.max(Math.hypot(TunerConstants.BackLeft.LocationX, TunerConstants.BackLeft.LocationY),
 					Math.hypot(TunerConstants.BackRight.LocationX, TunerConstants.BackRight.LocationY)));
+
+	// Inside your Swerve Subsystem class
+	private final DynamicRateLimiter m_xLimiter = new DynamicRateLimiter(0);
+	private final DynamicRateLimiter m_yLimiter = new DynamicRateLimiter(0);
+	private final DynamicRateLimiter m_rotLimiter = new DynamicRateLimiter(0);
 
 	// PathPlanner config constants
 	private static final double ROBOT_MASS_KG = 50.3488;
@@ -107,7 +114,8 @@ public class Drive extends SubsystemBase {
 		PhoenixOdometryThread.getInstance().start();
 
 		// Configure AutoBuilder for PathPlanner
-		AutoBuilder.configure(this::getPose, this::setPose, this::getChassisSpeeds, this::runVelocity,
+		AutoBuilder.configure(this::getPose, this::setPose, this::getChassisSpeeds,
+				(speeds) -> this.runVelocity(speeds),
 				// new PPHolonomicDriveController(new PIDConstants(7, 0.004, 0.00045), new
 				// PIDConstants(4.0, 0.0, 0.0)),
 				new PPHolonomicDriveController(new PIDConstants(4.3, 0.08, 0.0), new PIDConstants(3.2, 0.037, 0.0)),
@@ -132,6 +140,21 @@ public class Drive extends SubsystemBase {
 				new SysIdRoutine.Config(null, null, null,
 						(state) -> Logger.recordOutput("Drive/SysIdState", state.toString())),
 				new SysIdRoutine.Mechanism((voltage) -> runCharacterization(voltage.in(Volts)), null, this));
+	}
+
+	public Double getSlewFromState(GlobalStates state) {
+		switch (state) {
+			case IDLE :
+				return 15.0;
+			case INTAKING :
+				return 7.0;
+			case SHOOTING :
+				return 5.0;
+			default :
+				return 15.0;
+		}
+		// return 100000000000.0;
+
 	}
 
 	@Override
@@ -206,6 +229,33 @@ public class Drive extends SubsystemBase {
 	public void runVelocity(ChassisSpeeds speeds) {
 		// Calculate module setpoints
 		ChassisSpeeds discreteSpeeds = ChassisSpeeds.discretize(speeds, 0.02);
+		SwerveModuleState[] setpointStates = kinematics.toSwerveModuleStates(discreteSpeeds);
+		SwerveDriveKinematics.desaturateWheelSpeeds(setpointStates, TunerConstants.kSpeedAt12Volts);
+
+		// Log unoptimized setpoints and setpoint speeds
+		Logger.recordOutput("SwerveStates/Setpoints", setpointStates);
+		Logger.recordOutput("SwerveChassisSpeeds/Setpoints", discreteSpeeds);
+
+		// Send setpoints to modules
+		for (int i = 0; i < 4; i++) {
+			modules[i].runSetpoint(setpointStates[i]);
+		}
+
+		// Log optimized setpoints (runSetpoint mutates each state)
+		Logger.recordOutput("SwerveStates/SetpointsOptimized", setpointStates);
+	}
+
+	public void runVelocity(ChassisSpeeds speeds, double rateLimit) {
+		// Apply the limiters using the parameter passed in
+		double x = m_xLimiter.calculate(speeds.vxMetersPerSecond, rateLimit, rateLimit * 5);
+		double y = m_yLimiter.calculate(speeds.vyMetersPerSecond, rateLimit, rateLimit * 5);
+		double rot = m_rotLimiter.calculate(speeds.omegaRadiansPerSecond, rateLimit * 3, rateLimit * 5); // Rot is often
+																											// faster
+
+		ChassisSpeeds limitedSpeeds = new ChassisSpeeds(x, y, rot);
+
+		// Standard Kinematics
+		ChassisSpeeds discreteSpeeds = ChassisSpeeds.discretize(limitedSpeeds, 0.02);
 		SwerveModuleState[] setpointStates = kinematics.toSwerveModuleStates(discreteSpeeds);
 		SwerveDriveKinematics.desaturateWheelSpeeds(setpointStates, TunerConstants.kSpeedAt12Volts);
 

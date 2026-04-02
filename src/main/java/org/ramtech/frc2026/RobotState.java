@@ -15,11 +15,18 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
+import org.ramtech.frc2026.util.AllianceFlipUtil;
 import org.ramtech.frc2026.util.Zones;
 
 public class RobotState {
 	private static RobotState instance;
 	private Zones zones = new Zones();
+
+	public static enum GlobalStates {
+		IDLE, INTAKING, SHOOTING
+	}
+
+	public GlobalStates globalState = GlobalStates.IDLE;
 
 	public static RobotState getInstance() { //
 		if (instance == null)
@@ -133,6 +140,14 @@ public class RobotState {
 		return RobotController.getBatteryVoltage();
 	}
 
+	public void setGlobalState(GlobalStates newState) {
+		globalState = newState;
+	}
+
+	public GlobalStates getGlobalState() {
+		return globalState;
+	}
+
 	/*
 	 * Misc
 	 */
@@ -140,21 +155,23 @@ public class RobotState {
 		Pose2d robotpose = RobotState.getInstance().getRobotPose();
 
 		Logger.recordOutput("RobotState/BaseRobotPose", robotpose);
+		Logger.recordOutput("RobotState/GlobalState", globalState);
 		// Logger.recordOutput("RobotState/BaseRobotRotation",
 		// RobotState.getInstance().getRotation());
 		// Logger.recordOutput("RobotState/ModuleStates",
 		// RobotState.getInstance().getModuleStates());
 		// Logger.recordOutput("RobotState/Acceleration",
 		// RobotState.getInstance().getAcceleration());
-		Logger.recordOutput("RobotState/Zone", zones.getZoneFromPose(RobotState.getInstance().getRobotPose()));
+		// Logger.recordOutput("RobotState/Zone",
+		// zones.getZoneFromPose(RobotState.getInstance().getRobotPose()));
 
 		field.setRobotPose(robotpose);
 
 		if (DriverStation.isAutonomousEnabled()) {
-			field.getObject("currentTrajectory").setPoses(activePPTrajectory);
+			field.getObject("currentTrajectory").setPoses(AllianceFlipUtil.apply(activePPTrajectory));
 
 		} else if (DriverStation.isDisabled()) {
-			field.getObject("currentTrajectory").setPoses(previewPPTrajectory);
+			field.getObject("currentTrajectory").setPoses(AllianceFlipUtil.apply(previewPPTrajectory));
 		} else {
 			field.getObject("currentTrajectory").setPoses(new Pose2d[0]);
 		}

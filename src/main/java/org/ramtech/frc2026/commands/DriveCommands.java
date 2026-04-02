@@ -29,10 +29,10 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
+
 import org.ramtech.frc2026.subsystems.drive.Drive;
 
 public class DriveCommands {
-	static double slowMult = 1.0;
 
 	private static final double DEADBAND = 0.1;
 	private static final double ANGLE_KP = 5.0;
@@ -65,7 +65,7 @@ public class DriveCommands {
 	 * angular velocities).
 	 */
 	public static Command joystickDrive(Drive drive, DoubleSupplier xSupplier, DoubleSupplier ySupplier,
-			DoubleSupplier omegaSupplier) {
+			DoubleSupplier omegaSupplier, DoubleSupplier slew) {
 		return Commands.run(() -> {
 			// Get linear velocity
 			Translation2d linearVelocity = getLinearVelocityFromJoysticks(xSupplier.getAsDouble(),
@@ -78,14 +78,15 @@ public class DriveCommands {
 			omega = Math.copySign(omega * omega, omega);
 
 			// Convert to field relative speeds & send command
-			ChassisSpeeds speeds = new ChassisSpeeds(
-					slowMult * linearVelocity.getX() * drive.getMaxLinearSpeedMetersPerSec(),
-					slowMult * linearVelocity.getY() * drive.getMaxLinearSpeedMetersPerSec(),
+			ChassisSpeeds speeds = new ChassisSpeeds(linearVelocity.getX() * drive.getMaxLinearSpeedMetersPerSec(),
+					linearVelocity.getY() * drive.getMaxLinearSpeedMetersPerSec(),
 					omega * drive.getMaxAngularSpeedRadPerSec());
 			boolean isFlipped = DriverStation.getAlliance().isPresent()
 					&& DriverStation.getAlliance().get() == Alliance.Red;
-			drive.runVelocity(ChassisSpeeds.fromFieldRelativeSpeeds(speeds,
-					isFlipped ? drive.getRotation().plus(new Rotation2d(Math.PI)) : drive.getRotation()));
+			drive.runVelocity(
+					ChassisSpeeds.fromFieldRelativeSpeeds(speeds,
+							isFlipped ? drive.getRotation().plus(new Rotation2d(Math.PI)) : drive.getRotation()),
+					slew.getAsDouble());
 		}, drive);
 	}
 

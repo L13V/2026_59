@@ -26,7 +26,7 @@ public class GyroIOPigeon2 implements GyroIO {
 	private final StatusSignal<Angle> yaw = pigeon.getYaw();
 	private final Queue<Double> yawPositionQueue;
 	private final Queue<Double> yawTimestampQueue;
-	private final StatusSignal<AngularVelocity> yawVelocity = pigeon.getAngularVelocityZWorld();
+	private final StatusSignal<AngularVelocity> yawVelocity = pigeon.getAngularVelocityZDevice();
 	private final StatusSignal<LinearAcceleration> accelX = pigeon.getAccelerationX();
 	private final StatusSignal<LinearAcceleration> accelY = pigeon.getAccelerationY();
 	private final StatusSignal<LinearAcceleration> accelZ = pigeon.getAccelerationZ();

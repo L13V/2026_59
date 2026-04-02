@@ -71,7 +71,7 @@ public class ShotCalculator {
 
 	// private double chassisAngleRateLast = 0.0;
 
-	// private double gyroAngleRateLast = 0.0;
+	private double gyroAngleRateLast = 0.0;
 
 	private double angleRate = 0.0;
 	private double angleAccel = 0.0;
@@ -88,7 +88,7 @@ public class ShotCalculator {
 	private double turretDiffLast = 0.0;
 
 	private Pose2d dynamicPose = new Pose2d();
-	// private Pose2d angleRatePose = new Pose2d();
+	private Pose2d angleRatePose = new Pose2d();
 
 	/*
 	 * Constants
@@ -241,7 +241,8 @@ public class ShotCalculator {
 
 	public void update(double loopTime) {
 
-		double tReact = 0.03 + loopTime;
+		double tReact = 0.0425 + loopTime;
+		// double tReact = 0.035;
 
 		RobotState robotState = RobotState.getInstance();
 		ChassisSpeeds chassisSpeeds = robotState.getChassisSpeeds();
@@ -263,15 +264,15 @@ public class ShotCalculator {
 		// chassisAngleRateLast = chassisSpeeds.omegaRadiansPerSecond; // store newest
 		// value for the rate thing.
 
-		double gyroRadAccel = 0;// (gyroAngleRateRaw - gyroAngleRateLast) * (1000 / loopTime);
+		double gyroRadAccel = (gyroAngleRateRaw - gyroAngleRateLast) * (1000 / loopTime);
 
-		// gyroAngleRateLast = gyroAngleRateRaw;
+		gyroAngleRateLast = gyroAngleRateRaw;
 
-		angleRate = DataProcessing.rawToSmooth(4, angleRate,
+		angleRate = DataProcessing.rawToSmooth(3, angleRate,
 				(gyroAngleRateRaw * angleBias) + (chassisSpeeds.omegaRadiansPerSecond * (1 - angleBias))) * 1;
 
-		// angleAccel = DataProcessing.rawToSmooth(5, angleAccel,
-		// (gyroRadAccel * angleBias) + (gyroRadAccel * (1 - angleBias)));
+		angleAccel = DataProcessing.rawToSmooth(3, angleAccel,
+				(gyroRadAccel * angleBias) + (gyroRadAccel * (1 - angleBias)));
 
 		double shooterFieldAngle = Math.toRadians(250 - 90) + robotState.getRotation().getRadians()
 				+ ((angleRate + (angleAccel / 2)) * tReact);
@@ -478,7 +479,7 @@ public class ShotCalculator {
 
 		double turretAngle = getWrappedAngleForTurretMotorThingThatIAmTyring(
 				getAngleToTarget(new Pose3d(turretPoseDynamicXY), targetPose).getDegrees()
-						- Math.toDegrees((angleRate + (angleAccel / 2)) * tReact));
+						+ Math.toDegrees((angleRate + (angleAccel / 2)) * (tReact)));
 		if ((rpsDiff) > peakRPSS * loopTime) {
 			flyWheelFeedForward = rpsDiff / 100;
 		}
@@ -505,6 +506,8 @@ public class ShotCalculator {
 		transitionInProgress = ((turretDiff > 60) || switchCommanded);
 
 		// angleRatePose = robotPose.rotateBy(new Rotation2d(angleRate));
+		angleRatePose = robotPose.transformBy(new Transform2d(0.0, 0.0,
+				new Rotation2d(Math.toRadians(1 * Math.toDegrees((angleRate + (angleAccel / 2)) * (tReact))))));
 
 	}
 
@@ -524,7 +527,7 @@ public class ShotCalculator {
 		Logger.recordOutput("VelocityAdderY", velocityAdderY);
 		// SmartDashboard.putData("");
 
-		// Logger.recordOutput("anglerratepose", angleRatePose);
+		Logger.recordOutput("anglerratepose", angleRatePose);
 
 		// Logger.recordOutput("ShotCalculator/AngleToTarget",
 		// getTurretAngleToTarget().getDegrees());

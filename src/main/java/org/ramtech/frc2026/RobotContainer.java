@@ -21,6 +21,7 @@ import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
+import org.ramtech.frc2026.RobotState.GlobalStates;
 import org.ramtech.frc2026.commands.DriveCommands;
 import org.ramtech.frc2026.commands.LowerIntake;
 import org.ramtech.frc2026.generated.TunerConstants;
@@ -235,7 +236,8 @@ public class RobotContainer {
 		// Drive
 		drive.setDefaultCommand(
 				DriveCommands.joystickDrive(drive, () -> -drivercontroller.getLeftY() * slowModeMultiplier,
-						() -> -drivercontroller.getLeftX() * slowModeMultiplier, () -> -drivercontroller.getRightX()));
+						() -> -drivercontroller.getLeftX() * slowModeMultiplier, () -> -drivercontroller.getRightX(),
+						() -> drive.getSlewFromState(RobotState.getInstance().getGlobalState())));
 		// Reset gyro
 		drivercontroller.start().onTrue(Commands
 				.runOnce(() -> drive.setPose(new Pose2d(drive.getPose().getTranslation(), Rotation2d.kZero)), drive)
@@ -267,7 +269,7 @@ public class RobotContainer {
 		drivercontroller.b().whileTrue(shoot());
 
 		// Overrides for helping battery conservation during auto testing.
-		// drivercontroller.b().onTrue(conserve());
+		drivercontroller.a().onTrue(conserve());
 
 		/*
 		 * Operator Overrides
@@ -347,8 +349,13 @@ public class RobotContainer {
 		return Commands.run(() -> {
 			// This runs continuously, checking the condition every 20ms loop
 			if (!ShotCalculator.getInstance().transitionInProgress) {
+				if (RobotState.getInstance().getGlobalState() != GlobalStates.SHOOTING) {
+					RobotState.getInstance().setGlobalState(GlobalStates.SHOOTING);
+				}
+
 				// tower.setVoltage(10);
 				// indexer.setVoltage(10);
+				// flywheel.enableCalculation();
 				intake.setRollerVoltage(10);
 				tower.setAutoMode(TowerIOAutoDirections.FORWARD);
 				indexer.setAutoMode(IndexerIOAutoDirections.FORWARD);
@@ -357,6 +364,7 @@ public class RobotContainer {
 				tower.stop();
 				indexer.stop();
 				intake.stopRollers();
+
 			}
 		}).alongWith(Commands.startEnd(() -> {
 			ShotCalculator.getInstance().requestSafe();
@@ -365,6 +373,10 @@ public class RobotContainer {
 			indexer.stop();
 			tower.stop();
 			intake.stopRollers();
+			if (RobotState.getInstance().getGlobalState() == GlobalStates.SHOOTING) {
+				RobotState.getInstance().setGlobalState(GlobalStates.IDLE);
+
+			}
 		}, flywheel, indexer, intake, tower));
 	}
 
@@ -380,6 +392,10 @@ public class RobotContainer {
 		return Commands.either(new LowerIntake(intake, turret), // Run this if true
 				Commands.none(), // Do nothing if false
 				turret::isIntakeLocked).alongWith(Commands.startEnd(() -> {
+					if (RobotState.getInstance().getGlobalState() != GlobalStates.SHOOTING
+							&& RobotState.getInstance().getGlobalState() != GlobalStates.INTAKING) {
+						RobotState.getInstance().setGlobalState(GlobalStates.INTAKING);
+					}
 					intake.lowerPivot();
 					intake.setAutoMode(IntakeIOAutoDirections.FORWARD);
 					intake.setRollerVoltage(12);;
@@ -389,6 +405,9 @@ public class RobotContainer {
 				}, () -> {
 					intake.stopRollers();
 					indexer.stop();
+					if (RobotState.getInstance().getGlobalState() == GlobalStates.INTAKING) {
+						RobotState.getInstance().setGlobalState(GlobalStates.IDLE);
+					}
 				}, indexer));
 	}
 
