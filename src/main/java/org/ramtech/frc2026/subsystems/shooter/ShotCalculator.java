@@ -241,7 +241,7 @@ public class ShotCalculator {
 
 	public void update(double loopTime) {
 
-		double tReact = 0.0425 + loopTime;
+		double tReact = 0.03 + loopTime;
 		// double tReact = 0.035;
 
 		RobotState robotState = RobotState.getInstance();
@@ -264,14 +264,15 @@ public class ShotCalculator {
 		// chassisAngleRateLast = chassisSpeeds.omegaRadiansPerSecond; // store newest
 		// value for the rate thing.
 
-		double gyroRadAccel = (gyroAngleRateRaw - gyroAngleRateLast) * (1000 / loopTime);
+		// Standard derivative: (change in rate) / (change in time)
+		double gyroRadAccel = (gyroAngleRateRaw - gyroAngleRateLast) / loopTime;
 
 		gyroAngleRateLast = gyroAngleRateRaw;
 
 		angleRate = DataProcessing.rawToSmooth(3, angleRate,
 				(gyroAngleRateRaw * angleBias) + (chassisSpeeds.omegaRadiansPerSecond * (1 - angleBias))) * 1;
 
-		angleAccel = DataProcessing.rawToSmooth(3, angleAccel,
+		angleAccel = DataProcessing.rawToSmooth(6, angleAccel,
 				(gyroRadAccel * angleBias) + (gyroRadAccel * (1 - angleBias)));
 
 		double shooterFieldAngle = Math.toRadians(250 - 90) + robotState.getRotation().getRadians()
@@ -479,7 +480,7 @@ public class ShotCalculator {
 
 		double turretAngle = getWrappedAngleForTurretMotorThingThatIAmTyring(
 				getAngleToTarget(new Pose3d(turretPoseDynamicXY), targetPose).getDegrees()
-						+ Math.toDegrees((angleRate + (angleAccel / 2)) * (tReact)));
+						- Math.toDegrees((angleRate + (angleAccel / 2)) * (tReact)));
 		if ((rpsDiff) > peakRPSS * loopTime) {
 			flyWheelFeedForward = rpsDiff / 100;
 		}
