@@ -38,15 +38,15 @@ public class ShotCalculator {
 	 * @param isValid
 	 *            Whether the shot calculation is valid and safe to execute.
 	 * @param hoodAngle
-	 *            The angle of the hood in degrees from horizontal.
+	 *            The angle of the hood in degrees from vertical (e.g. 11 to 52).
 	 * @param flyWheelVelocity
 	 *            The target velocity of the flywheel in rotations per second (RPS).
 	 * @param flyWheelFeedForward
 	 *            The target feed forward the flywheel in rotations per second
 	 *            (RPS).
 	 * @param turretAngle
-	 *            The target anturretAngleOffsetForZerogle of the turret in degrees
-	 *            (Robot forward is 0 degrees).
+	 *            The target angle of the turret in degrees (Robot forward is 0
+	 *            degrees).
 	 * @param hoodSafe
 	 *            Is the hood safe to raise?
 	 * @param shootingAllowed
@@ -69,46 +69,30 @@ public class ShotCalculator {
 	private Pose3d targetPose = TargetPoses.hub;
 	private Zone zone = new Zone(0, 0, 0, 0, "Initialize", zoneType.nothing);
 
-	// private double chassisAngleRateLast = 0.0;
-
-	private double gyroAngleRateLast = 0.0;
-
 	private double angleRate = 0.0;
-	private double angleAccel = 0.0;
 
-	// NEW: 1. Calculate the dynamic pose FIRST using tFlightLast
-	private double velocityAdderX = 0.0;
-	private double velocityAdderY = 0.0;
-
-	private double angleBias = 0.8;
-
-	private double tFlight = 0.0;
-	private double tFlightLast = 0.0;
+	private double swingVelocityX = 0.0;
+	private double swingVelocityY = 0.0;
 
 	private double turretDiffLast = 0.0;
-
-	private Pose2d dynamicPose = new Pose2d();
 	private Pose2d angleRatePose = new Pose2d();
 
 	/*
 	 * Constants
 	 */
 	private static final double shotCeiling = 2.8; // m
-	private static final double rpsMin = 30;
-	private static final double rpsInterference = 65; // rps when the turret is gonna hit the polycarb
-	private static final double rpsMax = 84;
-	public static double defaultRpsBump = -6.0;
+	private static final double rpsMin = 33;
+	private static final double rpsInterference = 80; // rps when the turret is aiming at the polycarb at home
+	private static final double rpsMax = 80;
+	private static final double rpsBump = 4;
+	private static final double rpsMult = 1.2;
 
-	// private static double rpsBump = Preferences.getDouble("rpsBump",
-	// defaultRpsBump);
-	private static double rpsBump = -6;
-	private static final double rpsMult = 1.27;
-	private static final double peakRPSS = 5000;
-
-	public static final double hoodMinAngle = 11; // deg TODO: Verify
-	private static final double hoodMaxAngle = 52; // deg
-	private static final double hoodIdealAngle = 42;
-	private static final double hoodInterferenceAngle = 32;
+	// Angles from horizontal (Radians)
+	public static final double hoodMinAngle = Math.toRadians(79);
+	public static final double hoodRange = Math.toRadians(41);
+	private static final double hoodMaxAngle = hoodMinAngle - hoodRange; // Math.toRadians(38)
+	private static final double hoodIdealAngle = Math.toRadians(48);
+	private static final double hoodInterferenceAngle = Math.toRadians(55);
 
 	private static final double g = 9.81; // m/s^2
 	private static final double ballMass = 0.226796; // kg
@@ -119,102 +103,54 @@ public class ShotCalculator {
 	private static final double ballArea = Math.PI * Math.pow(ballDiameter / 2, 2); // m^2
 	private static final double ballCompression = 0.02; // m
 
-	// private static final double lookupTollerance = 1.2; // *100%
-
-	private static final double flyWheelDiam = 0.153; // m
+	private static final double flyWheelDiam = 0.15; // m
 	private static final double flyWheelCircum = flyWheelDiam * Math.PI; // m
 
 	private static final double backWheelDiam = 0.0508; // m
 	private static final double backWheelCircum = backWheelDiam * Math.PI; // m
 
-	// private static final double angleLookup = 0; // TODO: MAKE it a lookup
 	private static final double flyWheelRatio = (24.0 / 72.0); // relative to the motor
-	private static final double backWheelRatio = (flyWheelRatio * (36.0 / 16.0) * (27.0 / 16.0)); // relative to the
-																									// motor
+	private static final double backWheelRatio = (flyWheelRatio * (36.0 / 16.0) * (27.0 / 16.0));
+
+	private static final double maxGyroVelocity = 6;
+	private static final double maxGyroAcceleration = 15;
+	private static double angleRateLast = 0;
+	private static double tFlight = 0;
 
 	/*
 	 * Turret
 	 */
 
-	/**
-	 * @return The angle from the robots 0 degrees to a target pose.
-	 */
-	public Rotation2d getAngleToTarget(Pose3d startPose, Pose3d targetPose) {
-		// x and y translation to the center of the target
-		var translationToTarget = targetPose.getTranslation().minus(startPose.getTranslation());
-		// top-down angle to target
+	public Rotation2d getAngleToTarget(Pose3d turretPose, Pose3d targetPose) {
+		var translationToTarget = targetPose.getTranslation().minus(turretPose.getTranslation());
 		Rotation2d fieldAngleToTarget = new Rotation2d(translationToTarget.getX(), translationToTarget.getY());
-		// Rotation2d fieldAngleToTarget = new Rotation2d(1, 1);
-		// incorperate robot angle
 		Rotation2d turretAngle = fieldAngleToTarget.minus(RobotState.getInstance().getRobotPose().getRotation());
 		return turretAngle;
 	}
 
-	/**
-	 * @return Get the normal distance from the turret to the target pose.
-	 */
 	public double getTurretDistanceToTarget(Pose3d turretPose, Pose3d targetPose) {
-		// Pose3d robotpose = new Pose3d(RobotState.getInstance().getRobotPose());
-		// Pose3d turretpose = robotpose.transformBy(Offsets.turretOffset); // to turret
-		// and clockwise 90 degrees
-
-		// x and y translation to the center of the target
 		var translationToTarget = targetPose.getTranslation().minus(turretPose.getTranslation());
 		return translationToTarget.getNorm();
 	}
 
-	/**
-	 * @return A turret motor target angle closest to the current angle. 0 degrees
-	 *         is the robot's front. The angle will need to be offset in order to
-	 *         apply to the motor (-90)
-	 */
-	// public double getClosestTurretAngleTargetToPose(Pose3d turretPose, Pose3d
-	// targetPose) {
-	// double lastTarget = latest.turretAngle;
-	// double targetAngle = getAngleToTarget(turretPose, targetPose).getDegrees();
-	// double finalTarget = 0;
-
-	// // Error within one rotation
-	// double optomizedError = MathUtil.inputModulus(targetAngle - lastTarget,
-	// -180.0, 180.0);
-	// // Closest target (NOT CONSTRAINED SO IT COULD DAMAGE THE MECHANISM)
-	// double unconstrainedTarget = lastTarget + optomizedError;
-	// // Check for illegal values
-	// if (unconstrainedTarget < TurretConstants.reverseSoftLimit -
-	// TurretConstants.turretAngleOffsetForZero) {
-	// unconstrainedTarget += 360;
-	// } else if (unconstrainedTarget > TurretConstants.forwardSoftLimit -
-	// TurretConstants.turretAngleOffsetForZero) {
-	// unconstrainedTarget -= 360;
-	// }
-
-	// // Final filter for safety
-	// finalTarget = MathUtil.clamp(unconstrainedTarget,
-	// TurretConstants.reverseSoftLimit - TurretConstants.turretAngleOffsetForZero,
-	// TurretConstants.forwardSoftLimit - TurretConstants.turretAngleOffsetForZero);
-	// return finalTarget;
-	// }
-
-	public double getWrappedAngleForTurretMotorThingThatIAmTyring(double inputAngle) {
+	public double getWrappedTurretAngle(double inputAngle) {
 		double lastTarget = latest.turretAngle;
 		double targetAngle = inputAngle;
 		double finalTarget;
 
-		// Error within one rotation
 		double optomizedError = MathUtil.inputModulus(targetAngle - lastTarget, -180.0, 180.0);
-		// Closest target (NOT CONSTRAINED SO IT COULD DAMAGE THE MECHANISM)
 		double unconstrainedTarget = lastTarget + optomizedError;
-		// Check for illegal values
-		if (unconstrainedTarget < TurretConstants.reverseSoftLimit - TurretConstants.turretAngleOffsetForZero) { // -30
+
+		if (unconstrainedTarget < TurretConstants.reverseSoftLimit - TurretConstants.turretAngleOffsetForZero) {
 			switchCommanded = true;
 			unconstrainedTarget += 360;
-		} else if (unconstrainedTarget > TurretConstants.forwardSoftLimit - TurretConstants.turretAngleOffsetForZero) { // 510
+		} else if (unconstrainedTarget > TurretConstants.forwardSoftLimit - TurretConstants.turretAngleOffsetForZero) {
 			unconstrainedTarget -= 360;
 			switchCommanded = true;
 		} else {
 			switchCommanded = false;
 		}
-		// Final filter for safety
+
 		finalTarget = MathUtil.clamp(unconstrainedTarget,
 				TurretConstants.reverseSoftLimit - TurretConstants.turretAngleOffsetForZero,
 				TurretConstants.forwardSoftLimit - TurretConstants.turretAngleOffsetForZero);
@@ -233,56 +169,38 @@ public class ShotCalculator {
 		return tFlight;
 	}
 
-	public void refreshRpsBump() {
-		// rpsBump = Preferences.getDouble("rpsBump", rpsBump);
-	}
+	public void update() {
 
-	// public double getRps
-
-	public void update(double loopTime) {
-
-		double tReact = 0.03 + loopTime;
-		// double tReact = 0.035;
+		double tLoop = 0.005;
+		double tOutput = 0.020;
+		double tReact = 0.040;
 
 		RobotState robotState = RobotState.getInstance();
-		ChassisSpeeds chassisSpeeds = robotState.getChassisSpeeds();
 		ChassisSpeeds fieldSpeeds = robotState.getFieldSpeeds();
 		double gyroAngleRateRaw = robotState.getGyroAngleRate();
+		double turretAngleFeedback = RobotState.getInstance().getTurretAngle();
 
-		// The turret's pose
+		// Decoupled feedback logic
+		double safeHoodAngleFeedback = Math
+				.min((hoodMinAngle - Math.toRadians(RobotState.getInstance().getHoodAngle())), hoodMinAngle);
+
 		Pose2d robotPose = robotState.getRobotPose();
-
 		Pose2d turretPose = robotPose.transformBy(
 				new Transform2d(Offsets.turretOffset.getX(), Offsets.turretOffset.getY(), new Rotation2d()));
-		// Pose3d turretPose3d = new
-		// Pose3d(robotPose).transformBy(Offsets.turretOffset);
-		// the current zone (may return null)
+
 		Zone newZone = zoneUtil.getZoneFromPose(AllianceFlipUtil.apply(turretPose));
 
-		double chassisRadAccel = 0; // (chassisSpeeds.omegaRadiansPerSecond - chassisAngleRateLast) * (1000 /
-									// loopTime);
-		// chassisAngleRateLast = chassisSpeeds.omegaRadiansPerSecond; // store newest
-		// value for the rate thing.
+		angleRate = DataProcessing.sanitize(angleRateLast, -maxGyroVelocity, maxGyroVelocity, gyroAngleRateRaw);
+		angleRateLast = angleRate;
 
-		// Standard derivative: (change in rate) / (change in time)
-		double gyroRadAccel = (gyroAngleRateRaw - gyroAngleRateLast) / loopTime;
+		double fieldAngle = Math.toRadians(250 - 90) + robotState.getRotation().getRadians() + (angleRate * tLoop);
+		double turretAngular = (Offsets.turretOffset.getTranslation().getNorm() * angleRate);
+		Translation2d SwingVelocity = new Translation2d(turretAngular, new Rotation2d(fieldAngle));
 
-		gyroAngleRateLast = gyroAngleRateRaw;
+        Translation2d swingVelocityField = new Translation2d(turretAngular, new Rotation2d(fieldAngle));
+        Translation2d chassisVelocityField = new Translation2d(fieldSpeeds.vxMetersPerSecond, fieldSpeeds.vyMetersPerSecond);
+        Translation2d totalRobotVelocityField = chassisVelocityField.plus(swingVelocityField);
 
-		angleRate = DataProcessing.rawToSmooth(3, angleRate,
-				(gyroAngleRateRaw * angleBias) + (chassisSpeeds.omegaRadiansPerSecond * (1 - angleBias))) * 1;
-
-		angleAccel = DataProcessing.rawToSmooth(6, angleAccel,
-				(gyroRadAccel * angleBias) + (gyroRadAccel * (1 - angleBias)));
-
-		double shooterFieldAngle = Math.toRadians(250 - 90) + robotState.getRotation().getRadians()
-				+ ((angleRate + (angleAccel / 2)) * tReact);
-
-		double turretAngular = (Offsets.turretOffset.getTranslation().getNorm() * (angleRate + (angleAccel * tReact)));
-
-		Translation2d velocityAdder = new Translation2d(turretAngular, new Rotation2d(shooterFieldAngle));
-
-		// If the new zone is valid, overrite the old one.
 		if (newZone != null) {
 			zone = newZone;
 		}
@@ -310,11 +228,11 @@ public class ShotCalculator {
 				targetPose = TargetPoses.hub;
 				break;
 			case hoodUnsafe :
-				// hoodUnsafe = true;
-				shootingAllowed = true;
+				hoodUnsafe = true;
+				shootingAllowed = false;
 				break;
 			case blockShooting :
-				shootingAllowed = true; // TODO: liev dorfman fix this please.
+				shootingAllowed = true;
 				break;
 			case nothing :
 				break;
@@ -322,7 +240,6 @@ public class ShotCalculator {
 				break;
 		}
 
-		// flip target pose
 		targetPose = AllianceFlipUtil.apply(targetPose);
 
 		if (hoodEnableRequest == true && !(zone.type() == zoneType.hoodUnsafe)) {
@@ -331,184 +248,121 @@ public class ShotCalculator {
 		} else {
 			hoodEnableRequest = false;
 		}
-		// SmartDashboard.putNumber("VelocityAdderX", velocityAdder.getX());
-		// SmartDashboard.putNumber("VelocityAdderY", velocityAdder.getY());
 
-		double velocityAdderX = velocityAdder.getX();
-		double velocityAdderY = velocityAdder.getY();
-		// NEW: 1. Calculate the dynamic pose FIRST using tFlightLast
-		double allVelocityX = (fieldSpeeds.vxMetersPerSecond + velocityAdderX) * (tFlightLast + tReact);
-		double allVelocityY = (fieldSpeeds.vyMetersPerSecond + velocityAdderY) * (tFlightLast + tReact);
+		double turretStaticToTarget = getTurretDistanceToTarget(new Pose3d(turretPose), targetPose);
 
-		Pose2d robotPoseDynamicXY = new Pose2d((robotPose.getX() + allVelocityX), (robotPose.getY() + allVelocityY),
-				robotState.getRobotPose().getRotation());
-		dynamicPose = robotPoseDynamicXY;
-
-		Pose2d turretPoseDynamicXY = robotPoseDynamicXY.transformBy(Offsets.turretOffset2d);
-
-		Pose3d turretPoseDynamic3d = new Pose3d(turretPoseDynamicXY); // We need this for the 3D distance check
-
-		Pose3d turretPoseStatic3d = new Pose3d(turretPose);
-
-		double flywheelRpsFeedback = RobotState.getInstance().getFlywheelRps();
-		double turretAngleFeedback = RobotState.getInstance().getTurretAngle();
-
-		// double hoodAngleFeedback = RobotState.getInstance().getHoodAngle();
-
-		// double turretAngle = getClosestTurretAngleTargetToPose(turretPose3d,
-		// targetPose);
-		double turretDynamicToTarget = getTurretDistanceToTarget(turretPoseDynamic3d, targetPose);
-		double turretStaticToTarget = getTurretDistanceToTarget(turretPoseStatic3d, targetPose);
-
-		double vertExit = (Math.sin(Math.toRadians(last.hoodAngle))
-				* ((ballDiameter + flyWheelDiam - ballCompression) / 2));
-		double latExit = (Math.cos(Math.toRadians(last.hoodAngle))
-				* ((ballDiameter + flyWheelDiam - ballCompression) / 2));
+		double vertExit = (Math.sin(safeHoodAngleFeedback) * ((ballDiameter + flyWheelDiam - ballCompression) / 2));
+		double latExit = (Math.cos(safeHoodAngleFeedback) * ((ballDiameter + flyWheelDiam - ballCompression) / 2));
 
 		double shotHeight = (TunerConstants.kWheelRadius.in(Meter) + 0.428625 + vertExit);
-
 		double trajectoryCeiling = (shotCeiling - shotHeight);
-
 		double vertFinal = (targetPose.getZ() - shotHeight);
+		double latStatic = Math.max((turretStaticToTarget + latExit - 0.10795), 0.5);
 
-		double latFinal = (turretDynamicToTarget + latExit - 0.10795);
 
-		double latStatic = (turretStaticToTarget + latExit - 0.10795);
+		        // --- Target-Relative Frame Transformation ---
+        Rotation2d fieldAngleToTarget = new Rotation2d(
+                targetPose.getX() - turretPose.getX(),
+                targetPose.getY() - turretPose.getY()
+        );
 
-		double hoodAngle = Math
-				.atan(((2 * trajectoryCeiling) + (2 * Math.sqrt((trajectoryCeiling * (trajectoryCeiling - vertFinal)))))
-						/ Math.max(0.001, latFinal));
-		double angleSub = Math.toDegrees(hoodAngle) - hoodIdealAngle; // this is in degrees because its just
-																		// comparing.
+        // 1. Rotate the robot's absolute velocity into the target's frame of reference.
+        // X becomes velocity TOWARDS the target. Y becomes velocity PERPENDICULAR to the target.
+        Translation2d robotVelocityTargetFrame = totalRobotVelocityField.rotateBy(fieldAngleToTarget.unaryMinus());
+        
+        double robotVelocityTowards = robotVelocityTargetFrame.getX();
+        double robotVelocityPerpendicular = robotVelocityTargetFrame.getY();
 
-		if ((rpsMax - last.flyWheelVelocity) < Math.abs(angleSub)) {
+		// 1. Vertical velocity to reach the exact ceiling
+		double verticalVelocity = Math.sqrt(2 * g * trajectoryCeiling);
+
+		// 2. Time to reach the ceiling (apex)
+		double timeToApex = verticalVelocity / g;
+
+		// 3. Time to fall from the ceiling down to the target height
+		double timeToTarget = Math.sqrt((2 * (trajectoryCeiling - vertFinal)) / g);
+
+		// 4. Total flight time
+		double totalFlightTime = timeToApex + timeToTarget;
+
+		Translation2d horizontalVelocityCombo = new Translation2d((latStatic / totalFlightTime)-robotVelocityTowards, 0-robotVelocityPerpendicular);
+        double horizontalVelocity = horizontalVelocityCombo.getNorm();
+
+		double hoodAngle = Math.atan2(verticalVelocity, horizontalVelocity);
+		double velocityInitial = Math.hypot(horizontalVelocity, verticalVelocity);
+
+        Translation2d velocityVectorField = horizontalVelocityCombo.rotateBy(fieldAngleToTarget);
+
+		double angleSub = hoodAngle - hoodIdealAngle;
+
+		if (((rpsMax - last.flyWheelVelocity) / 50) < Math.abs(angleSub)) {
 			if (angleSub < 0) {
-				hoodAngle = Math.toRadians(hoodIdealAngle - (rpsMax - last.flyWheelVelocity));
+				hoodAngle = hoodIdealAngle - ((rpsMax - last.flyWheelVelocity) / 50);
 			} else {
-				hoodAngle = Math.toRadians(hoodIdealAngle + (rpsMax - last.flyWheelVelocity));
+				hoodAngle = hoodIdealAngle + ((rpsMax - last.flyWheelVelocity) / 50);
 			}
 		}
-		// Is the turret going to be blocked?
 
 		boolean turretInterference = (MathUtil.inputModulus(last.turretAngle, -180.0, 180.0) >= -75.0
-				&& MathUtil.inputModulus(last.turretAngle, -180.0, 180.0) <= 155.0);
+				&& MathUtil.inputModulus(last.turretAngle, -180.0, 180.0) <= 75.0);
 
-		// boolean turretInterference = (MathUtil.inputModulus(last.turretAngle, 0, 360)
-		// > -75
-		// && MathUtil.inputModulus(last.turretAngle, 0, 360) < 150);
-
-		if (turretInterference) { // Override angle
-			// System.out.println("Override");
-			if (hoodAngle < Math.toRadians(90 - hoodInterferenceAngle)) {
-				// System.out.println("Overrid2");
-
-				hoodAngle = Math.toRadians(90 - hoodInterferenceAngle);
+		if (turretInterference) {
+			if (hoodAngle < hoodInterferenceAngle) {
+				hoodAngle = hoodInterferenceAngle;
 			}
 		}
 
-		// SmartDashboard.putNumber("hoodAngle", hoodAngle);
-		hoodAngle = DataProcessing.rawToSmooth(7, Math.toRadians(90 - last.hoodAngle), hoodAngle);
-		hoodAngle = DataProcessing.sanitize(Math.toRadians(90 - last.hoodAngle), Math.toRadians(90 - hoodMaxAngle),
-				Math.toRadians(90 - hoodMinAngle), hoodAngle);
-		// Insert lookup up table compariosn with the 1.2 (20%) range thing
-		double velocityInitial = (latFinal / Math.cos(hoodAngle))
-				* Math.sqrt(g / (2 * ((latFinal * Math.tan(hoodAngle)) - vertFinal)));
+		// FIXED: Properly convert last.hoodAngle (vertical degrees) back to horizontal
+		// radians before smoothing/sanitizing
+		double lastHoodAngleRad = hoodMinAngle - Math.toRadians(last.hoodAngle);
+		hoodAngle = DataProcessing.rawToSmooth(4, lastHoodAngleRad, hoodAngle);
+		hoodAngle = DataProcessing.sanitize(lastHoodAngleRad, hoodMaxAngle, hoodMinAngle, hoodAngle);
 
-		// SmartDashboard.putNumber("velinit", velocityInitial);
-
-		// NEW: 3. Add the chassis momentum to the initial velocity requirement
-
-		// double velocityCombo = velocityInitial + Math.abs(Math.hypot(allVelocityX,
-		// allVelocityY));
 
 		double airEst = (airDensity * ballArea * dragCoeff * velocityInitial * 0.5);
-
 		double velocityTarget = velocityInitial
-				* (1 + ((airEst * latFinal) / (3 * ballMass * velocityInitial * Math.cos(hoodAngle))));
+				* (1 + ((airEst * latStatic / (3 * ballMass * velocityInitial * Math.cos(safeHoodAngleFeedback)))));
 
 		if (velocityInitial > velocityTarget) {
 			velocityTarget = velocityInitial;
 		}
+
+
 		double flyWheelVelocity = ((velocityTarget
 				/ (((flyWheelCircum * flyWheelRatio) + (backWheelCircum * backWheelRatio)) / 2)) * rpsMult) + rpsBump;
 
-		// Is the turret going to be blocked?
 		if (turretInterference) {
-			if (!Constants.isComp) { // Not on comp field
+			if (!Constants.isComp) {
 				flyWheelVelocity = Math.min(flyWheelVelocity, rpsInterference);
 			}
 		}
 		flyWheelVelocity = DataProcessing.sanitize(last.flyWheelVelocity, rpsMin, rpsMax, flyWheelVelocity);
 
-		double rpsDiff = flyWheelVelocity - flywheelRpsFeedback;
-		double flyWheelFeedForward = 0;
+		Rotation2d dynamicRobotAngle = velocityVectorField.getAngle().minus(robotState.getRobotPose().getRotation());
+		double turretAngle = getWrappedTurretAngle(dynamicRobotAngle.getDegrees())
+				- Math.toDegrees((angleRate * tReact));
 
-		// Translation2d translationToTarget =
-		// targetPose.getTranslation().toTranslation2d()
-		// .minus(robotPose.getTranslation());
-		// Rotation2d directionToTarget = translationToTarget.getAngle();
-
-		double velocityInitStatic = Math.min((latStatic / Math.cos(hoodAngle))
-				* Math.sqrt(g / (2 * ((latStatic * Math.tan(hoodAngle)) - vertFinal))), velocityTarget);
-
-		double LatVelocity = velocityInitStatic
-				* (1 + ((airEst * latStatic) / (3 * ballMass * velocityInitStatic * Math.cos(hoodAngle))))
-				* Math.cos(hoodAngle);
-
-		// --- NEW: Factor in chassis radial velocity towards the target ---
-		double dx = targetPose.getX() - turretPoseStatic3d.getX();
-		double dy = targetPose.getY() - turretPoseStatic3d.getY();
-		double distance = Math.hypot(dx, dy);
-
-		double dirX = dx / distance;
-		double dirY = dy / distance;
-
-		// Dot product to find how fast the chassis is moving directly towards the
-		// target
-		double vRadial = (fieldSpeeds.vxMetersPerSecond * dirX) + (fieldSpeeds.vyMetersPerSecond * dirY);
-
-		// Add chassis momentum to the ball's horizontal velocity (prevent
-		// divide-by-zero or negative flight times)
-		double actualLatVelocity = Math.max(0.1, LatVelocity + vRadial);
-
-		// 4. Calculate tFlight using the TRUE field-relative velocity
-		tFlight = (latStatic / actualLatVelocity)
-				+ ((airEst * Math.pow(latStatic, 2)) / (2 * ballMass * Math.pow(actualLatVelocity, 2)));
-		// ---------------------------------------
-
-		tFlightLast = tFlight;
-
-		double turretAngle = getWrappedAngleForTurretMotorThingThatIAmTyring(
-				getAngleToTarget(new Pose3d(turretPoseDynamicXY), targetPose).getDegrees()
-						- Math.toDegrees((angleRate + (angleAccel / 2)) * (tReact)));
-		if ((rpsDiff) > peakRPSS * loopTime) {
-			flyWheelFeedForward = rpsDiff / 100;
-		}
-
+		// FIXED: In horizontal radians, hoodMinAngle (79 deg) is the steep/retracted
+		// safe position
 		if (hoodUnsafe) {
-			hoodAngle = Math.toRadians(90 - hoodMinAngle);
+			hoodAngle = hoodMinAngle;
 			flyWheelVelocity = rpsMin;
 		}
 
 		boolean isValid = true;
 
-		latest = new ShotParameters(isValid, 90 - Math.toDegrees(hoodAngle), // Degrees FROM HORIZONTAL
-				flyWheelVelocity, // Rps
-				flyWheelFeedForward, turretAngle, // Degrees (Robot forward is 0 degrees)
-				!hoodUnsafe, // True if the hood is safe
-				shootingAllowed); // True if the robot is allowed to shoot in that area
+		latest = new ShotParameters(isValid, Math.toDegrees(hoodMinAngle) - Math.toDegrees(hoodAngle),
+				// to 52)
+				flyWheelVelocity, 0.0, turretAngle, !hoodUnsafe, shootingAllowed);
 
 		last = latest;
 
 		double turretDiff = DataProcessing.rawToSmooth(6, turretDiffLast,
 				Math.abs((turretAngle + 90) - turretAngleFeedback));
 		turretDiffLast = turretDiff;
+		transitionInProgress = ((turretDiff > 50) || switchCommanded);
 
-		transitionInProgress = ((turretDiff > 60) || switchCommanded);
-
-		// angleRatePose = robotPose.rotateBy(new Rotation2d(angleRate));
-		angleRatePose = robotPose.transformBy(new Transform2d(0.0, 0.0,
-				new Rotation2d(Math.toRadians(1 * Math.toDegrees((angleRate + (angleAccel / 2)) * (tReact))))));
+		angleRatePose = robotPose.transformBy(new Transform2d(0.0, 0.0, new Rotation2d(angleRate * tOutput)));
 
 	}
 
@@ -519,19 +373,11 @@ public class ShotCalculator {
 	public void publishShotParameters() {
 		var params = getLatest();
 		Logger.recordOutput("ShotCalculator/ShotParameters", params);
-		Logger.recordOutput("ShotCalculator/DynamicPose", dynamicPose);
-		Logger.recordOutput("ShotCalculator/tFlight", tFlight);
 		Logger.recordOutput("ShotCalculator/TargetPose", targetPose);
-		// Logger.recordOutput("switch orsometihn", switchCommanded);
-		// Logger.recordOutput("tranny orsometihn", transitionInProgress);
-		Logger.recordOutput("VelocityAdderX", velocityAdderX);
-		Logger.recordOutput("VelocityAdderY", velocityAdderY);
-		// SmartDashboard.putData("");
-
+		Logger.recordOutput("swingVelocityX", swingVelocityX);
+		Logger.recordOutput("swingVelocityY", swingVelocityY);
+		// Logger.recordOutput("anglerratepose", hoodAngle);
+		// Logger.recordOutput("anglerratepose", safehood);
 		Logger.recordOutput("anglerratepose", angleRatePose);
-
-		// Logger.recordOutput("ShotCalculator/AngleToTarget",
-		// getTurretAngleToTarget().getDegrees());
-
 	}
 }

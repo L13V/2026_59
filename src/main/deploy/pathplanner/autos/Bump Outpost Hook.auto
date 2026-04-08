@@ -7,13 +7,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Outpost Preload Sweep"
+            "pathName": "Bump Outpost Hook"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Outpost Sweep Return"
+            "pathName": "Bump Outpost Hook Return"
           }
         },
         {

@@ -35,7 +35,7 @@ public interface IntakeIO {
 	}
 
 	public static enum IntakeIORollerOutputMode {
-		OFF, VOLTAGE, AUTO
+		OFF, VOLTAGE
 	}
 
 	public static enum IntakeIOPivotOutputMode {

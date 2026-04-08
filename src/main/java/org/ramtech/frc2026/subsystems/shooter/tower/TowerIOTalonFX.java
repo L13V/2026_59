@@ -5,7 +5,6 @@ import static org.ramtech.frc2026.util.PhoenixUtil.tryUntilOkWithStatus;
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.TorqueCurrentFOC;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -33,18 +32,17 @@ public class TowerIOTalonFX implements TowerIO {
 	// Control Methods
 	private final VoltageOut voltageOut = new VoltageOut(0); // Control Method
 	private final VelocityVoltage velocityVoltage = new VelocityVoltage(0);
-	private final TorqueCurrentFOC torqueCurrentFOC = new TorqueCurrentFOC(0.0);
 
 	public TowerIOTalonFX() {
 		// Complete the config
 		towerConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 		towerConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
-		towerConfig.CurrentLimits.StatorCurrentLimit = 90;
+		towerConfig.CurrentLimits.StatorCurrentLimit = 120;
 		towerConfig.CurrentLimits.StatorCurrentLimitEnable = true;
-		towerConfig.CurrentLimits.SupplyCurrentLimit = 90;
+		towerConfig.CurrentLimits.SupplyCurrentLimit = 120;
 		towerConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-		towerConfig.CurrentLimits.SupplyCurrentLowerLimit = 90;
-		towerConfig.CurrentLimits.SupplyCurrentLowerTime = 2;
+		towerConfig.CurrentLimits.SupplyCurrentLowerLimit = 60;
+		towerConfig.CurrentLimits.SupplyCurrentLowerTime = 1;
 
 		towerConfigured = tryUntilOkWithStatus(5, () -> towerMotor.getConfigurator().apply(towerConfig));
 
@@ -83,19 +81,6 @@ public class TowerIOTalonFX implements TowerIO {
 			case VELOCITY :
 				towerMotor.setControl(velocityVoltage.withVelocity(outputs.velocitySetpoint).withEnableFOC(true));
 				break;
-			case AUTO :
-				// double setpoint = DataProcessing.rawToSmooth(10,
-				// towerMotor.getTorqueCurrent().getValueAsDouble(),
-				// DataProcessing.rampControl(7, 12,
-				// RobotState.getInstance().getBatteryVoltage(), 30, 90));
-				double setpoint = 100;
-				if (outputs.directionSetpoint == TowerIOAutoDirections.REVERSE) {
-					setpoint *= -1;
-				}
-
-				towerMotor.setControl(torqueCurrentFOC.withOutput(setpoint));
-				break;
-
 		}
 
 	}

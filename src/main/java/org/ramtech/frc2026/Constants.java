@@ -183,4 +183,8 @@ public final class Constants {
 		public static final int rightClimbMotorId = 61;
 	}
 
+	public static final class LedConstants {
+		public static final int CANdleID = 60;
+	}
+
 }

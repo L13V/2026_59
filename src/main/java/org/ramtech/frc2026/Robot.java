@@ -9,7 +9,6 @@ package org.ramtech.frc2026;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Notifier;
-import edu.wpi.first.wpilibj.Preferences;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -47,7 +46,7 @@ public class Robot extends LoggedRobot {
 		double dt = now - lastCalcTs;
 		lastCalcTs = now;
 		lastCalcDt = dt;
-		ShotCalculator.getInstance().update(dt);
+		ShotCalculator.getInstance().update();
 	});
 
 	private final Notifier shooterLoop = new Notifier(() -> {
@@ -60,7 +59,7 @@ public class Robot extends LoggedRobot {
 
 	@Override
 	public void robotInit() {
-		Preferences.initDouble("rpsBump", ShotCalculator.defaultRpsBump);
+		// Preferences.initDouble("rpsBump", ShotCalculator.defaultRpsBump);
 
 		lastCalcTs = Timer.getFPGATimestamp();
 		CalculationLoop.startPeriodic(0.005);

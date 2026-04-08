@@ -8,7 +8,6 @@ import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.wpilibj.Alert;
 import org.littletonrobotics.junction.Logger;
 import org.ramtech.frc2026.Robot;
-import org.ramtech.frc2026.subsystems.shooter.tower.TowerIO.TowerIOAutoDirections;
 import org.ramtech.frc2026.subsystems.shooter.tower.TowerIO.TowerIOOutputMode;
 import org.ramtech.frc2026.subsystems.shooter.tower.TowerIO.TowerIOOutputs;
 import org.ramtech.frc2026.util.FullSubsystem;
@@ -52,11 +51,6 @@ public class Tower extends FullSubsystem {
 	public void setVelocity(double velocity) {
 		outputs.mode = TowerIOOutputMode.VELOCITY;
 		outputs.velocitySetpoint = velocity;
-	}
-
-	public void setAutoMode(TowerIOAutoDirections direction) {
-		outputs.mode = TowerIOOutputMode.AUTO;
-		outputs.directionSetpoint = direction;
 	}
 
 	public void stop() {

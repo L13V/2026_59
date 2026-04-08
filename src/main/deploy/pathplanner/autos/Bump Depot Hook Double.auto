@@ -7,31 +7,25 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Depot Hook"
+            "pathName": "Bump Depot Hook"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Depot Hook Return"
+            "pathName": "Bump Depot Hook Return"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Bump Second Sweep"
           }
         },
         {
           "type": "named",
           "data": {
             "name": "shoot"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "intake"
-          }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 10.0
           }
         }
       ]

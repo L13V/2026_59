@@ -7,13 +7,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Depot Preload Sweep"
+            "pathName": "Bump Depot Preload Sweep"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Depot Sweep Return"
+            "pathName": "Bump Depot Sweep Return"
           }
         },
         {

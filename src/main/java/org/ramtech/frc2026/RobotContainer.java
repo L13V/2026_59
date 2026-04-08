@@ -12,7 +12,6 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
-import edu.wpi.first.wpilibj.Preferences;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -35,12 +34,10 @@ import org.ramtech.frc2026.subsystems.indexer.Indexer;
 import org.ramtech.frc2026.subsystems.indexer.IndexerIO;
 import org.ramtech.frc2026.subsystems.indexer.IndexerIOSim;
 import org.ramtech.frc2026.subsystems.indexer.IndexerIOTalonFX;
-import org.ramtech.frc2026.subsystems.indexer.IndexerIO.IndexerIOAutoDirections;
 import org.ramtech.frc2026.subsystems.intake.Intake;
 import org.ramtech.frc2026.subsystems.intake.IntakeIO;
 import org.ramtech.frc2026.subsystems.intake.IntakeIOSim;
 import org.ramtech.frc2026.subsystems.intake.IntakeIOTalonFX;
-import org.ramtech.frc2026.subsystems.intake.IntakeIO.IntakeIOAutoDirections;
 import org.ramtech.frc2026.subsystems.shooter.ShotCalculator;
 import org.ramtech.frc2026.subsystems.shooter.flywheel.Flywheel;
 import org.ramtech.frc2026.subsystems.shooter.flywheel.FlywheelIO;
@@ -54,7 +51,6 @@ import org.ramtech.frc2026.subsystems.shooter.tower.Tower;
 import org.ramtech.frc2026.subsystems.shooter.tower.TowerIO;
 import org.ramtech.frc2026.subsystems.shooter.tower.TowerIOSim;
 import org.ramtech.frc2026.subsystems.shooter.tower.TowerIOTalonFX;
-import org.ramtech.frc2026.subsystems.shooter.tower.TowerIO.TowerIOAutoDirections;
 import org.ramtech.frc2026.subsystems.shooter.turret.Turret;
 import org.ramtech.frc2026.subsystems.shooter.turret.TurretIO;
 import org.ramtech.frc2026.subsystems.shooter.turret.TurretIOReal;
@@ -234,10 +230,11 @@ public class RobotContainer {
 		 * Driving
 		 */
 		// Drive
-		drive.setDefaultCommand(
-				DriveCommands.joystickDrive(drive, () -> -drivercontroller.getLeftY() * slowModeMultiplier,
-						() -> -drivercontroller.getLeftX() * slowModeMultiplier, () -> -drivercontroller.getRightX(),
-						() -> drive.getSlewFromState(RobotState.getInstance().getGlobalState())));
+		drive.setDefaultCommand(DriveCommands.joystickDrive(drive,
+				() -> drive.clampToMaxJoystick(-drivercontroller.getLeftY() * slowModeMultiplier),
+				() -> drive.clampToMaxJoystick(-drivercontroller.getLeftX() * slowModeMultiplier),
+				() -> drive.clampToMaxJoystick(-drivercontroller.getRightX()),
+				() -> drive.getSlewFromState(RobotState.getInstance().getGlobalState())));
 		// Reset gyro
 		drivercontroller.start().onTrue(Commands
 				.runOnce(() -> drive.setPose(new Pose2d(drive.getPose().getTranslation(), Rotation2d.kZero)), drive)
@@ -285,22 +282,25 @@ public class RobotContainer {
 		// flywheel.enableCalculation()));
 
 		// Raise Rps
-		operatorcontroller.povUp().onTrue(Commands.sequence(Commands.runOnce(() -> {
-			double currentBump = Preferences.getDouble("rpsBump", 0.0);
-			double newBump = currentBump + 0.5;
+		// operatorcontroller.povUp().onTrue(Commands.sequence(Commands.runOnce(() -> {
+		// double currentBump = Preferences.getDouble("rpsBump", 0.0);
+		// double newBump = currentBump + 0.5;
 
-			Preferences.setDouble("rpsBump", newBump);
+		// Preferences.setDouble("rpsBump", newBump);
 
-			System.out.println("Shooter RPM bumped to: " + newBump);
+		// System.out.println("Shooter RPM bumped to: " + newBump);
 
-		}), new InstantCommand(() -> ShotCalculator.getInstance().refreshRpsBump())));
+		// }), new InstantCommand(() ->
+		// ShotCalculator.getInstance().refreshRpsBump())));
 
 		// Lower Rps
-		operatorcontroller.povDown().onTrue(Commands.sequence(Commands.runOnce(() -> {
-			double currentBump = Preferences.getDouble("rpsBump", 0.0);
-			Preferences.setDouble("rpsBump", currentBump - 0.5);
-			System.out.println("Shooter RPM dropped to: " + (currentBump - 0.5));
-		}), new InstantCommand(() -> ShotCalculator.getInstance().refreshRpsBump())));
+		// operatorcontroller.povDown().onTrue(Commands.sequence(Commands.runOnce(() ->
+		// {
+		// double currentBump = Preferences.getDouble("rpsBump", 0.0);
+		// Preferences.setDouble("rpsBump", currentBump - 0.5);
+		// System.out.println("Shooter RPM dropped to: " + (currentBump - 0.5));
+		// }), new InstantCommand(() ->
+		// ShotCalculator.getInstance().refreshRpsBump())));
 
 		DriverStation.silenceJoystickConnectionWarning(true);
 	}
@@ -356,9 +356,9 @@ public class RobotContainer {
 				// tower.setVoltage(10);
 				// indexer.setVoltage(10);
 				// flywheel.enableCalculation();
-				intake.setRollerVoltage(10);
-				tower.setAutoMode(TowerIOAutoDirections.FORWARD);
-				indexer.setAutoMode(IndexerIOAutoDirections.FORWARD);
+				intake.setRollerVoltage(13);
+				tower.setVoltage(13);
+				indexer.setVoltage(13);
 				// intake.setAutoMode(IntakeIOAutoDirections.FORWARD);
 			} else {
 				tower.stop();
@@ -377,15 +377,15 @@ public class RobotContainer {
 				RobotState.getInstance().setGlobalState(GlobalStates.IDLE);
 
 			}
-		}, flywheel, indexer, intake, tower));
+		}, flywheel, indexer, tower));
 	}
 
 	public Command deploy_intake() {
-		return (Commands.run(() -> intake.lowerPivot()));
+		return (Commands.runOnce(() -> intake.lowerPivot()));
 	}
 
 	public Command raise_intake() {
-		return Commands.run(() -> intake.setPivotPosition(0.26), intake);
+		return Commands.runOnce(() -> intake.setPivotPosition(0.185));
 	}
 
 	public Command intake() {
@@ -397,9 +397,8 @@ public class RobotContainer {
 						RobotState.getInstance().setGlobalState(GlobalStates.INTAKING);
 					}
 					intake.lowerPivot();
-					intake.setAutoMode(IntakeIOAutoDirections.FORWARD);
-					intake.setRollerVoltage(12);;
-					indexer.setAutoMode(IndexerIOAutoDirections.REVERSE);
+					intake.setRollerVoltage(13);
+					indexer.setVoltage(-13);
 					// intake.setRollerVoltage(10.0);
 					// indexer.setVoltage(-10);
 				}, () -> {
@@ -416,10 +415,8 @@ public class RobotContainer {
 				Commands.none(), // Do nothing if false
 				turret::isIntakeLocked).alongWith(Commands.startEnd(() -> {
 					intake.lowerPivot();
-					intake.setRollerVoltage(-10);;
-					indexer.setAutoMode(IndexerIOAutoDirections.REVERSE);
-					// intake.setRollerVoltage(10.0);
-					// indexer.setVoltage(-10);
+					intake.setRollerVoltage(-13);
+					indexer.setVoltage(-13);
 				}, () -> {
 					intake.stopRollers();
 					indexer.stop();
@@ -433,8 +430,6 @@ public class RobotContainer {
 					intake.lowerPivot();
 					indexer.stop();
 					intake.setRollerVoltage(13.0);
-					// indexer.setVoltage(0);
-
 				}, () -> {
 					intake.stopRollers();
 					indexer.stop();
@@ -443,9 +438,9 @@ public class RobotContainer {
 
 	public Command conserve() {
 		return Commands.runOnce(() -> {
-			indexer.setVoltage(0);
+			indexer.stop();;
 			intake.stopRollers();
-			tower.setVoltage(0);
+			tower.stop();
 			flywheel.stop();
 		}, indexer, intake, flywheel);
 	}

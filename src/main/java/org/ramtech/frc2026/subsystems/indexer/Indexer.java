@@ -4,7 +4,6 @@ import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.wpilibj.Alert;
 import org.littletonrobotics.junction.Logger;
 import org.ramtech.frc2026.Robot;
-import org.ramtech.frc2026.subsystems.indexer.IndexerIO.IndexerIOAutoDirections;
 import org.ramtech.frc2026.subsystems.indexer.IndexerIO.IndexerIOOutputMode;
 import org.ramtech.frc2026.subsystems.indexer.IndexerIO.IndexerIOOutputs;
 import org.ramtech.frc2026.util.FullSubsystem;
@@ -41,11 +40,6 @@ public class Indexer extends FullSubsystem {
 	public void setVoltage(double voltage) {
 		outputs.mode = IndexerIOOutputMode.VOLTAGE;
 		outputs.indexerVoltageSetpoint = voltage;
-	}
-
-	public void setAutoMode(IndexerIOAutoDirections direction) {
-		outputs.mode = IndexerIOOutputMode.AUTO;
-		outputs.directionSetpoint = direction;
 	}
 
 	public void stop() {

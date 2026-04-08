@@ -20,7 +20,7 @@ public interface IndexerIO {
 	}
 
 	public static enum IndexerIOOutputMode {
-		OFF, VOLTAGE, AUTO
+		OFF, VOLTAGE
 	}
 
 	public static enum IndexerIOAutoDirections {

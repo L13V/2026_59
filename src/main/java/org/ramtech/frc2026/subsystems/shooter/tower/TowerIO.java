@@ -18,7 +18,7 @@ public interface TowerIO {
 	}
 
 	public static enum TowerIOOutputMode {
-		OFF, VOLTAGE, VELOCITY, AUTO
+		OFF, VOLTAGE, VELOCITY
 	}
 
 	public static enum TowerIOAutoDirections {

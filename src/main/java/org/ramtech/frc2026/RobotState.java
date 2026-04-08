@@ -15,12 +15,12 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
+import org.ramtech.frc2026.subsystems.shooter.ShotCalculator;
 import org.ramtech.frc2026.util.AllianceFlipUtil;
-import org.ramtech.frc2026.util.Zones;
 
 public class RobotState {
 	private static RobotState instance;
-	private Zones zones = new Zones();
+	// private Zones zones = new Zones();
 
 	public static enum GlobalStates {
 		IDLE, INTAKING, SHOOTING
@@ -126,6 +126,10 @@ public class RobotState {
 
 	public double getTurretAngle() {
 		return turretAngleSupplier.get();
+	}
+
+	public boolean isTurretMisalinged() {
+		return (ShotCalculator.getInstance().transitionInProgress || ShotCalculator.getInstance().switchCommanded);
 	}
 
 	public double getHoodAngle() {

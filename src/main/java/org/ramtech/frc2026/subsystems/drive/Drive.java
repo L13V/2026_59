@@ -23,6 +23,7 @@ import com.pathplanner.lib.util.swerve.SwerveSetpointGenerator;
 import edu.wpi.first.hal.FRCNetComm.tInstances;
 import edu.wpi.first.hal.FRCNetComm.tResourceType;
 import edu.wpi.first.hal.HAL;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -145,16 +146,44 @@ public class Drive extends SubsystemBase {
 	public Double getSlewFromState(GlobalStates state) {
 		switch (state) {
 			case IDLE :
-				return 15.0;
+				return 10.0;
 			case INTAKING :
-				return 7.0;
+				return 10.0;
 			case SHOOTING :
 				return 5.0;
 			default :
-				return 15.0;
+				return 10.0;
 		}
 		// return 100000000000.0;
 
+	}
+
+	public Double getDriveMaxJoystick(GlobalStates state) {
+		switch (state) {
+			case IDLE :
+				return 1.0;
+			case INTAKING :
+				return 0.5;
+			case SHOOTING :
+				return 0.5;
+			default :
+				return 1.0;
+		}
+		// return 100000000000.0;
+
+	}
+
+	// Add this helper method to your subsystem or command configuration file
+	public double clampToMaxJoystick(double joystickInput) {
+		// 1. Get the current limit (e.g., 0.5)
+		double limit = getDriveMaxJoystick(RobotState.getInstance().getGlobalState());
+
+		// 2. Clamp the input between -limit and +limit
+		// Note: Make sure to import edu.wpi.first.math.MathUtil;
+		return MathUtil.clamp(joystickInput, -limit, limit);
+
+		// (If you aren't using WPILib, use standard Java instead):
+		// return Math.max(-limit, Math.min(joystickInput, limit));
 	}
 
 	@Override

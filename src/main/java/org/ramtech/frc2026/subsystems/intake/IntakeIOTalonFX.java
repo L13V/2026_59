@@ -60,20 +60,20 @@ public class IntakeIOTalonFX implements IntakeIO {
 		// Complete the config
 		motorAConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
 		motorAConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
-		motorAConfig.CurrentLimits.StatorCurrentLimit = 38;
+		motorAConfig.CurrentLimits.StatorCurrentLimit = 50;
 		motorAConfig.CurrentLimits.StatorCurrentLimitEnable = true;
-		motorAConfig.CurrentLimits.SupplyCurrentLimit = 38;
+		motorAConfig.CurrentLimits.SupplyCurrentLimit = 50;
 		motorAConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-		motorAConfig.CurrentLimits.SupplyCurrentLowerLimit = 38;
+		motorAConfig.CurrentLimits.SupplyCurrentLowerLimit = 50;
 		motorAConfig.CurrentLimits.SupplyCurrentLowerTime = 3;
 
 		motorBConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
 		motorBConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
-		motorBConfig.CurrentLimits.StatorCurrentLimit = 38;
+		motorBConfig.CurrentLimits.StatorCurrentLimit = 50;
 		motorBConfig.CurrentLimits.StatorCurrentLimitEnable = true;
-		motorBConfig.CurrentLimits.SupplyCurrentLimit = 38;
+		motorBConfig.CurrentLimits.SupplyCurrentLimit = 50;
 		motorBConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-		motorBConfig.CurrentLimits.SupplyCurrentLowerLimit = 388;
+		motorBConfig.CurrentLimits.SupplyCurrentLowerLimit = 508;
 		motorBConfig.CurrentLimits.SupplyCurrentLowerTime = 3;
 
 		pivotMotorConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
@@ -170,22 +170,6 @@ public class IntakeIOTalonFX implements IntakeIO {
 				motorA.setControl(voltageOut.withOutput(outputs.rollerVoltageSetpoint).withEnableFOC(true));
 				motorB.setControl(follower);
 				break;
-			case AUTO :
-				// double setpoint = DataProcessing.rawToSmooth(10,
-				// motorA.getTorqueCurrent().getValueAsDouble(),
-				// DataProcessing.rampControl(9, 12,
-				// RobotState.getInstance().getBatteryVoltage(), 5, 30));
-				// double setpoint = 30; //DataProcessing.rampControl(7, 13,
-				// RobotState.getInstance().getBatteryVoltage(), 20, 70);
-
-				// if (outputs.directionSetpoint == IntakeIOAutoDirections.REVERSE) {
-				// setpoint *= -1;
-				// }
-
-				// motorA.setControl(torqueCurrentFOC.withOutput(setpoint));
-				// motorA.setControl(voltageOut.withOutput(12).withEnableFOC(true));
-				// motorB.setControl(follower);
-
 			default :
 				break;
 		}
@@ -197,7 +181,7 @@ public class IntakeIOTalonFX implements IntakeIO {
 				pivotMotor.setControl(pivotPosition.withPosition(outputs.pivotPositionSetpoint).withEnableFOC(false));
 				break;
 			case LOWER :
-				pivotMotor.setControl(pivotPosition.withPosition(-0.03).withEnableFOC(false));
+				pivotMotor.setControl(pivotPosition.withPosition(0.01).withEnableFOC(false));
 				break;
 
 			default :

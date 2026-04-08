@@ -1,0 +1,110 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 4.2,
+        "y": 7.44
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 6.200000000000001,
+        "y": 7.44
+      },
+      "isLocked": false,
+      "linkedName": "Depot Trench Start"
+    },
+    {
+      "anchor": {
+        "x": 8.3,
+        "y": 6.64
+      },
+      "prevControl": {
+        "x": 7.416116523516816,
+        "y": 7.523883476483184
+      },
+      "nextControl": {
+        "x": 9.007106781186549,
+        "y": 5.932893218813453
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 8.3,
+        "y": 1.4
+      },
+      "prevControl": {
+        "x": 9.007106781186549,
+        "y": 2.1071067811865474
+      },
+      "nextControl": {
+        "x": 7.416116523516816,
+        "y": 0.5161165235168155
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 4.2,
+        "y": 0.6
+      },
+      "prevControl": {
+        "x": 6.2,
+        "y": 0.5999999999999998
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "Outpost Trench Start"
+    }
+  ],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.3,
+      "rotationDegrees": 180.0
+    },
+    {
+      "waypointRelativePos": 0.8,
+      "rotationDegrees": -135.0
+    },
+    {
+      "waypointRelativePos": 1.8,
+      "rotationDegrees": -135.0
+    },
+    {
+      "waypointRelativePos": 2.7,
+      "rotationDegrees": 180.0
+    }
+  ],
+  "constraintZones": [],
+  "pointTowardsZones": [],
+  "eventMarkers": [
+    {
+      "name": "deploy_intake",
+      "waypointRelativePos": 0.0,
+      "endWaypointRelativePos": 0.5,
+      "command": null
+    }
+  ],
+  "globalConstraints": {
+    "maxVelocity": 4.5,
+    "maxAcceleration": 9.4,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 1464.0,
+    "nominalVoltage": 11.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": 180.0
+  },
+  "reversed": false,
+  "folder": null,
+  "idealStartingState": {
+    "velocity": 0,
+    "rotation": 180.0
+  },
+  "useDefaultConstraints": true
+}

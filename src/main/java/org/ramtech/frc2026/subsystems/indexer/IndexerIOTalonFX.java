@@ -37,11 +37,11 @@ public class IndexerIOTalonFX implements IndexerIO {
 		// Roller
 		indexer.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 		indexer.MotorOutput.NeutralMode = NeutralModeValue.Coast;
-		indexer.CurrentLimits.StatorCurrentLimit = 40;
+		indexer.CurrentLimits.StatorCurrentLimit = 30;
 		indexer.CurrentLimits.StatorCurrentLimitEnable = true;
-		indexer.CurrentLimits.SupplyCurrentLimit = 40;
+		indexer.CurrentLimits.SupplyCurrentLimit = 30;
 		indexer.CurrentLimits.SupplyCurrentLimitEnable = true;
-		indexer.CurrentLimits.SupplyCurrentLowerLimit = 40;
+		indexer.CurrentLimits.SupplyCurrentLowerLimit = 30;
 		indexer.CurrentLimits.SupplyCurrentLowerTime = 1;
 
 		// Configure Motors
@@ -82,17 +82,6 @@ public class IndexerIOTalonFX implements IndexerIO {
 				indexerMotor.setControl(
 						ballTunnelVoltageOut.withOutput(outputs.indexerVoltageSetpoint).withEnableFOC(true));
 				break;
-			case AUTO :
-				// double setpoint = DataProcessing.rawToSmooth(10,
-				// indexerMotor.getTorqueCurrent().getValueAsDouble(),
-				// DataProcessing.rampControl(9, 12,
-				// RobotState.getInstance().getBatteryVoltage(), 30, 100));
-				double setpoint = 40;// DataProcessing.rampControl(7, 13,
-										// RobotState.getInstance().getBatteryVoltage(), 20,100);
-				if (outputs.directionSetpoint == IndexerIOAutoDirections.REVERSE) {
-					setpoint *= -1;
-				}
-				indexerMotor.setControl(torqueCurrentFOC.withOutput(setpoint));
 		}
 	}
 }
