@@ -16,15 +16,15 @@
     },
     {
       "anchor": {
-        "x": 8.3,
+        "x": 7.0,
         "y": 6.64
       },
       "prevControl": {
-        "x": 7.416116523516816,
-        "y": 7.523883476483184
+        "x": 6.116116523516818,
+        "y": 7.523883476483186
       },
       "nextControl": {
-        "x": 9.007106781186549,
+        "x": 7.707106781186548,
         "y": 5.932893218813453
       },
       "isLocked": false,
@@ -32,32 +32,32 @@
     },
     {
       "anchor": {
-        "x": 8.3,
-        "y": 1.4
+        "x": 8.1,
+        "y": 2.4
       },
       "prevControl": {
-        "x": 9.007106781186549,
-        "y": 2.1071067811865474
+        "x": 8.807106781186548,
+        "y": 3.1071067811865474
       },
       "nextControl": {
-        "x": 7.416116523516816,
-        "y": 0.5161165235168155
+        "x": 7.216116523516815,
+        "y": 1.5161165235168155
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 4.2,
-        "y": 0.6
+        "x": 5.8,
+        "y": 2.7
       },
       "prevControl": {
-        "x": 6.2,
-        "y": 0.5999999999999998
+        "x": 6.8,
+        "y": 2.7
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Outpost Trench Start"
+      "linkedName": "Outpost Center Intake End"
     }
   ],
   "rotationTargets": [
@@ -66,16 +66,12 @@
       "rotationDegrees": 180.0
     },
     {
-      "waypointRelativePos": 0.8,
+      "waypointRelativePos": 0.6500888099467135,
       "rotationDegrees": -135.0
     },
     {
       "waypointRelativePos": 1.8,
       "rotationDegrees": -135.0
-    },
-    {
-      "waypointRelativePos": 2.7,
-      "rotationDegrees": 180.0
     }
   ],
   "constraintZones": [],
@@ -98,7 +94,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 180.0
+    "rotation": -90.0
   },
   "reversed": false,
   "folder": null,

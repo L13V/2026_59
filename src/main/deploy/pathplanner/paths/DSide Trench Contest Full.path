@@ -8,7 +8,7 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.2,
+        "x": 6.200000000000001,
         "y": 7.44
       },
       "isLocked": false,
@@ -16,32 +16,48 @@
     },
     {
       "anchor": {
-        "x": 8.3,
+        "x": 8.1,
         "y": 6.64
       },
       "prevControl": {
-        "x": 7.416116523516816,
+        "x": 7.216116523516815,
         "y": 7.523883476483184
       },
       "nextControl": {
-        "x": 9.007106781186549,
-        "y": 5.932893218813452
+        "x": 8.807106781186548,
+        "y": 5.932893218813453
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 8.0,
-        "y": 4.64
+        "x": 8.1,
+        "y": 2.4
       },
       "prevControl": {
-        "x": 8.5,
-        "y": 4.64
+        "x": 8.807106781186548,
+        "y": 3.1071067811865474
+      },
+      "nextControl": {
+        "x": 7.216116523516815,
+        "y": 1.5161165235168155
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 5.8,
+        "y": 2.7
+      },
+      "prevControl": {
+        "x": 6.8,
+        "y": 2.7
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Depot Contest Half End"
+      "linkedName": "Outpost Center Intake End"
     }
   ],
   "rotationTargets": [
@@ -52,23 +68,13 @@
     {
       "waypointRelativePos": 0.8,
       "rotationDegrees": -135.0
-    }
-  ],
-  "constraintZones": [
+    },
     {
-      "name": "Constraints Zone",
-      "minWaypointRelativePos": 1.0,
-      "maxWaypointRelativePos": 2.0,
-      "constraints": {
-        "maxVelocity": 2.0,
-        "maxAcceleration": 9.4,
-        "maxAngularVelocity": 540.0,
-        "maxAngularAcceleration": 1464.0,
-        "nominalVoltage": 11.0,
-        "unlimited": false
-      }
+      "waypointRelativePos": 1.8,
+      "rotationDegrees": -135.0
     }
   ],
+  "constraintZones": [],
   "pointTowardsZones": [],
   "eventMarkers": [
     {
@@ -88,7 +94,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -135.0
+    "rotation": -90.0
   },
   "reversed": false,
   "folder": null,

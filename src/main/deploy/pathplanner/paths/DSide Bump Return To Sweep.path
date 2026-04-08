@@ -1,0 +1,122 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 5.7,
+        "y": 5.34
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 5.2,
+        "y": 5.34
+      },
+      "isLocked": false,
+      "linkedName": "Depot Center Intake End"
+    },
+    {
+      "anchor": {
+        "x": 3.4,
+        "y": 5.34
+      },
+      "prevControl": {
+        "x": 3.9,
+        "y": 5.34
+      },
+      "nextControl": {
+        "x": 2.4,
+        "y": 5.34
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 4.2,
+        "y": 7.44
+      },
+      "prevControl": {
+        "x": 1.7000000000000002,
+        "y": 7.44
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "Depot Trench Start"
+    }
+  ],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.4,
+      "rotationDegrees": 90.0
+    },
+    {
+      "waypointRelativePos": 0.95,
+      "rotationDegrees": 90.0
+    },
+    {
+      "waypointRelativePos": 1.75,
+      "rotationDegrees": 180.0
+    }
+  ],
+  "constraintZones": [
+    {
+      "name": "Bump",
+      "minWaypointRelativePos": 0.0,
+      "maxWaypointRelativePos": 0.9,
+      "constraints": {
+        "maxVelocity": 3.0,
+        "maxAcceleration": 0.5,
+        "maxAngularVelocity": 10.0,
+        "maxAngularAcceleration": 10.0,
+        "nominalVoltage": 10.0,
+        "unlimited": false
+      }
+    },
+    {
+      "name": "Rotation",
+      "minWaypointRelativePos": 0.9,
+      "maxWaypointRelativePos": 2.0,
+      "constraints": {
+        "maxVelocity": 1.0,
+        "maxAcceleration": 1.0,
+        "maxAngularVelocity": 360.0,
+        "maxAngularAcceleration": 120.0,
+        "nominalVoltage": 10.0,
+        "unlimited": false
+      }
+    }
+  ],
+  "pointTowardsZones": [],
+  "eventMarkers": [
+    {
+      "name": "shoot",
+      "waypointRelativePos": 0.8,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "shoot"
+        }
+      }
+    }
+  ],
+  "globalConstraints": {
+    "maxVelocity": 4.5,
+    "maxAcceleration": 9.4,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 1464.0,
+    "nominalVoltage": 11.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 1.0,
+    "rotation": 180.0
+  },
+  "reversed": false,
+  "folder": null,
+  "idealStartingState": {
+    "velocity": 3.0,
+    "rotation": 90.0
+  },
+  "useDefaultConstraints": true
+}
