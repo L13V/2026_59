@@ -84,8 +84,8 @@ public class ShotCalculator {
 	private static final double rpsMin = 33;
 	private static final double rpsInterference = 80; // rps when the turret is aiming at the polycarb at home
 	private static final double rpsMax = 80;
-	private static final double rpsBump = 4;
-	private static final double rpsMult = 1.2;
+	private static final double rpsBump = 8;
+	private static final double rpsMult = 1.1;
 
 	// Angles from horizontal (Radians)
 	public static final double hoodMinAngle = Math.toRadians(79);
@@ -251,8 +251,8 @@ public class ShotCalculator {
 
 		double turretStaticToTarget = getTurretDistanceToTarget(new Pose3d(turretPose), targetPose);
 
-		double vertExit = (Math.sin(safeHoodAngleFeedback) * ((ballDiameter + flyWheelDiam - ballCompression) / 2));
-		double latExit = (Math.cos(safeHoodAngleFeedback) * ((ballDiameter + flyWheelDiam - ballCompression) / 2));
+		double vertExit = (Math.sin(last.hoodAngle) * ((ballDiameter + flyWheelDiam - ballCompression) / 2));
+		double latExit = (Math.cos(last.hoodAngle) * ((ballDiameter + flyWheelDiam - ballCompression) / 2));
 
 		double shotHeight = (TunerConstants.kWheelRadius.in(Meter) + 0.428625 + vertExit);
 		double trajectoryCeiling = (shotCeiling - shotHeight);
@@ -285,43 +285,45 @@ public class ShotCalculator {
 		// 4. Total flight time
 		double totalFlightTime = timeToApex + timeToTarget;
 
-		Translation2d horizontalVelocityCombo = new Translation2d((latStatic / totalFlightTime)-robotVelocityTowards, 0-robotVelocityPerpendicular);
+		double velocityTowardsCombo =  (latStatic / totalFlightTime)-robotVelocityTowards
+
+		Translation2d horizontalVelocityCombo = new Translation2d(velocityTowardsCombo, 0-robotVelocityPerpendicular);
         double horizontalVelocity = horizontalVelocityCombo.getNorm();
 
-		double hoodAngle = Math.atan2(verticalVelocity, horizontalVelocity);
-		double velocityInitial = Math.hypot(horizontalVelocity, verticalVelocity);
+		double hoodAngle = Math.atan2(verticalVelocity, velocityTowardsCombo);
+		double velocityInitial = Math.hypot(velocityTowardsCombo, verticalVelocity);
 
         Translation2d velocityVectorField = horizontalVelocityCombo.rotateBy(fieldAngleToTarget);
 
-		double angleSub = hoodAngle - hoodIdealAngle;
+		// double angleSub = hoodAngle - hoodIdealAngle;
 
-		if (((rpsMax - last.flyWheelVelocity) / 50) < Math.abs(angleSub)) {
-			if (angleSub < 0) {
-				hoodAngle = hoodIdealAngle - ((rpsMax - last.flyWheelVelocity) / 50);
-			} else {
-				hoodAngle = hoodIdealAngle + ((rpsMax - last.flyWheelVelocity) / 50);
-			}
-		}
+		// if (((rpsMax - last.flyWheelVelocity) / 50) < Math.abs(angleSub)) {
+		// 	if (angleSub < 0) {
+		// 		hoodAngle = hoodIdealAngle - ((rpsMax - last.flyWheelVelocity) / 50);
+		// 	} else {
+		// 		hoodAngle = hoodIdealAngle + ((rpsMax - last.flyWheelVelocity) / 50);
+		// 	}
+		// }
 
-		boolean turretInterference = (MathUtil.inputModulus(last.turretAngle, -180.0, 180.0) >= -75.0
-				&& MathUtil.inputModulus(last.turretAngle, -180.0, 180.0) <= 75.0);
+		// boolean turretInterference = (MathUtil.inputModulus(last.turretAngle, -180.0, 180.0) >= -75.0
+		// 		&& MathUtil.inputModulus(last.turretAngle, -180.0, 180.0) <= 75.0);
 
-		if (turretInterference) {
-			if (hoodAngle < hoodInterferenceAngle) {
-				hoodAngle = hoodInterferenceAngle;
-			}
-		}
+		// if (turretInterference) {
+		// 	if (hoodAngle < hoodInterferenceAngle) {
+		// 		hoodAngle = hoodInterferenceAngle;
+		// 	}
+		// }
 
 		// FIXED: Properly convert last.hoodAngle (vertical degrees) back to horizontal
 		// radians before smoothing/sanitizing
 		double lastHoodAngleRad = hoodMinAngle - Math.toRadians(last.hoodAngle);
-		hoodAngle = DataProcessing.rawToSmooth(4, lastHoodAngleRad, hoodAngle);
+		//hoodAngle = DataProcessing.rawToSmooth(4, lastHoodAngleRad, hoodAngle);
 		hoodAngle = DataProcessing.sanitize(lastHoodAngleRad, hoodMaxAngle, hoodMinAngle, hoodAngle);
 
 
 		double airEst = (airDensity * ballArea * dragCoeff * velocityInitial * 0.5);
 		double velocityTarget = velocityInitial
-				* (1 + ((airEst * latStatic / (3 * ballMass * velocityInitial * Math.cos(safeHoodAngleFeedback)))));
+				* (1 + ((airEst * latStatic / (3 * ballMass * velocityInitial * Math.cos(hoodAngle)))));
 
 		if (velocityInitial > velocityTarget) {
 			velocityTarget = velocityInitial;
@@ -331,11 +333,11 @@ public class ShotCalculator {
 		double flyWheelVelocity = ((velocityTarget
 				/ (((flyWheelCircum * flyWheelRatio) + (backWheelCircum * backWheelRatio)) / 2)) * rpsMult) + rpsBump;
 
-		if (turretInterference) {
-			if (!Constants.isComp) {
-				flyWheelVelocity = Math.min(flyWheelVelocity, rpsInterference);
-			}
-		}
+		// if (turretInterference) {
+		// 	if (!Constants.isComp) {
+		// 		flyWheelVelocity = Math.min(flyWheelVelocity, rpsInterference);
+		// 	}
+		// }
 		flyWheelVelocity = DataProcessing.sanitize(last.flyWheelVelocity, rpsMin, rpsMax, flyWheelVelocity);
 
 		Rotation2d dynamicRobotAngle = velocityVectorField.getAngle().minus(robotState.getRobotPose().getRotation());

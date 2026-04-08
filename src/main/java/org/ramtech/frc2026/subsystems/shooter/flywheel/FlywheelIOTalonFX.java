@@ -55,22 +55,22 @@ public class FlywheelIOTalonFX implements FlywheelIO {
 		leftSideConfig.Slot0.kG = FlywheelConstants.kG_Slot0;
 		leftSideConfig.Voltage.PeakForwardVoltage = FlywheelConstants.peakForwardVoltage;
 		leftSideConfig.Voltage.PeakReverseVoltage = FlywheelConstants.peakReverseVoltage;
-		leftSideConfig.CurrentLimits.StatorCurrentLimit = 20;
+		leftSideConfig.CurrentLimits.StatorCurrentLimit = 30;
 		leftSideConfig.CurrentLimits.StatorCurrentLimitEnable = true;
-		leftSideConfig.CurrentLimits.SupplyCurrentLimit = 20;
+		leftSideConfig.CurrentLimits.SupplyCurrentLimit = 30;
 		leftSideConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-		leftSideConfig.CurrentLimits.SupplyCurrentLowerLimit = 20;
-		leftSideConfig.CurrentLimits.SupplyCurrentLowerTime = 3;
+		leftSideConfig.CurrentLimits.SupplyCurrentLowerLimit = 30;
+		leftSideConfig.CurrentLimits.SupplyCurrentLowerTime = 10;
 
 		// Right Side
 		rightSideConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 		rightSideConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
-		rightSideConfig.CurrentLimits.StatorCurrentLimit = 20;
+		rightSideConfig.CurrentLimits.StatorCurrentLimit = 30;
 		rightSideConfig.CurrentLimits.StatorCurrentLimitEnable = true;
-		rightSideConfig.CurrentLimits.SupplyCurrentLimit = 20;
+		rightSideConfig.CurrentLimits.SupplyCurrentLimit = 30;
 		rightSideConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-		rightSideConfig.CurrentLimits.SupplyCurrentLowerLimit = 20;
-		rightSideConfig.CurrentLimits.SupplyCurrentLowerTime = 3;
+		rightSideConfig.CurrentLimits.SupplyCurrentLowerLimit = 30;
+		rightSideConfig.CurrentLimits.SupplyCurrentLowerTime = 10;
 		rightSideConfig.Voltage.PeakForwardVoltage = FlywheelConstants.peakForwardVoltage;
 		rightSideConfig.Voltage.PeakReverseVoltage = FlywheelConstants.peakReverseVoltage;
 
