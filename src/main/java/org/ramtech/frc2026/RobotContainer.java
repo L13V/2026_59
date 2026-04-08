@@ -24,6 +24,7 @@ import org.ramtech.frc2026.RobotState.GlobalStates;
 import org.ramtech.frc2026.commands.DriveCommands;
 import org.ramtech.frc2026.commands.LowerIntake;
 import org.ramtech.frc2026.generated.TunerConstants;
+import org.ramtech.frc2026.subsystems.LedSubsystem;
 import org.ramtech.frc2026.subsystems.drive.Drive;
 import org.ramtech.frc2026.subsystems.drive.GyroIO;
 import org.ramtech.frc2026.subsystems.drive.GyroIOPigeon2;
@@ -87,6 +88,7 @@ public class RobotContainer {
 	private final Hood hood;
 	private final Flywheel flywheel;
 	private final Turret turret;
+	private final LedSubsystem leds;
 
 	// Controller
 	private final CommandXboxController drivercontroller = new CommandXboxController(0);
@@ -119,6 +121,7 @@ public class RobotContainer {
 				flywheel = new Flywheel(new FlywheelIOTalonFX());
 				hood = new Hood(new HoodIOTalonFX());
 				turret = new Turret(new TurretIOReal());
+				leds = new LedSubsystem();
 				break;
 
 			case SIM :
@@ -139,6 +142,7 @@ public class RobotContainer {
 				flywheel = new Flywheel(new FlywheelIOSim());
 				hood = new Hood(new HoodIOSim());
 				turret = new Turret(new TurretIOReal());
+				leds = new LedSubsystem();
 
 				break;
 
@@ -166,6 +170,7 @@ public class RobotContainer {
 
 				hood = new Hood(new HoodIO() {
 				});
+				leds = new LedSubsystem();
 
 				break;
 		}
