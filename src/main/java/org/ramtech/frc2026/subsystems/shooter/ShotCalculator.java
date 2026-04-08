@@ -21,7 +21,6 @@ import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 
-import org.ramtech.frc2026.Constants;
 import org.ramtech.frc2026.RobotState;
 import org.ramtech.frc2026.generated.TunerConstants;
 
@@ -197,9 +196,10 @@ public class ShotCalculator {
 		double turretAngular = (Offsets.turretOffset.getTranslation().getNorm() * angleRate);
 		Translation2d SwingVelocity = new Translation2d(turretAngular, new Rotation2d(fieldAngle));
 
-        Translation2d swingVelocityField = new Translation2d(turretAngular, new Rotation2d(fieldAngle));
-        Translation2d chassisVelocityField = new Translation2d(fieldSpeeds.vxMetersPerSecond, fieldSpeeds.vyMetersPerSecond);
-        Translation2d totalRobotVelocityField = chassisVelocityField.plus(swingVelocityField);
+		Translation2d swingVelocityField = new Translation2d(turretAngular, new Rotation2d(fieldAngle));
+		Translation2d chassisVelocityField = new Translation2d(fieldSpeeds.vxMetersPerSecond,
+				fieldSpeeds.vyMetersPerSecond);
+		Translation2d totalRobotVelocityField = chassisVelocityField.plus(swingVelocityField);
 
 		if (newZone != null) {
 			zone = newZone;
@@ -259,19 +259,17 @@ public class ShotCalculator {
 		double vertFinal = (targetPose.getZ() - shotHeight);
 		double latStatic = Math.max((turretStaticToTarget + latExit - 0.10795), 0.5);
 
+		// --- Target-Relative Frame Transformation ---
+		Rotation2d fieldAngleToTarget = new Rotation2d(targetPose.getX() - turretPose.getX(),
+				targetPose.getY() - turretPose.getY());
 
-		        // --- Target-Relative Frame Transformation ---
-        Rotation2d fieldAngleToTarget = new Rotation2d(
-                targetPose.getX() - turretPose.getX(),
-                targetPose.getY() - turretPose.getY()
-        );
+		// 1. Rotate the robot's absolute velocity into the target's frame of reference.
+		// X becomes velocity TOWARDS the target. Y becomes velocity PERPENDICULAR to
+		// the target.
+		Translation2d robotVelocityTargetFrame = totalRobotVelocityField.rotateBy(fieldAngleToTarget.unaryMinus());
 
-        // 1. Rotate the robot's absolute velocity into the target's frame of reference.
-        // X becomes velocity TOWARDS the target. Y becomes velocity PERPENDICULAR to the target.
-        Translation2d robotVelocityTargetFrame = totalRobotVelocityField.rotateBy(fieldAngleToTarget.unaryMinus());
-        
-        double robotVelocityTowards = robotVelocityTargetFrame.getX();
-        double robotVelocityPerpendicular = robotVelocityTargetFrame.getY();
+		double robotVelocityTowards = robotVelocityTargetFrame.getX();
+		double robotVelocityPerpendicular = robotVelocityTargetFrame.getY();
 
 		// 1. Vertical velocity to reach the exact ceiling
 		double verticalVelocity = Math.sqrt(2 * g * trajectoryCeiling);
@@ -285,41 +283,41 @@ public class ShotCalculator {
 		// 4. Total flight time
 		double totalFlightTime = timeToApex + timeToTarget;
 
-		double velocityTowardsCombo =  (latStatic / totalFlightTime)-robotVelocityTowards
+		double velocityTowardsCombo = (latStatic / totalFlightTime) - robotVelocityTowards;
 
-		Translation2d horizontalVelocityCombo = new Translation2d(velocityTowardsCombo, 0-robotVelocityPerpendicular);
-        double horizontalVelocity = horizontalVelocityCombo.getNorm();
+		Translation2d horizontalVelocityCombo = new Translation2d(velocityTowardsCombo, 0 - robotVelocityPerpendicular);
+		double horizontalVelocity = horizontalVelocityCombo.getNorm();
 
 		double hoodAngle = Math.atan2(verticalVelocity, velocityTowardsCombo);
 		double velocityInitial = Math.hypot(velocityTowardsCombo, verticalVelocity);
 
-        Translation2d velocityVectorField = horizontalVelocityCombo.rotateBy(fieldAngleToTarget);
+		Translation2d velocityVectorField = horizontalVelocityCombo.rotateBy(fieldAngleToTarget);
 
 		// double angleSub = hoodAngle - hoodIdealAngle;
 
 		// if (((rpsMax - last.flyWheelVelocity) / 50) < Math.abs(angleSub)) {
-		// 	if (angleSub < 0) {
-		// 		hoodAngle = hoodIdealAngle - ((rpsMax - last.flyWheelVelocity) / 50);
-		// 	} else {
-		// 		hoodAngle = hoodIdealAngle + ((rpsMax - last.flyWheelVelocity) / 50);
-		// 	}
+		// if (angleSub < 0) {
+		// hoodAngle = hoodIdealAngle - ((rpsMax - last.flyWheelVelocity) / 50);
+		// } else {
+		// hoodAngle = hoodIdealAngle + ((rpsMax - last.flyWheelVelocity) / 50);
+		// }
 		// }
 
-		// boolean turretInterference = (MathUtil.inputModulus(last.turretAngle, -180.0, 180.0) >= -75.0
-		// 		&& MathUtil.inputModulus(last.turretAngle, -180.0, 180.0) <= 75.0);
+		// boolean turretInterference = (MathUtil.inputModulus(last.turretAngle, -180.0,
+		// 180.0) >= -75.0
+		// && MathUtil.inputModulus(last.turretAngle, -180.0, 180.0) <= 75.0);
 
 		// if (turretInterference) {
-		// 	if (hoodAngle < hoodInterferenceAngle) {
-		// 		hoodAngle = hoodInterferenceAngle;
-		// 	}
+		// if (hoodAngle < hoodInterferenceAngle) {
+		// hoodAngle = hoodInterferenceAngle;
+		// }
 		// }
 
 		// FIXED: Properly convert last.hoodAngle (vertical degrees) back to horizontal
 		// radians before smoothing/sanitizing
 		double lastHoodAngleRad = hoodMinAngle - Math.toRadians(last.hoodAngle);
-		//hoodAngle = DataProcessing.rawToSmooth(4, lastHoodAngleRad, hoodAngle);
+		// hoodAngle = DataProcessing.rawToSmooth(4, lastHoodAngleRad, hoodAngle);
 		hoodAngle = DataProcessing.sanitize(lastHoodAngleRad, hoodMaxAngle, hoodMinAngle, hoodAngle);
-
 
 		double airEst = (airDensity * ballArea * dragCoeff * velocityInitial * 0.5);
 		double velocityTarget = velocityInitial
@@ -329,14 +327,13 @@ public class ShotCalculator {
 			velocityTarget = velocityInitial;
 		}
 
-
 		double flyWheelVelocity = ((velocityTarget
 				/ (((flyWheelCircum * flyWheelRatio) + (backWheelCircum * backWheelRatio)) / 2)) * rpsMult) + rpsBump;
 
 		// if (turretInterference) {
-		// 	if (!Constants.isComp) {
-		// 		flyWheelVelocity = Math.min(flyWheelVelocity, rpsInterference);
-		// 	}
+		// if (!Constants.isComp) {
+		// flyWheelVelocity = Math.min(flyWheelVelocity, rpsInterference);
+		// }
 		// }
 		flyWheelVelocity = DataProcessing.sanitize(last.flyWheelVelocity, rpsMin, rpsMax, flyWheelVelocity);
 
