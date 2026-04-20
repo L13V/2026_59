@@ -28,17 +28,17 @@ public class VisionConstants {
 	// (Not used by Limelight, configure in web UI instead)
 	// Robot to camera transforms (Updated from image measurements)
 	public static Transform3d robotToFL = new Transform3d(0.09467, 0.40582, 0.54004,
-			new Rotation3d(Units.degreesToRadians(0), Units.degreesToRadians(-21), Units.degreesToRadians(45)));
+			new Rotation3d(Units.degreesToRadians(0), Units.degreesToRadians(-22.5), Units.degreesToRadians(45)));
 
 	public static Transform3d robotToFR = new Transform3d(0.09467, -0.40582, 0.54004,
-			new Rotation3d(Units.degreesToRadians(0), Units.degreesToRadians(-21), Units.degreesToRadians(315)));
+			new Rotation3d(Units.degreesToRadians(0), Units.degreesToRadians(-25), Units.degreesToRadians(315)));
 
 	public static Transform3d robotToBL = new Transform3d(-0.25977, 0.40582, 0.54004,
-			new Rotation3d(Units.degreesToRadians(0), Units.degreesToRadians(-21), Units.degreesToRadians(135)));
+			new Rotation3d(Units.degreesToRadians(0), Units.degreesToRadians(-25), Units.degreesToRadians(135)));
 
 	public static Transform3d robotToBR = new Transform3d(-0.25977, -0.05022, 0.54004, // Using the unique -50.22mm
 																						// value from your text file
-			new Rotation3d(Units.degreesToRadians(0), Units.degreesToRadians(-21), Units.degreesToRadians(225)));
+			new Rotation3d(Units.degreesToRadians(0), Units.degreesToRadians(-25), Units.degreesToRadians(225)));
 	// Basic filtering thresholds
 	public static double maxAmbiguity = 0.3;
 	public static double maxZError = 0.75;

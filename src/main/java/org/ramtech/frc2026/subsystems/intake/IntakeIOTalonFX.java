@@ -60,20 +60,20 @@ public class IntakeIOTalonFX implements IntakeIO {
 		// Complete the config
 		motorAConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
 		motorAConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
-		motorAConfig.CurrentLimits.StatorCurrentLimit = 50;
+		motorAConfig.CurrentLimits.StatorCurrentLimit = 55;
 		motorAConfig.CurrentLimits.StatorCurrentLimitEnable = true;
-		motorAConfig.CurrentLimits.SupplyCurrentLimit = 50;
+		motorAConfig.CurrentLimits.SupplyCurrentLimit = 55;
 		motorAConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-		motorAConfig.CurrentLimits.SupplyCurrentLowerLimit = 50;
+		motorAConfig.CurrentLimits.SupplyCurrentLowerLimit = 55;
 		motorAConfig.CurrentLimits.SupplyCurrentLowerTime = 3;
 
 		motorBConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
 		motorBConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
-		motorBConfig.CurrentLimits.StatorCurrentLimit = 50;
+		motorBConfig.CurrentLimits.StatorCurrentLimit = 55;
 		motorBConfig.CurrentLimits.StatorCurrentLimitEnable = true;
-		motorBConfig.CurrentLimits.SupplyCurrentLimit = 50;
+		motorBConfig.CurrentLimits.SupplyCurrentLimit = 55;
 		motorBConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-		motorBConfig.CurrentLimits.SupplyCurrentLowerLimit = 508;
+		motorBConfig.CurrentLimits.SupplyCurrentLowerLimit = 55;
 		motorBConfig.CurrentLimits.SupplyCurrentLowerTime = 3;
 
 		pivotMotorConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;

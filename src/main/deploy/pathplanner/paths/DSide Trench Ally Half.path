@@ -32,16 +32,16 @@
     },
     {
       "anchor": {
-        "x": 6.5,
-        "y": 3.44
+        "x": 7.0,
+        "y": 4.84
       },
       "prevControl": {
-        "x": 7.5,
-        "y": 3.44
+        "x": 8.0,
+        "y": 4.84
       },
       "nextControl": {
-        "x": 5.5,
-        "y": 3.44
+        "x": 6.0,
+        "y": 4.84
       },
       "isLocked": false,
       "linkedName": null
@@ -49,15 +49,15 @@
     {
       "anchor": {
         "x": 5.8,
-        "y": 2.7
+        "y": 5.34
       },
       "prevControl": {
         "x": 6.05,
-        "y": 2.7
+        "y": 5.34
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Depot Center Intake End"
+      "linkedName": null
     }
   ],
   "rotationTargets": [
@@ -67,7 +67,11 @@
     },
     {
       "waypointRelativePos": 1.5,
-      "rotationDegrees": -119.99999999999999
+      "rotationDegrees": -91.0
+    },
+    {
+      "waypointRelativePos": 2.0,
+      "rotationDegrees": 180.0
     },
     {
       "waypointRelativePos": 2.9,
@@ -77,10 +81,10 @@
   "constraintZones": [
     {
       "name": "Intake",
-      "minWaypointRelativePos": 0.5996409335727019,
-      "maxWaypointRelativePos": 2.4,
+      "minWaypointRelativePos": 0.4,
+      "maxWaypointRelativePos": 2.0,
       "constraints": {
-        "maxVelocity": 1.9,
+        "maxVelocity": 2.0,
         "maxAcceleration": 10.0,
         "maxAngularVelocity": 120.0,
         "maxAngularAcceleration": 1464.0,
@@ -94,7 +98,7 @@
     {
       "name": "intake",
       "waypointRelativePos": 0.0,
-      "endWaypointRelativePos": 0.89,
+      "endWaypointRelativePos": 0.9,
       "command": {
         "type": "named",
         "data": {
@@ -135,7 +139,7 @@
   },
   "goalEndState": {
     "velocity": 5.0,
-    "rotation": -90.0
+    "rotation": 90.0
   },
   "reversed": false,
   "folder": null,

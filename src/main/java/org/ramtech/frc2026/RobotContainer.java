@@ -21,6 +21,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 import org.ramtech.frc2026.RobotState.GlobalStates;
+import org.ramtech.frc2026.commands.AutoSystemsCheck;
 import org.ramtech.frc2026.commands.DriveCommands;
 import org.ramtech.frc2026.commands.LowerIntake;
 import org.ramtech.frc2026.generated.TunerConstants;
@@ -194,12 +195,17 @@ public class RobotContainer {
 		RobotState.getInstance().setGyroAngleRateSupplier(drive::getGyroAngleRate);
 
 		// Set up auto routines
-		autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
+		autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooserWithOptionsModifier(
+				(stream) -> Constants.isComp ? stream.filter(auto -> auto.getName().startsWith("A")) : stream));
 
 		// Set up SysId routines
+		// autoChooser.addOption("Systems Check",
+		// new timedcommand;
+
 		autoChooser.addOption("Drive Wheel Radius Characterization", DriveCommands.wheelRadiusCharacterization(drive));
-		// autoChooser.addOption("Drive Simple FF Characterization",
-		// DriveCommands.feedforwardCharacterization(drive));
+		autoChooser.addOption("Drive Simple FF Characterization", DriveCommands.feedforwardCharacterization(drive));
+		autoChooser.addOption("Automatic Systems Check",
+				new AutoSystemsCheck(drive, turret, hood, flywheel, intake, tower, indexer, leds));
 		// autoChooser.addOption("Drive SysId (Quasistatic Forward)",
 		// drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
 		// autoChooser.addOption("Drive SysId (Quasistatic Reverse)",
@@ -239,7 +245,8 @@ public class RobotContainer {
 				() -> drive.clampToMaxJoystick(-drivercontroller.getLeftY() * slowModeMultiplier),
 				() -> drive.clampToMaxJoystick(-drivercontroller.getLeftX() * slowModeMultiplier),
 				() -> drive.clampToMaxJoystick(-drivercontroller.getRightX()),
-				() -> drive.getSlewFromState(RobotState.getInstance().getGlobalState())));
+				() -> drive.getTranslationalSlewFromState(RobotState.getInstance().getGlobalState()),
+				() -> drive.getRotationalSlewFromState(RobotState.getInstance().getGlobalState())));
 		// Reset gyro
 		drivercontroller.start().onTrue(Commands
 				.runOnce(() -> drive.setPose(new Pose2d(drive.getPose().getTranslation(), Rotation2d.kZero)), drive)
@@ -367,8 +374,8 @@ public class RobotContainer {
 				// intake.setAutoMode(IntakeIOAutoDirections.FORWARD);
 			} else {
 				tower.stop();
-				indexer.stop();
-				intake.stopRollers();
+				indexer.setVoltage(-13);
+				intake.setRollerVoltage(13);
 
 			}
 		}).alongWith(Commands.startEnd(() -> {

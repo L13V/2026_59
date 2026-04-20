@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 5.7,
-        "y": 5.34
+        "x": 5.8,
+        "y": 2.7
       },
       "prevControl": null,
       "nextControl": {
-        "x": 5.2,
-        "y": 5.34
+        "x": 5.3,
+        "y": 2.7
       },
       "isLocked": false,
       "linkedName": "Depot Center Intake End"
@@ -33,11 +33,11 @@
     {
       "anchor": {
         "x": 0.6,
-        "y": 5.96
+        "y": 7.54
       },
       "prevControl": {
-        "x": 2.6,
-        "y": 5.96
+        "x": 2.5318516525781365,
+        "y": 7.022361909794958
       },
       "nextControl": null,
       "isLocked": false,
@@ -65,7 +65,7 @@
       "maxWaypointRelativePos": 2.0,
       "constraints": {
         "maxVelocity": 4.5,
-        "maxAcceleration": 4.0,
+        "maxAcceleration": 9.4,
         "maxAngularVelocity": 540.0,
         "maxAngularAcceleration": 1464.0,
         "nominalVoltage": 11.0,
@@ -74,7 +74,7 @@
     },
     {
       "name": "Bump",
-      "minWaypointRelativePos": 0.0,
+      "minWaypointRelativePos": 0.3,
       "maxWaypointRelativePos": 0.9,
       "constraints": {
         "maxVelocity": 3.0,
@@ -87,12 +87,12 @@
     },
     {
       "name": "Rotation",
-      "minWaypointRelativePos": 0.9,
+      "minWaypointRelativePos": 1.1,
       "maxWaypointRelativePos": 2.0,
       "constraints": {
         "maxVelocity": 1.0,
         "maxAcceleration": 1.0,
-        "maxAngularVelocity": 360.0,
+        "maxAngularVelocity": 90.0,
         "maxAngularAcceleration": 120.0,
         "nominalVoltage": 10.0,
         "unlimited": false
@@ -128,8 +128,8 @@
   "reversed": false,
   "folder": null,
   "idealStartingState": {
-    "velocity": 3.0,
-    "rotation": 90.0
+    "velocity": 5.0,
+    "rotation": -90.0
   },
   "useDefaultConstraints": true
 }

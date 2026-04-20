@@ -32,16 +32,32 @@
     },
     {
       "anchor": {
-        "x": 4.2,
-        "y": 7.44
+        "x": 3.0,
+        "y": 7.19
       },
       "prevControl": {
-        "x": 1.7000000000000002,
-        "y": 7.44
+        "x": 3.353553390593274,
+        "y": 6.836446609406727
+      },
+      "nextControl": {
+        "x": 2.646446609406726,
+        "y": 7.5435533905932735
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 0.6,
+        "y": 7.54
+      },
+      "prevControl": {
+        "x": 1.5961946980917454,
+        "y": 7.452844257252342
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "Inside Depot"
     }
   ],
   "rotationTargets": [
@@ -54,17 +70,21 @@
       "rotationDegrees": 90.0
     },
     {
-      "waypointRelativePos": 1.75,
-      "rotationDegrees": 14.999999999999998
+      "waypointRelativePos": 1.5,
+      "rotationDegrees": 75.0
+    },
+    {
+      "waypointRelativePos": 2.5,
+      "rotationDegrees": 165.0
     }
   ],
   "constraintZones": [
     {
       "name": "Bump",
-      "minWaypointRelativePos": 0.35,
+      "minWaypointRelativePos": 0.3,
       "maxWaypointRelativePos": 0.9,
       "constraints": {
-        "maxVelocity": 3.3,
+        "maxVelocity": 3.0,
         "maxAcceleration": 0.5,
         "maxAngularVelocity": 10.0,
         "maxAngularAcceleration": 10.0,
@@ -74,12 +94,12 @@
     },
     {
       "name": "Rotation",
-      "minWaypointRelativePos": 1.1,
-      "maxWaypointRelativePos": 1.95,
+      "minWaypointRelativePos": 1.2998204667863653,
+      "maxWaypointRelativePos": 3.0,
       "constraints": {
-        "maxVelocity": 0.8,
+        "maxVelocity": 1.0,
         "maxAcceleration": 1.0,
-        "maxAngularVelocity": 360.0,
+        "maxAngularVelocity": 50.0,
         "maxAngularAcceleration": 120.0,
         "nominalVoltage": 10.0,
         "unlimited": false
@@ -91,7 +111,7 @@
     {
       "name": "shoot",
       "waypointRelativePos": 0.9,
-      "endWaypointRelativePos": 1.93,
+      "endWaypointRelativePos": null,
       "command": {
         "type": "named",
         "data": {
@@ -109,8 +129,8 @@
     "unlimited": false
   },
   "goalEndState": {
-    "velocity": 5.0,
-    "rotation": 14.999999999999998
+    "velocity": 0.0,
+    "rotation": 180.0
   },
   "reversed": false,
   "folder": null,

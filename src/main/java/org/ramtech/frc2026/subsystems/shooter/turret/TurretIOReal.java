@@ -81,6 +81,13 @@ public class TurretIOReal implements TurretIO {
 		turretConfig.Slot0.kV = TurretConstants.kV_Slot0;
 		turretConfig.Slot0.kA = TurretConstants.kA_Slot0;
 		turretConfig.Slot0.kG = TurretConstants.kG_Slot0;
+		turretConfig.Slot1.kP = TurretConstants.kP_Slot1;
+		turretConfig.Slot1.kI = TurretConstants.kI_Slot1;
+		turretConfig.Slot1.kD = TurretConstants.kD_Slot1;
+		turretConfig.Slot1.kS = TurretConstants.kS_Slot1;
+		turretConfig.Slot1.kV = TurretConstants.kV_Slot1;
+		turretConfig.Slot1.kA = TurretConstants.kA_Slot1;
+		turretConfig.Slot1.kG = TurretConstants.kG_Slot1;
 		turretConfig.MotionMagic.MotionMagicAcceleration = TurretConstants.motionMagicAcceleration;
 		turretConfig.MotionMagic.MotionMagicCruiseVelocity = TurretConstants.motionMagicCruiseVelocity;
 		turretConfig.MotionMagic.MotionMagicJerk = TurretConstants.motionMagicJerk;
@@ -101,13 +108,13 @@ public class TurretIOReal implements TurretIO {
 		 * Encoder A
 		 */
 		encoderAConfig.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
-		encoderAConfig.MagnetSensor.MagnetOffset = 0.2046875;
+		encoderAConfig.MagnetSensor.MagnetOffset = 0.389990234375;
 		encoderAConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 1;
 		/*
 		 * Encoder B
 		 */
 		encoderBConfig.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
-		encoderBConfig.MagnetSensor.MagnetOffset = 0.6785606971;
+		encoderBConfig.MagnetSensor.MagnetOffset = 0.569023075810185;
 		encoderBConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 1;
 
 		/*
@@ -240,7 +247,9 @@ public class TurretIOReal implements TurretIO {
 				}
 
 				break;
-
+			case SYSTEMS_CHECK :
+				turretMotor.setControl(
+						MotionMagicVoltage.withPosition(outputs.positionSetpoint).withEnableFOC(true).withSlot(1));
 		}
 	}
 }

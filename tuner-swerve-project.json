@@ -1,6 +1,6 @@
 {
   "Version": "1.0.0.0",
-  "LastState": 11,
+  "LastState": 12,
   "Modules": [
     {
       "ModuleName": "Front Left",
@@ -42,7 +42,7 @@
       "IsEncoderInverted": false,
       "IsSteerInverted": false,
       "SelectedEncoderType": "CANcoder",
-      "EncoderOffset": -0.000732421875,
+      "EncoderOffset": 0.036376953125,
       "DriveMotorSelectionState": 1,
       "SteerMotorSelectionState": 1,
       "SteerEncoderSelectionState": 1,
@@ -91,7 +91,7 @@
       "IsEncoderInverted": false,
       "IsSteerInverted": false,
       "SelectedEncoderType": "CANcoder",
-      "EncoderOffset": -0.305908203125,
+      "EncoderOffset": 0.13427734375,
       "DriveMotorSelectionState": 1,
       "SteerMotorSelectionState": 1,
       "SteerEncoderSelectionState": 1,
@@ -140,7 +140,7 @@
       "IsEncoderInverted": false,
       "IsSteerInverted": false,
       "SelectedEncoderType": "CANcoder",
-      "EncoderOffset": -0.27490234375,
+      "EncoderOffset": -0.3916015625,
       "DriveMotorSelectionState": 1,
       "SteerMotorSelectionState": 1,
       "SteerEncoderSelectionState": 1,
@@ -189,7 +189,7 @@
       "IsEncoderInverted": false,
       "IsSteerInverted": false,
       "SelectedEncoderType": "CANcoder",
-      "EncoderOffset": -0.44677734375,
+      "EncoderOffset": -0.446044921875,
       "DriveMotorSelectionState": 1,
       "SteerMotorSelectionState": 1,
       "SteerEncoderSelectionState": 1,
@@ -217,10 +217,10 @@
     "SwerveModuleType": 12,
     "SwerveModuleConfiguration": {
       "ModuleBrand": 12,
-      "DriveRatio": 6.0,
+      "DriveRatio": 5.294117647058823,
       "SteerRatio": 25.9,
       "CouplingRatio": 0.0,
-      "CustomName": "X1 15T"
+      "CustomName": "X1 17T"
     },
     "HasVerifiedSteer": true,
     "SelectedModuleManufacturer": "WestCoast Products (WCP)",

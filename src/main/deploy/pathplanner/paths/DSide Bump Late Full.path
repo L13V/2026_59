@@ -3,45 +3,45 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 4.2,
-        "y": 7.44
+        "x": 3.65421052631579,
+        "y": 7.445555555555555
       },
       "prevControl": null,
       "nextControl": {
-        "x": 4.45,
-        "y": 7.44
+        "x": 9.65421052631579,
+        "y": 7.445555555555555
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 6.2,
-        "y": 7.44
+        "x": 9.449590643274854,
+        "y": 5.13766081871345
       },
       "prevControl": {
-        "x": 5.95,
-        "y": 7.44
+        "x": 9.09603725268158,
+        "y": 5.491214209306724
       },
       "nextControl": {
-        "x": 7.2,
-        "y": 7.44
+        "x": 10.156697424461402,
+        "y": 4.430554037526902
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 6.5,
-        "y": 3.44
+        "x": 9.449590643274854,
+        "y": 2.7
       },
       "prevControl": {
-        "x": 7.5,
-        "y": 3.44
+        "x": 9.949590643274854,
+        "y": 2.7
       },
       "nextControl": {
-        "x": 5.5,
-        "y": 3.44
+        "x": 8.449590643274854,
+        "y": 2.7
       },
       "isLocked": false,
       "linkedName": null
@@ -52,37 +52,41 @@
         "y": 2.7
       },
       "prevControl": {
-        "x": 6.05,
+        "x": 6.8,
         "y": 2.7
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Depot Center Intake End"
+      "linkedName": "Outpost Center Intake End"
     }
   ],
   "rotationTargets": [
     {
+      "waypointRelativePos": 0.3,
+      "rotationDegrees": 180.0
+    },
+    {
       "waypointRelativePos": 0.6,
-      "rotationDegrees": 14.999999999999998
+      "rotationDegrees": -90.0
     },
     {
-      "waypointRelativePos": 1.5,
-      "rotationDegrees": -119.99999999999999
+      "waypointRelativePos": 0.9,
+      "rotationDegrees": -90.0
     },
     {
-      "waypointRelativePos": 2.9,
-      "rotationDegrees": 90.0
+      "waypointRelativePos": 2.0,
+      "rotationDegrees": -135.0
     }
   ],
   "constraintZones": [
     {
-      "name": "Intake",
-      "minWaypointRelativePos": 0.5996409335727019,
-      "maxWaypointRelativePos": 2.4,
+      "name": "Constraints Zone",
+      "minWaypointRelativePos": 1.2,
+      "maxWaypointRelativePos": 2.5,
       "constraints": {
-        "maxVelocity": 1.9,
+        "maxVelocity": 1.6,
         "maxAcceleration": 10.0,
-        "maxAngularVelocity": 120.0,
+        "maxAngularVelocity": 540.0,
         "maxAngularAcceleration": 1464.0,
         "nominalVoltage": 11.0,
         "unlimited": false
@@ -92,35 +96,24 @@
   "pointTowardsZones": [],
   "eventMarkers": [
     {
-      "name": "intake",
+      "name": "deploy_intake",
       "waypointRelativePos": 0.0,
-      "endWaypointRelativePos": 0.89,
+      "endWaypointRelativePos": 0.29,
       "command": {
         "type": "named",
         "data": {
-          "name": "intake"
+          "name": "deploy_intake"
         }
       }
     },
     {
       "name": "shoot",
-      "waypointRelativePos": 0.91,
-      "endWaypointRelativePos": 1.7,
+      "waypointRelativePos": 0.7,
+      "endWaypointRelativePos": 2.5,
       "command": {
         "type": "named",
         "data": {
           "name": "shoot"
-        }
-      }
-    },
-    {
-      "name": "intake",
-      "waypointRelativePos": 1.71,
-      "endWaypointRelativePos": 2.7,
-      "command": {
-        "type": "named",
-        "data": {
-          "name": "intake"
         }
       }
     }
@@ -140,8 +133,8 @@
   "reversed": false,
   "folder": null,
   "idealStartingState": {
-    "velocity": 5.0,
-    "rotation": 14.999999999999998
+    "velocity": 0.0,
+    "rotation": 180.0
   },
   "useDefaultConstraints": true
 }

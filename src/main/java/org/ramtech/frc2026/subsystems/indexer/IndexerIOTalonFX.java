@@ -30,7 +30,6 @@ public class IndexerIOTalonFX implements IndexerIO {
 
 	// Control Methods
 	private final VoltageOut ballTunnelVoltageOut = new VoltageOut(0);
-	private final TorqueCurrentFOC torqueCurrentFOC = new TorqueCurrentFOC(0.0);
 
 	public IndexerIOTalonFX() {
 		// Build Configs

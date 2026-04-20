@@ -55,10 +55,10 @@ public final class Constants {
 
 	public static final class TargetPoses {
 		public static Pose3d hub = new Pose3d(4.645, 4.02, 1.82, new Rotation3d());
-		public static Pose3d leftFarPass = new Pose3d(1, 4.02 + 1.5, 0.50, new Rotation3d());
-		public static Pose3d rightFarPass = new Pose3d(1, 4.02 - 1.5, 0.50, new Rotation3d());
-		public static Pose3d leftClosePass = new Pose3d(1, 4.02 + 1.5, 0.50, new Rotation3d());
-		public static Pose3d rightClosePass = new Pose3d(1, 4.02 - 1.5, 0.50, new Rotation3d());
+		public static Pose3d leftFarPass = new Pose3d(1.5, 4.02 + 2.3, 0.20, new Rotation3d());
+		public static Pose3d rightFarPass = new Pose3d(1.5, 4.02 - 2.3, 0.20, new Rotation3d());
+		public static Pose3d leftClosePass = new Pose3d(1.5, 4.02 + 2.3, 0.20, new Rotation3d());
+		public static Pose3d rightClosePass = new Pose3d(1.5, 4.02 - 2.3, 0.20, new Rotation3d());
 	}
 
 	public static final class Offsets {
@@ -100,7 +100,10 @@ public final class Constants {
 	}
 
 	public static final class TowerConstants {
-		public static final int towerMotorId = 53;
+		public static final int towerMotorAId = 52;
+
+		public static final int towerMotorBId = 53;
+
 	}
 
 	public static final class TurretConstants {
@@ -117,6 +120,13 @@ public final class Constants {
 		public static final Double kV_Slot0 = 0.0;
 		public static final Double kA_Slot0 = 0.0;
 		public static final Double kG_Slot0 = 0.0;
+		public static final Double kP_Slot1 = 0.5 / 5;
+		public static final Double kI_Slot1 = 0.004999999888241291 / 5;
+		public static final Double kD_Slot1 = 0.0 / 5;
+		public static final Double kS_Slot1 = 0.1796875 / 5;
+		public static final Double kV_Slot1 = 0.0;
+		public static final Double kA_Slot1 = 0.0;
+		public static final Double kG_Slot1 = 0.0;
 		public static final double motionMagicAcceleration = 9000;
 		public static final double motionMagicCruiseVelocity = 770;
 		public static final double motionMagicJerk = 0;
@@ -130,10 +140,10 @@ public final class Constants {
 
 		public static final double turretAngleOffsetForZero = 180;
 
-		public static final double forwardSoftLimit = 800;
+		public static final double forwardSoftLimit = 1015;
 		public static final boolean forwardSoftLimitEnable = true;
 
-		public static final double reverseSoftLimit = 45;
+		public static final double reverseSoftLimit = 200;
 		public static final boolean reverseSoftLimitEnable = true;
 
 	}
@@ -151,6 +161,14 @@ public final class Constants {
 		public static final Double kA_Slot0 = 0.00015;
 		public static final Double kG_Slot0 = 0.0;
 
+		public static final Double kP_Slot1 = 3.5 / 5;
+		public static final Double kI_Slot1 = 0.0002 / 5;
+		public static final Double kD_Slot1 = 0.0;
+		public static final Double kS_Slot1 = 0.03 / 5;
+		public static final Double kV_Slot1 = 0.0;
+		public static final Double kA_Slot1 = 0.00015 / 5;
+		public static final Double kG_Slot1 = 0.0;
+
 		public static final double motionMagicAcceleration = 9000;
 		public static final double motionMagicCruiseVelocity = 770;
 		public static final double motionMagicJerk = 0;
@@ -166,8 +184,8 @@ public final class Constants {
 		public static final int leftMotorId = 58;
 		public static final int rightMotorId = 59;
 
-		public static final Double kP_Slot0 = 0.55;
-		public static final Double kI_Slot0 = 2.7;
+		public static final Double kP_Slot0 = 0.6;
+		public static final Double kI_Slot0 = 3.0;
 		public static final Double kD_Slot0 = 0.0;
 		public static final Double kS_Slot0 = 0.0;
 		public static final Double kV_Slot0 = 0.25;

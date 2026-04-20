@@ -110,6 +110,14 @@ public class Turret extends ShooterSubsystem {
 		}
 	}
 
+	public void setSlowSystemCheckPosition(double position) {
+		synchronized (outputsLock) {
+			outputs.setpointSource = TurretIOSetpointSource.MANUAL;
+			outputs.mode = TurretIOOutputMode.SYSTEMS_CHECK;
+			outputs.positionSetpoint = position;
+		}
+	}
+
 	public void setTurretIntakeLock(boolean lock) {
 		synchronized (outputsLock) {
 			outputs.turretLockedByIntake = lock;
@@ -133,5 +141,9 @@ public class Turret extends ShooterSubsystem {
 
 	public double getTurretAngle() {
 		return inputs.TurretMotorPosition - 90;
+	}
+
+	public boolean atPositionSetpoint(double target) {
+		return Math.abs(inputs.TurretMotorPosition - target) < 2;
 	}
 }

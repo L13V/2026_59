@@ -34,15 +34,15 @@ import org.ramtech.frc2026.subsystems.drive.Drive;
 
 public class DriveCommands {
 
-	private static final double DEADBAND = 0.1;
+	private static final double DEADBAND = 0.2;
 	private static final double ANGLE_KP = 5.0;
 	private static final double ANGLE_KD = 0.4;
 	private static final double ANGLE_MAX_VELOCITY = 8.0;
 	private static final double ANGLE_MAX_ACCELERATION = 20.0;
 	private static final double FF_START_DELAY = 2.0; // Secs
 	private static final double FF_RAMP_RATE = 0.1; // Volts/Sec
-	private static final double WHEEL_RADIUS_MAX_VELOCITY = 1.5; // Rad/Sec
-	private static final double WHEEL_RADIUS_RAMP_RATE = 0.15; // Rad/Sec^2
+	private static final double WHEEL_RADIUS_MAX_VELOCITY = 0.25; // Rad/Sec
+	private static final double WHEEL_RADIUS_RAMP_RATE = 0.05; // Rad/Sec^2
 
 	private DriveCommands() {
 	}
@@ -65,7 +65,7 @@ public class DriveCommands {
 	 * angular velocities).
 	 */
 	public static Command joystickDrive(Drive drive, DoubleSupplier xSupplier, DoubleSupplier ySupplier,
-			DoubleSupplier omegaSupplier, DoubleSupplier slew) {
+			DoubleSupplier omegaSupplier, DoubleSupplier slewRateTranslational, DoubleSupplier slewRateRotational) {
 		return Commands.run(() -> {
 			// Get linear velocity
 			Translation2d linearVelocity = getLinearVelocityFromJoysticks(xSupplier.getAsDouble(),
@@ -86,7 +86,7 @@ public class DriveCommands {
 			drive.runVelocity(
 					ChassisSpeeds.fromFieldRelativeSpeeds(speeds,
 							isFlipped ? drive.getRotation().plus(new Rotation2d(Math.PI)) : drive.getRotation()),
-					slew.getAsDouble());
+					slewRateTranslational.getAsDouble(), slewRateRotational.getAsDouble());
 		}, drive);
 	}
 

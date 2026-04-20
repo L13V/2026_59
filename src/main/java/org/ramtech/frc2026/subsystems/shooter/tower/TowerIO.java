@@ -9,12 +9,19 @@ public interface TowerIO {
 	public static class TowerIOInputs {
 		public StatusCode signalsOk = StatusCode.NodeIsInvalid;
 
-		public boolean towerConnected = false;
-		public boolean towerConfigured = false;
+		public boolean towerMotorAConnected = false;
+		public boolean towerMotorAConfigured = false;
 
-		public double towerMotorVoltage = 0.0;
-		public double towerVelocity = 0.0;
-		public double towerSupplyCurrent = 0.0;
+		public double towerMotorAVoltage = 0.0;
+		public double towerMotorAVelocity = 0.0;
+		public double towerMotorASupplyCurrent = 0.0;
+
+		public boolean towerMotorBConnected = false;
+		public boolean towerMotorBConfigured = false;
+
+		public double towerMotorBVoltage = 0.0;
+		public double towerMotorBVelocity = 0.0;
+		public double towerMotorBSupplyCurrent = 0.0;
 	}
 
 	public static enum TowerIOOutputMode {

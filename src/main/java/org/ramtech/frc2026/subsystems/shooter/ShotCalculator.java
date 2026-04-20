@@ -80,18 +80,20 @@ public class ShotCalculator {
 	 * Constants
 	 */
 	private static final double shotCeiling = 2.8; // m
-	private static final double rpsMin = 33;
-	private static final double rpsInterference = 80; // rps when the turret is aiming at the polycarb at home
-	private static final double rpsMax = 80;
-	private static final double rpsBump = 5;
-	private static final double rpsMult = 1.1;
+	private static final double rpsMin = 36;
+	// private static final double rpsInterference = 80; // rps when the turret is
+	// aiming at the polycarb at home
+	private static final double rpsMax = 84;
+	private static final double rpsIdeal = 76;
+	private static final double rpsBump = 4;
+	private static final double rpsMult = 1.13;
 
 	// Angles from horizontal (Radians)
 	public static final double hoodMinAngle = Math.toRadians(79);
 	public static final double hoodRange = Math.toRadians(41);
 	private static final double hoodMaxAngle = hoodMinAngle - hoodRange; // Math.toRadians(38)
 	private static final double hoodIdealAngle = Math.toRadians(48);
-	private static final double hoodInterferenceAngle = Math.toRadians(55);
+	// private static final double hoodInterferenceAngle = Math.toRadians(55);
 
 	private static final double g = 9.81; // m/s^2
 	private static final double ballMass = 0.226796; // kg
@@ -112,7 +114,8 @@ public class ShotCalculator {
 	private static final double backWheelRatio = (flyWheelRatio * (36.0 / 16.0) * (27.0 / 16.0));
 
 	private static final double maxGyroVelocity = 6;
-	private static final double maxGyroAcceleration = 15;
+	private static final double maxChassisVelocity = 2.5;
+	// private static final double maxGyroAcceleration = 15;
 	private static double angleRateLast = 0;
 	private static double tFlight = 0;
 
@@ -172,7 +175,7 @@ public class ShotCalculator {
 
 		double tLoop = 0.005;
 		double tOutput = 0.020;
-		double tReact = 0.040;
+		double tReact = 0.070;
 
 		RobotState robotState = RobotState.getInstance();
 		ChassisSpeeds fieldSpeeds = robotState.getFieldSpeeds();
@@ -181,7 +184,8 @@ public class ShotCalculator {
 
 		// Decoupled feedback logic
 		// double safeHoodAngleFeedback = Math
-		// 		.min((hoodMinAngle - Math.toRadians(RobotState.getInstance().getHoodAngle())), hoodMinAngle);
+		// .min((hoodMinAngle -
+		// Math.toRadians(RobotState.getInstance().getHoodAngle())), hoodMinAngle);
 
 		Pose2d robotPose = robotState.getRobotPose();
 		Pose2d turretPose = robotPose.transformBy(
@@ -195,10 +199,15 @@ public class ShotCalculator {
 		double fieldAngle = Math.toRadians(250 - 90) + robotState.getRotation().getRadians() + (angleRate * tLoop);
 		double turretAngular = (Offsets.turretOffset.getTranslation().getNorm() * angleRate);
 
-		Translation2d swingVelocityField = new Translation2d(turretAngular, new Rotation2d(fieldAngle));
-		Translation2d chassisVelocityField = new Translation2d(fieldSpeeds.vxMetersPerSecond,
-				fieldSpeeds.vyMetersPerSecond);
-		Translation2d totalRobotVelocityField = chassisVelocityField.plus(swingVelocityField);
+		Translation2d swingVelocityField = new Translation2d(0, new Rotation2d(fieldAngle));
+
+		Translation2d fieldVelocity = new Translation2d(fieldSpeeds.vxMetersPerSecond, fieldSpeeds.vyMetersPerSecond);
+
+		if (fieldVelocity.getNorm() > maxChassisVelocity) {
+			fieldVelocity = fieldVelocity.times(maxChassisVelocity / fieldVelocity.getNorm());
+		}
+
+		Translation2d totalRobotVelocityField = fieldVelocity.plus(swingVelocityField);
 
 		if (newZone != null) {
 			zone = newZone;
@@ -280,26 +289,25 @@ public class ShotCalculator {
 		double timeToTarget = Math.sqrt((2 * (trajectoryCeiling - vertFinal)) / g);
 
 		// 4. Total flight time
-		double totalFlightTime = timeToApex + timeToTarget;
+		double totalFlightTime = Math.max(timeToApex + timeToTarget, 1);
 
 		double velocityTowardsCombo = (latStatic / totalFlightTime) - robotVelocityTowards;
 
 		Translation2d horizontalVelocityCombo = new Translation2d(velocityTowardsCombo, 0 - robotVelocityPerpendicular);
 
 		double hoodAngle = Math.atan2(verticalVelocity, velocityTowardsCombo);
-		double velocityInitial = Math.hypot(velocityTowardsCombo, verticalVelocity);
 
 		Translation2d velocityVectorField = horizontalVelocityCombo.rotateBy(fieldAngleToTarget);
 
-		// double angleSub = hoodAngle - hoodIdealAngle;
+		double angleSub = hoodAngle - hoodIdealAngle;
 
-		// if (((rpsMax - last.flyWheelVelocity) / 50) < Math.abs(angleSub)) {
-		// if (angleSub < 0) {
-		// hoodAngle = hoodIdealAngle - ((rpsMax - last.flyWheelVelocity) / 50);
-		// } else {
-		// hoodAngle = hoodIdealAngle + ((rpsMax - last.flyWheelVelocity) / 50);
-		// }
-		// }
+		if (((rpsIdeal - last.flyWheelVelocity) / 50) < Math.abs(angleSub)) {
+			if (angleSub < 0) {
+				hoodAngle = hoodIdealAngle - ((rpsIdeal - last.flyWheelVelocity) / 50);
+			} else {
+				hoodAngle = hoodIdealAngle + ((rpsIdeal - last.flyWheelVelocity) / 50);
+			}
+		}
 
 		// boolean turretInterference = (MathUtil.inputModulus(last.turretAngle, -180.0,
 		// 180.0) >= -75.0
@@ -314,8 +322,15 @@ public class ShotCalculator {
 		// FIXED: Properly convert last.hoodAngle (vertical degrees) back to horizontal
 		// radians before smoothing/sanitizing
 		double lastHoodAngleRad = hoodMinAngle - Math.toRadians(last.hoodAngle);
-		// hoodAngle = DataProcessing.rawToSmooth(4, lastHoodAngleRad, hoodAngle);
+		hoodAngle = DataProcessing.rawToSmooth(6, lastHoodAngleRad, hoodAngle);
 		hoodAngle = DataProcessing.sanitize(lastHoodAngleRad, hoodMaxAngle, hoodMinAngle, hoodAngle);
+
+		if (hoodUnsafe) {
+			hoodAngle = hoodMinAngle;
+		}
+
+		// double velocityInitial = Math.hypot(velocityTowardsCombo, verticalVelocity);
+		double velocityInitial = velocityTowardsCombo / Math.cos(hoodAngle);
 
 		double airEst = (airDensity * ballArea * dragCoeff * velocityInitial * 0.5);
 		double velocityTarget = velocityInitial
@@ -339,10 +354,9 @@ public class ShotCalculator {
 		double turretAngle = getWrappedTurretAngle(dynamicRobotAngle.getDegrees())
 				- Math.toDegrees((angleRate * tReact));
 
-		// FIXED: In horizontal radians, hoodMinAngle (79 deg) is the steep/retracted
+		// In horizontal radians, hoodMinAngle (79 deg) is the steep/retracted
 		// safe position
 		if (hoodUnsafe) {
-			hoodAngle = hoodMinAngle;
 			flyWheelVelocity = rpsMin;
 		}
 

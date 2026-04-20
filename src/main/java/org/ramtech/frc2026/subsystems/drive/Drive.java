@@ -73,9 +73,9 @@ public class Drive extends SubsystemBase {
 	private final DynamicRateLimiter m_rotLimiter = new DynamicRateLimiter(0);
 
 	// PathPlanner config constants
-	private static final double ROBOT_MASS_KG = 50.3488;
-	private static final double ROBOT_MOI = 8.0;
-	private static final double WHEEL_COF = 1.5;
+	private static final double ROBOT_MASS_KG = 65;
+	private static final double ROBOT_MOI = 10.0;
+	private static final double WHEEL_COF = 1.0;
 	private static final RobotConfig PP_CONFIG = new RobotConfig(ROBOT_MASS_KG, ROBOT_MOI,
 			new ModuleConfig(TunerConstants.FrontLeft.WheelRadius, TunerConstants.kSpeedAt12Volts.in(MetersPerSecond),
 					WHEEL_COF, DCMotor.getKrakenX60Foc(1).withReduction(TunerConstants.FrontLeft.DriveMotorGearRatio),
@@ -143,16 +143,31 @@ public class Drive extends SubsystemBase {
 				new SysIdRoutine.Mechanism((voltage) -> runCharacterization(voltage.in(Volts)), null, this));
 	}
 
-	public Double getSlewFromState(GlobalStates state) {
+	public Double getTranslationalSlewFromState(GlobalStates state) {
 		switch (state) {
 			case IDLE :
-				return 10.0;
+				return 12.0;
 			case INTAKING :
 				return 10.0;
 			case SHOOTING :
 				return 5.0;
 			default :
-				return 10.0;
+				return 12.0;
+		}
+		// return 100000000000.0;
+
+	}
+
+	public Double getRotationalSlewFromState(GlobalStates state) {
+		switch (state) {
+			case IDLE :
+				return 9999999999.9;
+			case INTAKING :
+				return 9999999999.9;
+			case SHOOTING :
+				return 3.0;
+			default :
+				return 9999999999.9;
 		}
 		// return 100000000000.0;
 
@@ -163,13 +178,12 @@ public class Drive extends SubsystemBase {
 			case IDLE :
 				return 1.0;
 			case INTAKING :
-				return 0.5;
+				return (3.5 / TunerConstants.kSpeedAt12Volts.baseUnitMagnitude());
 			case SHOOTING :
-				return 0.5;
+				return (2.5 / TunerConstants.kSpeedAt12Volts.baseUnitMagnitude());
 			default :
 				return 1.0;
 		}
-		// return 100000000000.0;
 
 	}
 
@@ -181,9 +195,6 @@ public class Drive extends SubsystemBase {
 		// 2. Clamp the input between -limit and +limit
 		// Note: Make sure to import edu.wpi.first.math.MathUtil;
 		return MathUtil.clamp(joystickInput, -limit, limit);
-
-		// (If you aren't using WPILib, use standard Java instead):
-		// return Math.max(-limit, Math.min(joystickInput, limit));
 	}
 
 	@Override
@@ -274,12 +285,13 @@ public class Drive extends SubsystemBase {
 		Logger.recordOutput("SwerveStates/SetpointsOptimized", setpointStates);
 	}
 
-	public void runVelocity(ChassisSpeeds speeds, double rateLimit) {
+	public void runVelocity(ChassisSpeeds speeds, double slewRateTranslation, double slewRateRotation) {
 		// Apply the limiters using the parameter passed in
-		double x = m_xLimiter.calculate(speeds.vxMetersPerSecond, rateLimit, rateLimit * 5);
-		double y = m_yLimiter.calculate(speeds.vyMetersPerSecond, rateLimit, rateLimit * 5);
-		double rot = m_rotLimiter.calculate(speeds.omegaRadiansPerSecond, rateLimit * 3, rateLimit * 5); // Rot is often
-																											// faster
+		double x = m_xLimiter.calculate(speeds.vxMetersPerSecond, slewRateTranslation, slewRateTranslation);
+		double y = m_yLimiter.calculate(speeds.vyMetersPerSecond, slewRateTranslation, slewRateTranslation);
+		double rot = m_rotLimiter.calculate(speeds.omegaRadiansPerSecond, slewRateRotation, slewRateRotation); // Rot is
+																												// often
+		// faster
 
 		ChassisSpeeds limitedSpeeds = new ChassisSpeeds(x, y, rot);
 

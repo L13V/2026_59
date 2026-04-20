@@ -24,7 +24,7 @@ public interface HoodIO {
 	}
 
 	public static enum HoodIOOutputMode {
-		OFF, VOLTAGE, POSITION
+		OFF, VOLTAGE, POSITION, SYSTEMS_CHECK
 	}
 
 	@AutoLog

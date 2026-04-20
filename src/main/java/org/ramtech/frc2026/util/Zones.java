@@ -44,8 +44,9 @@ public class Zones {
 
 		// Center
 
-		zones.add(new Zone(4.028694, 6.80339, 4.028694 + 1.1938, 8.069326, "Our Left Trench", zoneType.hoodUnsafe));
-		zones.add(new Zone(4.028694, 0, 4.028694 + 1.1938, 1.265936, "Our Right Trench", zoneType.hoodUnsafe));
+		zones.add(
+				new Zone(4.228694, 6.80339, 4.028694 + 1.1938 - 0.3, 8.069326, "Our Left Trench", zoneType.hoodUnsafe));
+		zones.add(new Zone(4.228694, 0, 4.028694 + 1.1938 - 0.3, 1.265936, "Our Right Trench", zoneType.hoodUnsafe));
 
 		zones.add(new Zone(11.318496, 6.80339, 11.318496 + 1.1938, 8.069326, "Opposing Right Trench",
 				zoneType.hoodUnsafe));

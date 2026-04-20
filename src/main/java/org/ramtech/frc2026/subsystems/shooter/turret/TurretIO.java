@@ -43,7 +43,7 @@ public interface TurretIO {
 	}
 
 	public static enum TurretIOOutputMode {
-		OFF, VOLTAGE, POSITION
+		OFF, VOLTAGE, POSITION, SYSTEMS_CHECK
 	}
 
 	@AutoLog

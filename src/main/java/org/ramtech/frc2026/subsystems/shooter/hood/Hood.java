@@ -99,6 +99,14 @@ public class Hood extends ShooterSubsystem {
 		}
 	}
 
+	public void setSlowSystemCheckPosition(double position) {
+		synchronized (outputsLock) {
+			outputs.setpointSource = HoodIOSetpointSource.MANUAL;
+			outputs.mode = HoodIOOutputMode.SYSTEMS_CHECK;
+			outputs.positionSetpoint = position;
+		}
+	}
+
 	public void stop() {
 		synchronized (outputsLock) {
 			outputs.setpointSource = HoodIOSetpointSource.MANUAL;
@@ -110,5 +118,9 @@ public class Hood extends ShooterSubsystem {
 
 	public double getHoodAngle() {
 		return inputs.hoodPosition + ShotCalculator.hoodMinAngle;
+	}
+
+	public boolean atPositionSetpoint(double target) {
+		return Math.abs(inputs.hoodPosition - target) < 0.3;
 	}
 }
