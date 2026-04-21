@@ -53,13 +53,6 @@ public class HoodIOTalonFX implements HoodIO {
 		hoodConfig.Slot0.kV = HoodConstants.kV_Slot0;
 		hoodConfig.Slot0.kA = HoodConstants.kA_Slot0;
 		hoodConfig.Slot0.kG = HoodConstants.kG_Slot0;
-		hoodConfig.Slot1.kP = HoodConstants.kP_Slot1;
-		hoodConfig.Slot1.kI = HoodConstants.kI_Slot1;
-		hoodConfig.Slot1.kD = HoodConstants.kD_Slot1;
-		hoodConfig.Slot1.kS = HoodConstants.kS_Slot1;
-		hoodConfig.Slot1.kV = HoodConstants.kV_Slot1;
-		hoodConfig.Slot1.kA = HoodConstants.kA_Slot1;
-		hoodConfig.Slot1.kG = HoodConstants.kG_Slot1;
 		hoodConfig.MotionMagic.MotionMagicAcceleration = HoodConstants.motionMagicAcceleration;
 		hoodConfig.MotionMagic.MotionMagicCruiseVelocity = HoodConstants.motionMagicCruiseVelocity;
 		hoodConfig.MotionMagic.MotionMagicJerk = HoodConstants.motionMagicJerk;

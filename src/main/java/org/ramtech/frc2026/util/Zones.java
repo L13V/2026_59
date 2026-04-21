@@ -7,6 +7,8 @@ import edu.wpi.first.math.util.Units;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.ramtech.frc2026.Constants.FieldConstants;
+
 public class Zones {
 
 	public static enum zoneType {
@@ -34,36 +36,7 @@ public class Zones {
 	}
 
 	public Zones() {
-		// Our alliance zone
-		// Our Left Trench
-		// Our Right Trench
-
-		// Opposing alliance zone
-		// Their Left Trench
-		// Their Right Trench
-
-		// Center
-
-		zones.add(
-				new Zone(4.228694, 6.80339, 4.028694 + 1.1938 - 0.3, 8.069326, "Our Left Trench", zoneType.hoodUnsafe));
-		zones.add(new Zone(4.228694, 0, 4.028694 + 1.1938 - 0.3, 1.265936, "Our Right Trench", zoneType.hoodUnsafe));
-
-		zones.add(new Zone(11.318496, 6.80339, 11.318496 + 1.1938, 8.069326, "Opposing Right Trench",
-				zoneType.hoodUnsafe));
-		zones.add(new Zone(11.318496, 0, 11.318496 + 1.1938, 1.265936, "Opposing Left Trench", zoneType.hoodUnsafe));
-
-		zones.add(new Zone(0, 0, 5.222494, 8.069326, "Our Alliance", zoneType.scoring));
-		zones.add(new Zone(5.222494, (8.069326 / 2) + 0.1, 11.318496, 8.069326, "Left Center",
-				zoneType.passingcloseleft));
-		zones.add(new Zone(5.222494, 0, 11.318496, (8.069326 / 2) - 0.1, "Right Center", zoneType.passingcloseright));
-
-		// zones.add(new Zone(11.318496, 0, 16.540988, 8.069326, "Opposing Alliance",
-		// zoneType.passingcloseleft));
-		zones.add(new Zone(11.318496, (8.069326 / 2) + 0.1, 16.540988, 8.069326, "Opposing Alliance Left",
-				zoneType.passingfarleft));
-		zones.add(new Zone(11.318496, 0, 16.540988, (8.069326 / 2) - 0.1, "Opposing Alliance Right",
-				zoneType.passingfarright));
-
+		zones.addAll(FieldConstants.allZones);
 	}
 
 	/**

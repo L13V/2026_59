@@ -2,7 +2,10 @@ package org.ramtech.frc2026.subsystems.shooter;
 
 import static edu.wpi.first.units.Units.*;
 
+import java.lang.reflect.Field;
+
 import org.littletonrobotics.junction.Logger;
+import org.ramtech.frc2026.Constants.FieldConstants;
 import org.ramtech.frc2026.Constants.Offsets;
 import org.ramtech.frc2026.Constants.TargetPoses;
 import org.ramtech.frc2026.Constants.TurretConstants;
@@ -12,6 +15,8 @@ import org.ramtech.frc2026.util.HubShiftUtil;
 import org.ramtech.frc2026.util.Zones;
 import org.ramtech.frc2026.util.Zones.Zone;
 import org.ramtech.frc2026.util.Zones.zoneType;
+
+import com.ctre.phoenix6.mechanisms.swerve.LegacySwerveRequest.FieldCentric;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -171,6 +176,22 @@ public class ShotCalculator {
 		return tFlight;
 	}
 
+	public double getClosestXThreshold(Double xPos) {
+		double ourAllianceHoodLower = AllianceFlipUtil.applyX(FieldConstants.ourAllianceHoodLower);
+		double opposingAllianceHoodLower = FieldConstants.fieldLength-ourAllianceHoodLower;
+
+		if (xPos<FieldConstants.fieldLength/2) {
+			return ourAllianceHoodLower;
+		} else {
+			return opposingAllianceHoodLower;
+		}
+	}
+
+	public double getDistancetoClosestXThreshhold(Pose2d robotPose) {
+		double robotX = robotPose.getX();
+		return Math.abs(robotX-getClosestXThreshold(robotX));
+	}
+
 	public void update() {
 
 		double tLoop = 0.005;
@@ -299,15 +320,21 @@ public class ShotCalculator {
 
 		Translation2d velocityVectorField = horizontalVelocityCombo.rotateBy(fieldAngleToTarget);
 
-		double angleSub = hoodAngle - hoodIdealAngle;
+		// double angleSub = hoodAngle - hoodIdealAngle;
 
-		if (((rpsIdeal - last.flyWheelVelocity) / 50) < Math.abs(angleSub)) {
-			if (angleSub < 0) {
-				hoodAngle = hoodIdealAngle - ((rpsIdeal - last.flyWheelVelocity) / 50);
-			} else {
-				hoodAngle = hoodIdealAngle + ((rpsIdeal - last.flyWheelVelocity) / 50);
-			}
-		}
+		// if (((rpsIdeal - last.flyWheelVelocity) / 50) < Math.abs(angleSub)) {
+		// 	if (angleSub < 0) {
+		// 		hoodAngle = hoodIdealAngle - ((rpsIdeal - last.flyWheelVelocity) / 50);
+		// 	} else {
+		// 		hoodAngle = hoodIdealAngle + ((rpsIdeal - last.flyWheelVelocity) / 50);
+		// 	}
+		// }
+
+		// Hood Lowering
+
+		double distanceToThreshold = getDistancetoClosestXThreshhold(robotPose);
+		double hoodSafeAngle = ((hoodMaxAngle-hoodMinAngle)*(distanceToThreshold-0.5))+hoodMinAngle;
+		hoodAngle = Math.max(hoodSafeAngle,hoodAngle);
 
 		// boolean turretInterference = (MathUtil.inputModulus(last.turretAngle, -180.0,
 		// 180.0) >= -75.0

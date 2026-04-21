@@ -8,17 +8,18 @@
 package org.ramtech.frc2026.util;
 
 import org.ramtech.frc2026.Constants;
+import org.ramtech.frc2026.Constants.FieldConstants;
 
 import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.wpilibj.DriverStation;
 
 public class AllianceFlipUtil {
 	public static double applyX(double x) {
-		return shouldFlip() ? Constants.FieldConstants.fieldLength - x : x;
+		return shouldFlip() ? FieldConstants.fieldLength - x : x;
 	}
 
 	public static double applyY(double y) {
-		return shouldFlip() ? Constants.FieldConstants.fieldWidth - y : y;
+		return shouldFlip() ? FieldConstants.fieldWidth - y : y;
 	}
 
 	public static Translation2d apply(Translation2d translation) {
