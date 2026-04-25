@@ -10,14 +10,16 @@ import org.littletonrobotics.junction.Logger;
 import org.ramtech.frc2026.Robot;
 import org.ramtech.frc2026.subsystems.shooter.tower.TowerIO.TowerIOOutputMode;
 import org.ramtech.frc2026.subsystems.shooter.tower.TowerIO.TowerIOOutputs;
-import org.ramtech.frc2026.util.FullSubsystem;
+import org.ramtech.frc2026.util.ShooterSubsystem;
 
-public class Tower extends FullSubsystem {
+public class Tower extends ShooterSubsystem {
 
 	// IO
 	private final TowerIO io;
 	private final TowerIOInputsAutoLogged inputs = new TowerIOInputsAutoLogged();
 	private final TowerIOOutputs outputs = new TowerIOOutputs();
+
+	private final Object inputsLock = new Object(); // Create a lock
 	// Alerts
 	private final Debouncer towerMotorADebouncer = new Debouncer(0.5, Debouncer.DebounceType.kFalling);
 	private final Debouncer towerMotorBDebouncer = new Debouncer(0.5, Debouncer.DebounceType.kFalling);
@@ -32,12 +34,13 @@ public class Tower extends FullSubsystem {
 
 	public void periodic() {
 		// This method will be called once per scheduler run
-		io.updateInputs(inputs);
-		Logger.processInputs("Shooter/Tower", inputs);
+		synchronized (inputsLock) {
+			Logger.processInputs("Shooter/Tower", inputs);
+		}
 		towerMotorADisconnected
 				.set(Robot.showHardwareAlerts() && !towerMotorADebouncer.calculate(inputs.towerMotorAConnected));
 		towerMotorBDisconnected
-				.set(Robot.showHardwareAlerts() && !towerMotorBDebouncer.calculate(inputs.towerMotorAConnected));
+				.set(Robot.showHardwareAlerts() && !towerMotorBDebouncer.calculate(inputs.towerMotorBConnected));
 
 	}
 
@@ -64,5 +67,16 @@ public class Tower extends FullSubsystem {
 		outputs.mode = TowerIOOutputMode.OFF;
 		outputs.voltageSetpoint = 0.0;
 		outputs.velocitySetpoint = 0.0;
+	}
+
+	@Override
+	public void shooterPeriodic() {
+		synchronized (inputsLock) {
+			io.updateInputs(inputs);
+		}
+	}
+
+	public double getVelocity() {
+		return inputs.towerMotorAVelocity;
 	}
 }

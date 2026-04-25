@@ -16,7 +16,6 @@ import org.ramtech.frc2026.util.ShooterSubsystem;
 
 public class Turret extends ShooterSubsystem {
 	private final Object outputsLock = new Object();
-
 	// IO
 	private final TurretIO io;
 	private final TurretIOInputsAutoLogged inputs = new TurretIOInputsAutoLogged();

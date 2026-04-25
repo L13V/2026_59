@@ -187,12 +187,13 @@ public class RobotContainer {
 
 		RobotState.getInstance().setPoseSupplier(drive::getPose);
 		RobotState.getInstance().setSpeedSupplier(drive::getChassisSpeeds);
-		RobotState.getInstance().setModuleStateSupplier(drive::getModuleStates);
+		// RobotState.getInstance().setModuleStateSupplier(drive::getModuleStates);
 		RobotState.getInstance().setAccelerationSupplier(drive::getAcceleration);
-		RobotState.getInstance().setFlywheelRpsSupplier(flywheel::getAverageVelocity);
+		// RobotState.getInstance().setFlywheelRpsSupplier(flywheel::getAverageVelocity);
 		RobotState.getInstance().setTurretAngleSupplier(turret::getTurretAngle);
 		RobotState.getInstance().setHoodAngleSupplier(hood::getHoodAngle);
 		RobotState.getInstance().setGyroAngleRateSupplier(drive::getGyroAngleRate);
+		RobotState.getInstance().setTowerRpsSupplier(tower::getVelocity);
 
 		// Set up auto routines
 		autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooserWithOptionsModifier(
@@ -290,30 +291,6 @@ public class RobotContainer {
 		operatorcontroller.a().onTrue(new InstantCommand(() -> hood.setHoodDriverLock(true)));
 		operatorcontroller.y().onTrue(new InstantCommand(() -> hood.setHoodDriverLock(false)));
 
-		// drivercontroller.povDown().onTrue(new InstantCommand(() ->
-		// flywheel.enableCalculation()));
-
-		// Raise Rps
-		// operatorcontroller.povUp().onTrue(Commands.sequence(Commands.runOnce(() -> {
-		// double currentBump = Preferences.getDouble("rpsBump", 0.0);
-		// double newBump = currentBump + 0.5;
-
-		// Preferences.setDouble("rpsBump", newBump);
-
-		// System.out.println("Shooter RPM bumped to: " + newBump);
-
-		// }), new InstantCommand(() ->
-		// ShotCalculator.getInstance().refreshRpsBump())));
-
-		// Lower Rps
-		// operatorcontroller.povDown().onTrue(Commands.sequence(Commands.runOnce(() ->
-		// {
-		// double currentBump = Preferences.getDouble("rpsBump", 0.0);
-		// Preferences.setDouble("rpsBump", currentBump - 0.5);
-		// System.out.println("Shooter RPM dropped to: " + (currentBump - 0.5));
-		// }), new InstantCommand(() ->
-		// ShotCalculator.getInstance().refreshRpsBump())));
-
 		DriverStation.silenceJoystickConnectionWarning(true);
 	}
 
@@ -370,7 +347,7 @@ public class RobotContainer {
 				// flywheel.enableCalculation();
 				intake.setRollerVoltage(13);
 				tower.setVoltage(13);
-				indexer.setVoltage(5);
+				indexer.setVoltage(13);
 				// intake.setAutoMode(IntakeIOAutoDirections.FORWARD);
 			} else {
 				tower.stop();
@@ -410,7 +387,7 @@ public class RobotContainer {
 					}
 					intake.lowerPivot();
 					intake.setRollerVoltage(13);
-					indexer.setVoltage(-13);
+					indexer.stop();
 					// intake.setRollerVoltage(10.0);
 					// indexer.setVoltage(-10);
 				}, () -> {

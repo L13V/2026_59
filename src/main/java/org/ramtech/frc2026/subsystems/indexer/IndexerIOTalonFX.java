@@ -74,16 +74,15 @@ public class IndexerIOTalonFX implements IndexerIO {
 	@Override
 	public void applyOutputs(IndexerIOOutputs outputs) {
 		switch (outputs.mode) {
-			case OFF:
+			case OFF :
 				indexerMotor.stopMotor();
 				slewRate.reset(0);
 				break;
 
-			case VOLTAGE:
-				indexerMotor.setControl(
-						ballTunnelVoltageOut
-								.withOutput(slewRate.calculate(outputs.indexerVoltageSetpoint, 10, 100000000))
-								.withEnableFOC(true));
+			case VOLTAGE :
+				indexerMotor.setControl(ballTunnelVoltageOut
+						.withOutput(slewRate.calculate(outputs.indexerVoltageSetpoint, 10, 100000000))
+						.withEnableFOC(true));
 				break;
 		}
 	}

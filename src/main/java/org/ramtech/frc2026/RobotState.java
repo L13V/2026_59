@@ -44,6 +44,7 @@ public class RobotState {
 	private Supplier<Double> turretAngleSupplier = () -> 0.0;
 	private Supplier<Double> hoodAngleSupplier = () -> 0.0;
 	private Supplier<Double> gyroAngleRateSupplier = () -> 0.0;
+	private Supplier<Double> towerRpsSupplier = () -> 0.0;
 
 	private Pose2d[] activePPTrajectory = new Pose2d[0];
 	private Pose2d[] previewPPTrajectory = new Pose2d[0];
@@ -83,6 +84,10 @@ public class RobotState {
 
 	public void setGyroAngleRateSupplier(Supplier<Double> supplier) {
 		this.gyroAngleRateSupplier = supplier;
+	}
+
+	public void setTowerRpsSupplier(Supplier<Double> supplier) {
+		this.towerRpsSupplier = supplier;
 	}
 
 	public void setActivePathPlannerTrajectory(Pose2d[] trajectory) {
@@ -142,6 +147,10 @@ public class RobotState {
 
 	public Double getBatteryVoltage() {
 		return RobotController.getBatteryVoltage();
+	}
+
+	public Double getTowerRpsSupplier() {
+		return towerRpsSupplier.get();
 	}
 
 	public void setGlobalState(GlobalStates newState) {

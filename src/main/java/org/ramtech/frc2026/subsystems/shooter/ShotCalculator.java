@@ -75,7 +75,7 @@ public class ShotCalculator {
 	private double swingVelocityY = 0.0;
 
 	private double turretDiffLast = 0.0;
-	private Pose2d angleRatePose = new Pose2d();
+	// private Pose2d angleRatePose = new Pose2d();
 
 	/*
 	 * Constants
@@ -197,14 +197,16 @@ public class ShotCalculator {
 		RobotState robotState = RobotState.getInstance();
 		ChassisSpeeds fieldSpeeds = robotState.getFieldSpeeds();
 		double gyroAngleRateRaw = robotState.getGyroAngleRate();
-		double turretAngleFeedback = RobotState.getInstance().getTurretAngle();
+		double turretAngleFeedback = robotState.getTurretAngle();
+		double towerRps = robotState.getFlywheelRps();
+		Pose2d robotPose = robotState.getRobotPose();
+		Rotation2d rotation = robotState.getRotation();
 
 		// Decoupled feedback logic
 		// double safeHoodAngleFeedback = Math
 		// .min((hoodMinAngle -
 		// Math.toRadians(RobotState.getInstance().getHoodAngle())), hoodMinAngle);
 
-		Pose2d robotPose = robotState.getRobotPose();
 		Pose2d turretPose = robotPose.transformBy(
 				new Transform2d(Offsets.turretOffset.getX(), Offsets.turretOffset.getY(), new Rotation2d()));
 
@@ -213,7 +215,7 @@ public class ShotCalculator {
 		angleRate = DataProcessing.sanitize(angleRateLast, -maxGyroVelocity, maxGyroVelocity, gyroAngleRateRaw);
 		angleRateLast = angleRate;
 
-		double fieldAngle = Math.toRadians(250 - 90) + robotState.getRotation().getRadians() + (angleRate * tLoop);
+		double fieldAngle = Math.toRadians(250 - 90) + rotation.getRadians() + (angleRate * tLoop);
 		double turretAngular = (Offsets.turretOffset.getTranslation().getNorm() * angleRate);
 
 		Translation2d swingVelocityField = new Translation2d(0, new Rotation2d(fieldAngle));
@@ -373,7 +375,7 @@ public class ShotCalculator {
 		// }
 		flyWheelVelocity = DataProcessing.sanitize(last.flyWheelVelocity, rpsMin, rpsMax, flyWheelVelocity);
 
-		Rotation2d dynamicRobotAngle = velocityVectorField.getAngle().minus(robotState.getRobotPose().getRotation());
+		Rotation2d dynamicRobotAngle = velocityVectorField.getAngle().minus(robotPose.getRotation());
 		double turretAngle = getWrappedTurretAngle(dynamicRobotAngle.getDegrees())
 				- Math.toDegrees((angleRate * tReact));
 
@@ -396,7 +398,8 @@ public class ShotCalculator {
 		turretDiffLast = turretDiff;
 		transitionInProgress = ((turretDiff > 50) || switchCommanded);
 
-		angleRatePose = robotPose.transformBy(new Transform2d(0.0, 0.0, new Rotation2d(angleRate * tOutput)));
+		// angleRatePose = robotPose.transformBy(new Transform2d(0.0, 0.0, new
+		// Rotation2d(angleRate * tOutput)));
 
 	}
 
@@ -412,6 +415,6 @@ public class ShotCalculator {
 		Logger.recordOutput("swingVelocityY", swingVelocityY);
 		// Logger.recordOutput("anglerratepose", hoodAngle);
 		// Logger.recordOutput("anglerratepose", safehood);
-		Logger.recordOutput("anglerratepose", angleRatePose);
+		// Logger.recordOutput("anglerratepose", angleRatePose);
 	}
 }

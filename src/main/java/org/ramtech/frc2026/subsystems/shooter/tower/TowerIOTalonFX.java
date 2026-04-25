@@ -63,7 +63,7 @@ public class TowerIOTalonFX implements TowerIO {
 		towerMotorBVoltageSig = towerMotorB.getMotorVoltage();
 		towerMotorBVelocitySig = towerMotorB.getVelocity();
 		towerMotorBCurrentSig = towerMotorB.getSupplyCurrent();
-		BaseStatusSignal.setUpdateFrequencyForAll(50.0, towerMotorAVoltageSig, towerMotorAVelocitySig,
+		BaseStatusSignal.setUpdateFrequencyForAll(200.0, towerMotorAVoltageSig, towerMotorAVelocitySig,
 				towerMotorACurrentSig, towerMotorBVoltageSig, towerMotorBVelocitySig, towerMotorBCurrentSig);
 
 		towerMotorA.optimizeBusUtilization();
