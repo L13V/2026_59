@@ -370,7 +370,7 @@ public class RobotContainer {
 				// flywheel.enableCalculation();
 				intake.setRollerVoltage(13);
 				tower.setVoltage(13);
-				indexer.setVoltage(13);
+				indexer.setVoltage(5);
 				// intake.setAutoMode(IntakeIOAutoDirections.FORWARD);
 			} else {
 				tower.stop();
@@ -453,7 +453,7 @@ public class RobotContainer {
 			indexer.stop();;
 			intake.stopRollers();
 			tower.stop();
-			flywheel.stop();
+			flywheel.setVelocity(17);
 		}, indexer, intake, flywheel);
 	}
 

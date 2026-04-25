@@ -22,7 +22,6 @@ public class Tower extends FullSubsystem {
 	private final Debouncer towerMotorADebouncer = new Debouncer(0.5, Debouncer.DebounceType.kFalling);
 	private final Debouncer towerMotorBDebouncer = new Debouncer(0.5, Debouncer.DebounceType.kFalling);
 
-
 	private final Alert towerMotorADisconnected = new Alert("Tower Motor Disconnected!", Alert.AlertType.kWarning);
 	private final Alert towerMotorBDisconnected = new Alert("Tower Motor Disconnected!", Alert.AlertType.kWarning);
 
@@ -35,9 +34,11 @@ public class Tower extends FullSubsystem {
 		// This method will be called once per scheduler run
 		io.updateInputs(inputs);
 		Logger.processInputs("Shooter/Tower", inputs);
-		towerMotorADisconnected.set(Robot.showHardwareAlerts() && !towerMotorADebouncer.calculate(inputs.towerMotorAConnected));
-		towerMotorBDisconnected.set(Robot.showHardwareAlerts() && !towerMotorBDebouncer.calculate(inputs.towerMotorAConnected));
-	
+		towerMotorADisconnected
+				.set(Robot.showHardwareAlerts() && !towerMotorADebouncer.calculate(inputs.towerMotorAConnected));
+		towerMotorBDisconnected
+				.set(Robot.showHardwareAlerts() && !towerMotorBDebouncer.calculate(inputs.towerMotorAConnected));
+
 	}
 
 	@Override

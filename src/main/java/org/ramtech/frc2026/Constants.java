@@ -69,28 +69,18 @@ public final class Constants {
 		public static final Zone ourAlliance = new Zone(0, 0, 5.222494, 8.069326, "Our Alliance", zoneType.scoring);
 
 		public static final Zone centerPassLeft = new Zone(5.222494, (8.069326 / 2) + 0.1, 11.318496, 8.069326,
-				"Left Center",
-				zoneType.passingcloseleft);
+				"Left Center", zoneType.passingcloseleft);
 		public static final Zone centerPassRight = new Zone(5.222494, 0, 11.318496, (8.069326 / 2) - 0.1,
 				"Right Center", zoneType.passingcloseright);
 
 		public static final Zone farPassLeft = new Zone(11.318496, (8.069326 / 2) + 0.1, 16.540988, 8.069326,
-				"Opposing Alliance Left",
-				zoneType.passingfarleft);
+				"Opposing Alliance Left", zoneType.passingfarleft);
 
 		public static final Zone farPassRight = new Zone(11.318496, 0, 16.540988, (8.069326 / 2) - 0.1,
 				"Opposing Alliance Right", zoneType.passingfarright);
 
-		public static final List<Zone> allZones = List.of(
-				ourLeftTrench,
-				ourRightTrench,
-				opposingLeftTrench,
-				opposingRightTrench,
-				ourAlliance,
-				centerPassLeft,
-				centerPassRight,
-				farPassLeft,
-				farPassRight);
+		public static final List<Zone> allZones = List.of(ourLeftTrench, ourRightTrench, opposingLeftTrench,
+				opposingRightTrench, ourAlliance, centerPassLeft, centerPassRight, farPassLeft, farPassRight);
 	}
 
 	public static final class TargetPoses {

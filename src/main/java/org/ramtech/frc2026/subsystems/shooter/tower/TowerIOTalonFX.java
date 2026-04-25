@@ -95,16 +95,16 @@ public class TowerIOTalonFX implements TowerIO {
 	@Override
 	public void applyOutputs(TowerIOOutputs outputs) {
 		switch (outputs.mode) {
-			case OFF:
+			case OFF :
 				towerMotorA.stopMotor();
 				towerMotorB.stopMotor();
 
 				break;
-			case VOLTAGE:
+			case VOLTAGE :
 				towerMotorA.setControl(voltageOut.withOutput(outputs.voltageSetpoint).withEnableFOC(true));
 				towerMotorB.setControl(follower);
 				break;
-			case VELOCITY:
+			case VELOCITY :
 				towerMotorA.setControl(velocityVoltage.withVelocity(outputs.velocitySetpoint).withEnableFOC(true));
 				towerMotorB.setControl(follower);
 				break;

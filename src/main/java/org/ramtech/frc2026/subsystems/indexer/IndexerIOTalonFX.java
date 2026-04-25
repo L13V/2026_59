@@ -5,7 +5,6 @@ import static org.ramtech.frc2026.util.PhoenixUtil.*;
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.TorqueCurrentFOC;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.*;
@@ -14,10 +13,12 @@ import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
 import org.ramtech.frc2026.Constants;
 import org.ramtech.frc2026.Constants.IndexerConstants;
+import org.ramtech.frc2026.util.DynamicRateLimiter;
 
 public class IndexerIOTalonFX implements IndexerIO {
 	// Motors
 	private final TalonFX indexerMotor = new TalonFX(IndexerConstants.indexerMotorID, Constants.CANivore);
+	private final DynamicRateLimiter slewRate = new DynamicRateLimiter(0);
 
 	// Configuration
 	private final TalonFXConfiguration indexer = new TalonFXConfiguration();
@@ -36,11 +37,11 @@ public class IndexerIOTalonFX implements IndexerIO {
 		// Roller
 		indexer.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 		indexer.MotorOutput.NeutralMode = NeutralModeValue.Coast;
-		indexer.CurrentLimits.StatorCurrentLimit = 30;
+		indexer.CurrentLimits.StatorCurrentLimit = 120;
 		indexer.CurrentLimits.StatorCurrentLimitEnable = true;
-		indexer.CurrentLimits.SupplyCurrentLimit = 30;
+		indexer.CurrentLimits.SupplyCurrentLimit = 80;
 		indexer.CurrentLimits.SupplyCurrentLimitEnable = true;
-		indexer.CurrentLimits.SupplyCurrentLowerLimit = 30;
+		indexer.CurrentLimits.SupplyCurrentLowerLimit = 60;
 		indexer.CurrentLimits.SupplyCurrentLowerTime = 1;
 
 		// Configure Motors
@@ -73,13 +74,16 @@ public class IndexerIOTalonFX implements IndexerIO {
 	@Override
 	public void applyOutputs(IndexerIOOutputs outputs) {
 		switch (outputs.mode) {
-			case OFF :
+			case OFF:
 				indexerMotor.stopMotor();
+				slewRate.reset(0);
 				break;
 
-			case VOLTAGE :
+			case VOLTAGE:
 				indexerMotor.setControl(
-						ballTunnelVoltageOut.withOutput(outputs.indexerVoltageSetpoint).withEnableFOC(true));
+						ballTunnelVoltageOut
+								.withOutput(slewRate.calculate(outputs.indexerVoltageSetpoint, 10, 100000000))
+								.withEnableFOC(true));
 				break;
 		}
 	}
