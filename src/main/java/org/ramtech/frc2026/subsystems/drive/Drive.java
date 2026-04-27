@@ -70,7 +70,6 @@ public class Drive extends SubsystemBase {
 	// Inside your Swerve Subsystem class
 	private final DynamicRateLimiter m_xLimiter = new DynamicRateLimiter(0);
 	private final DynamicRateLimiter m_yLimiter = new DynamicRateLimiter(0);
-	private final DynamicRateLimiter m_rotLimiter = new DynamicRateLimiter(0);
 
 	// PathPlanner config constants
 	private static final double ROBOT_MASS_KG = 65;
@@ -150,7 +149,7 @@ public class Drive extends SubsystemBase {
 			case INTAKING :
 				return 10.0;
 			case SHOOTING :
-				return 5.0;
+				return 4.0;
 			default :
 				return 12.0;
 		}
@@ -158,22 +157,7 @@ public class Drive extends SubsystemBase {
 
 	}
 
-	public Double getRotationalSlewFromState(GlobalStates state) {
-		switch (state) {
-			case IDLE :
-				return 9999999999.9;
-			case INTAKING :
-				return 9999999999.9;
-			case SHOOTING :
-				return 3.0;
-			default :
-				return 9999999999.9;
-		}
-		// return 100000000000.0;
-
-	}
-
-	public Double getDriveMaxJoystick(GlobalStates state) {
+	public Double getDriveMaxVelocity(GlobalStates state) {
 		switch (state) {
 			case IDLE :
 				return 1.0;
@@ -187,10 +171,34 @@ public class Drive extends SubsystemBase {
 
 	}
 
+	public Double getRotationMaxVelocity(GlobalStates state) {
+		switch (state) {
+			case IDLE :
+				return 1.0;
+			case INTAKING :
+				return 1.0;
+			case SHOOTING :
+				return (2.5 / TunerConstants.kSpeedAt12Volts.baseUnitMagnitude());
+			default :
+				return 1.0;
+		}
+
+	}
+
 	// Add this helper method to your subsystem or command configuration file
-	public double clampToMaxJoystick(double joystickInput) {
+	public double clampToMaxDriveVelocity(double joystickInput) {
 		// 1. Get the current limit (e.g., 0.5)
-		double limit = getDriveMaxJoystick(RobotState.getInstance().getGlobalState());
+		double limit = getDriveMaxVelocity(RobotState.getInstance().getGlobalState());
+
+		// 2. Clamp the input between -limit and +limit
+		// Note: Make sure to import edu.wpi.first.math.MathUtil;
+		return MathUtil.clamp(joystickInput, -limit, limit);
+	}
+
+	// Add this helper method to your subsystem or command configuration file
+	public double clampToMaxRotationVelocity(double joystickInput) {
+		// 1. Get the current limit (e.g., 0.5)
+		double limit = getRotationMaxVelocity(RobotState.getInstance().getGlobalState());
 
 		// 2. Clamp the input between -limit and +limit
 		// Note: Make sure to import edu.wpi.first.math.MathUtil;
@@ -285,13 +293,11 @@ public class Drive extends SubsystemBase {
 		Logger.recordOutput("SwerveStates/SetpointsOptimized", setpointStates);
 	}
 
-	public void runVelocity(ChassisSpeeds speeds, double slewRateTranslation, double slewRateRotation) {
+	public void runVelocity(ChassisSpeeds speeds, double slewRateTranslation) {
 		// Apply the limiters using the parameter passed in
 		double x = m_xLimiter.calculate(speeds.vxMetersPerSecond, slewRateTranslation, slewRateTranslation);
 		double y = m_yLimiter.calculate(speeds.vyMetersPerSecond, slewRateTranslation, slewRateTranslation);
-		double rot = m_rotLimiter.calculate(speeds.omegaRadiansPerSecond, slewRateRotation, slewRateRotation); // Rot is
-																												// often
-		// faster
+		double rot = speeds.omegaRadiansPerSecond; // Rot is often faster
 
 		ChassisSpeeds limitedSpeeds = new ChassisSpeeds(x, y, rot);
 

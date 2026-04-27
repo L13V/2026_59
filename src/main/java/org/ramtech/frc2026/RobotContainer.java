@@ -243,11 +243,10 @@ public class RobotContainer {
 		 */
 		// Drive
 		drive.setDefaultCommand(DriveCommands.joystickDrive(drive,
-				() -> drive.clampToMaxJoystick(-drivercontroller.getLeftY() * slowModeMultiplier),
-				() -> drive.clampToMaxJoystick(-drivercontroller.getLeftX() * slowModeMultiplier),
-				() -> drive.clampToMaxJoystick(-drivercontroller.getRightX()),
-				() -> drive.getTranslationalSlewFromState(RobotState.getInstance().getGlobalState()),
-				() -> drive.getRotationalSlewFromState(RobotState.getInstance().getGlobalState())));
+				() -> drive.clampToMaxDriveVelocity(-drivercontroller.getLeftY() * slowModeMultiplier),
+				() -> drive.clampToMaxDriveVelocity(-drivercontroller.getLeftX() * slowModeMultiplier),
+				() -> drive.clampToMaxDriveVelocity(-drivercontroller.getRightX()),
+				() -> drive.getTranslationalSlewFromState(RobotState.getInstance().getGlobalState())));
 		// Reset gyro
 		drivercontroller.start().onTrue(Commands
 				.runOnce(() -> drive.setPose(new Pose2d(drive.getPose().getTranslation(), Rotation2d.kZero)), drive)
@@ -261,7 +260,13 @@ public class RobotContainer {
 		 * Intaking
 		 */
 		// Intake
-		drivercontroller.leftTrigger().whileTrue(intake());
+		drivercontroller.leftTrigger().and(() -> RobotState.getInstance().getGlobalState() != GlobalStates.SHOOTING)
+				.whileTrue(intake());
+		drivercontroller.leftTrigger().and(() -> RobotState.getInstance().getGlobalState() == GlobalStates.SHOOTING)
+				.whileTrue(new InstantCommand(() -> {
+					intake.lowerPivot();
+				}));
+
 		drivercontroller.rightTrigger().whileTrue(outtake());
 
 		// Raise Intake
@@ -430,7 +435,7 @@ public class RobotContainer {
 			indexer.stop();;
 			intake.stopRollers();
 			tower.stop();
-			flywheel.setVelocity(17);
+			flywheel.setVelocity(30);
 		}, indexer, intake, flywheel);
 	}
 

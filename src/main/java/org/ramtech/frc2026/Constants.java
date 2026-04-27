@@ -56,7 +56,7 @@ public final class Constants {
 		public static final double fieldLength = aprilTagLayout.getFieldLength();
 		public static final double fieldWidth = aprilTagLayout.getFieldWidth();
 
-		public static final Double ourAllianceHoodLower = 1.5;
+		public static final Double ourAllianceHoodLower = 4.645;
 
 		public static final Zone ourLeftTrench = new Zone(4.228694, 6.80339, 4.028694 + 1.1938 - 0.3, 8.069326,
 				"Our Left Trench", zoneType.hoodUnsafe);
@@ -169,7 +169,7 @@ public final class Constants {
 		public static final int SupplyCurrentLowerLimit = 30;
 		public static final int SupplyCurrentLowerTime = 3;
 
-		public static final double turretAngleOffsetForZero = 180;
+		public static final double turretAngleOffsetForZero = 0;
 
 		public static final double forwardSoftLimit = 1015;
 		public static final boolean forwardSoftLimitEnable = true;
@@ -196,7 +196,7 @@ public final class Constants {
 		public static final double motionMagicCruiseVelocity = 770;
 		public static final double motionMagicJerk = 0;
 
-		public static final double forwardSoftLimit = 40;
+		public static final double forwardSoftLimit = 41;
 		public static final boolean forwardSoftLimitEnable = true;
 
 		public static final double reverseSoftLimit = 0;
@@ -207,15 +207,15 @@ public final class Constants {
 		public static final int leftMotorId = 58;
 		public static final int rightMotorId = 59;
 
-		public static final Double kP_Slot0 = 0.6;
-		public static final Double kI_Slot0 = 3.0;
+		public static final Double kP_Slot0 = 0.7;
+		public static final Double kI_Slot0 = 2.0;
 		public static final Double kD_Slot0 = 0.0;
 		public static final Double kS_Slot0 = 0.0;
-		public static final Double kV_Slot0 = 0.25;
+		public static final Double kV_Slot0 = 0.13;
 		public static final Double kA_Slot0 = 0.0;
 		public static final Double kG_Slot0 = 0.0;
-		public static final Double peakForwardVoltage = 10.0;
-		public static final Double peakReverseVoltage = 3.0;
+		public static final Double peakForwardVoltage = 13.0;
+		public static final Double peakReverseVoltage = 4.25;
 
 	}
 

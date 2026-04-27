@@ -65,7 +65,7 @@ public class DriveCommands {
 	 * angular velocities).
 	 */
 	public static Command joystickDrive(Drive drive, DoubleSupplier xSupplier, DoubleSupplier ySupplier,
-			DoubleSupplier omegaSupplier, DoubleSupplier slewRateTranslational, DoubleSupplier slewRateRotational) {
+			DoubleSupplier omegaSupplier, DoubleSupplier slewRateTranslational) {
 		return Commands.run(() -> {
 			// Get linear velocity
 			Translation2d linearVelocity = getLinearVelocityFromJoysticks(xSupplier.getAsDouble(),
@@ -86,7 +86,7 @@ public class DriveCommands {
 			drive.runVelocity(
 					ChassisSpeeds.fromFieldRelativeSpeeds(speeds,
 							isFlipped ? drive.getRotation().plus(new Rotation2d(Math.PI)) : drive.getRotation()),
-					slewRateTranslational.getAsDouble(), slewRateRotational.getAsDouble());
+					slewRateTranslational.getAsDouble());
 		}, drive);
 	}
 

@@ -37,12 +37,12 @@ public class IndexerIOTalonFX implements IndexerIO {
 		// Roller
 		indexer.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 		indexer.MotorOutput.NeutralMode = NeutralModeValue.Coast;
-		indexer.CurrentLimits.StatorCurrentLimit = 120;
+		indexer.CurrentLimits.StatorCurrentLimit = 200;
 		indexer.CurrentLimits.StatorCurrentLimitEnable = true;
-		indexer.CurrentLimits.SupplyCurrentLimit = 80;
+		indexer.CurrentLimits.SupplyCurrentLimit = 60;
 		indexer.CurrentLimits.SupplyCurrentLimitEnable = true;
 		indexer.CurrentLimits.SupplyCurrentLowerLimit = 60;
-		indexer.CurrentLimits.SupplyCurrentLowerTime = 1;
+		indexer.CurrentLimits.SupplyCurrentLowerTime = 2;
 
 		// Configure Motors
 		indexerConfigured = tryUntilOkWithStatus(5, () -> indexerMotor.getConfigurator().apply(indexer, 0.25));
@@ -81,7 +81,7 @@ public class IndexerIOTalonFX implements IndexerIO {
 
 			case VOLTAGE :
 				indexerMotor.setControl(ballTunnelVoltageOut
-						.withOutput(slewRate.calculate(outputs.indexerVoltageSetpoint, 10, 100000000))
+						.withOutput(slewRate.calculate(outputs.indexerVoltageSetpoint, 20, 100000000))
 						.withEnableFOC(true));
 				break;
 		}

@@ -24,7 +24,7 @@ public class Indexer extends FullSubsystem {
 
 	@Override
 	public void periodic() {
-		io.updateInputs(inputs); // Grab new values from motor
+		// io.updateInputs(inputs); // Grab new values from motor
 		// Logger.processInputs("Indexer", inputs);
 		// Alerts
 		indexerDisconnected.set(Robot.showHardwareAlerts() && !indexerDebouncer.calculate(inputs.indexerConnected));

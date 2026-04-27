@@ -33,8 +33,8 @@ public class Hood extends ShooterSubsystem {
 	@Override
 	public void periodic() {
 		// This method will be called once per scheduler run
-		io.updateInputs(inputs);
-		Logger.processInputs("Shooter/Hood", inputs);
+		// io.updateInputs(inputs);
+		// Logger.processInputs("Shooter/Hood", inputs);
 		hoodDisconnected.set(Robot.showHardwareAlerts() && !hoodDebouncer.calculate(inputs.hoodConnected));
 	}
 

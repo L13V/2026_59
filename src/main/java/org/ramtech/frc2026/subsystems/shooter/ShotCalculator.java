@@ -9,7 +9,6 @@ import org.ramtech.frc2026.Constants.TargetPoses;
 import org.ramtech.frc2026.Constants.TurretConstants;
 import org.ramtech.frc2026.util.AllianceFlipUtil;
 import org.ramtech.frc2026.util.DataProcessing;
-import org.ramtech.frc2026.util.HubShiftUtil;
 import org.ramtech.frc2026.util.Zones;
 import org.ramtech.frc2026.util.Zones.Zone;
 import org.ramtech.frc2026.util.Zones.zoneType;
@@ -21,6 +20,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import org.ramtech.frc2026.RobotState;
 import org.ramtech.frc2026.generated.TunerConstants;
@@ -81,13 +81,13 @@ public class ShotCalculator {
 	 * Constants
 	 */
 	private static final double shotCeiling = 2.8; // m
-	private static final double rpsMin = 36;
+	private static final double rpsMin = 30;
 	// private static final double rpsInterference = 80; // rps when the turret is
 	// aiming at the polycarb at home
-	private static final double rpsMax = 84;
+	private static final double rpsMax = 100;
 	private static final double rpsIdeal = 76;
-	private static final double rpsBump = 4;
-	private static final double rpsMult = 1.13;
+	private static final double rpsBump = 0;
+	private static final double rpsMult = 1.2;
 
 	// Angles from horizontal (Radians)
 	public static final double hoodMinAngle = Math.toRadians(79);
@@ -176,22 +176,22 @@ public class ShotCalculator {
 		double ourAllianceHoodLower = AllianceFlipUtil.applyX(FieldConstants.ourAllianceHoodLower);
 		double opposingAllianceHoodLower = FieldConstants.fieldLength - ourAllianceHoodLower;
 
-		if (xPos < FieldConstants.fieldLength / 2) {
+		if (AllianceFlipUtil.applyX(xPos) < FieldConstants.fieldLength / 2) {
 			return ourAllianceHoodLower;
 		} else {
 			return opposingAllianceHoodLower;
 		}
+
 	}
 
-	public double getDistancetoClosestXThreshhold(Pose2d robotPose) {
-		double robotX = robotPose.getX();
+	public double getDistancetoClosestXThreshhold(Pose2d TurretPose) {
+		double robotX = TurretPose.getX();
 		return Math.abs(robotX - getClosestXThreshold(robotX));
 	}
 
 	public void update() {
 
 		double tLoop = 0.005;
-		double tOutput = 0.020;
 		double tReact = 0.070;
 
 		RobotState robotState = RobotState.getInstance();
@@ -251,7 +251,8 @@ public class ShotCalculator {
 				targetPose = TargetPoses.rightClosePass;
 				break;
 			case scoring :
-				shootingAllowed = HubShiftUtil.getShiftedShiftInfo().active();
+				// shootingAllowed = HubShiftUtil.getShiftedShiftInfo().active();
+				shootingAllowed = true;
 				targetPose = TargetPoses.hub;
 				break;
 			case hoodUnsafe :
@@ -269,12 +270,12 @@ public class ShotCalculator {
 
 		targetPose = AllianceFlipUtil.apply(targetPose);
 
-		if (hoodEnableRequest == true && !(zone.type() == zoneType.hoodUnsafe)) {
-			hoodUnsafe = false;
-			hoodEnableRequest = false;
-		} else {
-			hoodEnableRequest = false;
-		}
+		// if (hoodEnableRequest == true && !(zone.type() == zoneType.hoodUnsafe)) {
+		// hoodUnsafe = false;
+		// hoodEnableRequest = false;
+		// } else {
+		// hoodEnableRequest = false;
+		// }
 
 		double turretStaticToTarget = getTurretDistanceToTarget(new Pose3d(turretPose), targetPose);
 
@@ -330,10 +331,6 @@ public class ShotCalculator {
 
 		// Hood Lowering
 
-		double distanceToThreshold = getDistancetoClosestXThreshhold(robotPose);
-		double hoodSafeAngle = ((hoodMaxAngle - hoodMinAngle) * (distanceToThreshold - 0.5)) + hoodMinAngle;
-		hoodAngle = Math.max(hoodSafeAngle, hoodAngle);
-
 		// boolean turretInterference = (MathUtil.inputModulus(last.turretAngle, -180.0,
 		// 180.0) >= -75.0
 		// && MathUtil.inputModulus(last.turretAngle, -180.0, 180.0) <= 75.0);
@@ -348,11 +345,17 @@ public class ShotCalculator {
 		// radians before smoothing/sanitizing
 		double lastHoodAngleRad = hoodMinAngle - Math.toRadians(last.hoodAngle);
 		hoodAngle = DataProcessing.rawToSmooth(6, lastHoodAngleRad, hoodAngle);
-		hoodAngle = DataProcessing.sanitize(lastHoodAngleRad, hoodMaxAngle, hoodMinAngle, hoodAngle);
 
-		if (hoodUnsafe) {
-			hoodAngle = hoodMinAngle;
-		}
+		double distanceToThreshold = getDistancetoClosestXThreshhold(turretPose);
+		double hoodSafeAngle = hoodMinAngle - ((hoodMinAngle - hoodMaxAngle) * (distanceToThreshold - 0.6));
+
+		hoodSafeAngle = DataProcessing.sanitize(lastHoodAngleRad, hoodMaxAngle, hoodMinAngle, hoodSafeAngle);
+		hoodAngle = DataProcessing.sanitize(lastHoodAngleRad, hoodMaxAngle, hoodMinAngle, hoodAngle);
+		hoodAngle = Math.max(hoodSafeAngle, hoodAngle);
+
+		// if (hoodUnsafe) {
+		// hoodAngle = hoodMinAngle;
+		// }
 
 		// double velocityInitial = Math.hypot(velocityTowardsCombo, verticalVelocity);
 		double velocityInitial = velocityTowardsCombo / Math.cos(hoodAngle);
@@ -381,20 +384,20 @@ public class ShotCalculator {
 
 		// In horizontal radians, hoodMinAngle (79 deg) is the steep/retracted
 		// safe position
-		if (hoodUnsafe) {
-			flyWheelVelocity = rpsMin;
-		}
+		// if (hoodUnsafe) {
+		// flyWheelVelocity = rpsMin;
+		// }
 
 		boolean isValid = true;
 
 		latest = new ShotParameters(isValid, Math.toDegrees(hoodMinAngle) - Math.toDegrees(hoodAngle),
 				// to 52)
-				flyWheelVelocity, 0.0, turretAngle, !hoodUnsafe, shootingAllowed);
+				flyWheelVelocity, 0.0, turretAngle, true, shootingAllowed);
 
 		last = latest;
 
 		double turretDiff = DataProcessing.rawToSmooth(6, turretDiffLast,
-				Math.abs((turretAngle + 90) - turretAngleFeedback));
+				Math.abs((turretAngle - 90) - turretAngleFeedback));
 		turretDiffLast = turretDiff;
 		transitionInProgress = ((turretDiff > 50) || switchCommanded);
 
@@ -413,6 +416,9 @@ public class ShotCalculator {
 		Logger.recordOutput("ShotCalculator/TargetPose", targetPose);
 		Logger.recordOutput("swingVelocityX", swingVelocityX);
 		Logger.recordOutput("swingVelocityY", swingVelocityY);
+		SmartDashboard.putBoolean("switchcommanded", switchCommanded);
+		SmartDashboard.putBoolean("switchcommanded", transitionInProgress);
+		SmartDashboard.putNumber("turretdiff", turretDiffLast);
 		// Logger.recordOutput("anglerratepose", hoodAngle);
 		// Logger.recordOutput("anglerratepose", safehood);
 		// Logger.recordOutput("anglerratepose", angleRatePose);

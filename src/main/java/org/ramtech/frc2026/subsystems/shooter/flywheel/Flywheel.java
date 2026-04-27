@@ -32,8 +32,8 @@ public class Flywheel extends ShooterSubsystem {
 
 	@Override
 	public void periodic() {
-		io.updateInputs(inputs); // Grab new values from motor
-		Logger.processInputs("Shooter/Flywheel", inputs); // Put values in the log
+		// io.updateInputs(inputs); // Grab new values from motor
+		// Logger.processInputs("Shooter/Flywheel", inputs); // Put values in the log
 		// Alerts
 		leftSideDisconnected.set(Robot.showHardwareAlerts() && !leftSideDebouncer.calculate(inputs.leftSideConnected));
 

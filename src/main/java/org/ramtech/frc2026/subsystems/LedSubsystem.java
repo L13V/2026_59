@@ -44,7 +44,7 @@ public class LedSubsystem extends SubsystemBase {
 
 	private final ColorFlowAnimation tunnelShooting = new ColorFlowAnimation(8, 13).withSlot(0)
 			.withColor(new RGBWColor(10, 1, 254, 0)).withDirection(AnimationDirectionValue.Forward)
-			.withFrameRate(Hertz.of(200));
+			.withFrameRate(Hertz.of(100));
 
 	// ==========================================
 	// SLOT 1: TURRET ANIMATIONS (LEDs 14 to 24)
