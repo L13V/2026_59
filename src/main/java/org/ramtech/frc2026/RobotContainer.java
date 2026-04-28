@@ -356,7 +356,7 @@ public class RobotContainer {
 				// intake.setAutoMode(IntakeIOAutoDirections.FORWARD);
 			} else {
 				tower.stop();
-				indexer.setVoltage(-13);
+				indexer.setVoltage(0);
 				intake.setRollerVoltage(13);
 
 			}
