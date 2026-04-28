@@ -161,7 +161,7 @@ public class IntakeIOTalonFX implements IntakeIO {
 				break;
 			case VOLTAGE:
 				motorA.setControl(
-						voltageOut.withOutput(slewRate.calculate(outputs.rollerVoltageSetpoint, 30, 100000000))
+						voltageOut.withOutput(slewRate.calculate(outputs.rollerVoltageSetpoint, 40, 100000000))
 								.withEnableFOC(true));
 				motorB.setControl(follower);
 				break;
