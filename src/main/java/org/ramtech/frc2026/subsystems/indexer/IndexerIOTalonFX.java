@@ -39,10 +39,10 @@ public class IndexerIOTalonFX implements IndexerIO {
 		indexer.MotorOutput.NeutralMode = NeutralModeValue.Coast;
 		indexer.CurrentLimits.StatorCurrentLimit = 200;
 		indexer.CurrentLimits.StatorCurrentLimitEnable = true;
-		indexer.CurrentLimits.SupplyCurrentLimit = 60;
+		indexer.CurrentLimits.SupplyCurrentLimit = 100;
 		indexer.CurrentLimits.SupplyCurrentLimitEnable = true;
 		indexer.CurrentLimits.SupplyCurrentLowerLimit = 60;
-		indexer.CurrentLimits.SupplyCurrentLowerTime = 2;
+		indexer.CurrentLimits.SupplyCurrentLowerTime = 1;
 
 		// Configure Motors
 		indexerConfigured = tryUntilOkWithStatus(5, () -> indexerMotor.getConfigurator().apply(indexer, 0.25));

@@ -20,11 +20,13 @@ import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
 
 import org.ramtech.frc2026.Constants.IntakeConstants;
+import org.ramtech.frc2026.util.DynamicRateLimiter;
 
 public class IntakeIOTalonFX implements IntakeIO {
 	// Motors
 	private final TalonFX motorA = new TalonFX(IntakeConstants.motorAID, Constants.CANivore); // Main Motor
 	private final TalonFX motorB = new TalonFX(IntakeConstants.motorBID, Constants.CANivore); // Secondary Motor
+	private final DynamicRateLimiter slewRate = new DynamicRateLimiter(0);
 
 	private final TalonFX pivotMotor = new TalonFX(IntakeConstants.pivotMotorID, Constants.CANivore); // Secondary Motor
 
@@ -152,29 +154,32 @@ public class IntakeIOTalonFX implements IntakeIO {
 	@Override
 	public void applyOutputs(IntakeIOOutputs outputs) {
 		switch (outputs.rollerMode) {
-			case OFF :
+			case OFF:
 				motorA.stopMotor();
 				motorB.stopMotor();
+				slewRate.reset(0);
 				break;
-			case VOLTAGE :
-				motorA.setControl(voltageOut.withOutput(outputs.rollerVoltageSetpoint).withEnableFOC(true));
+			case VOLTAGE:
+				motorA.setControl(
+						voltageOut.withOutput(slewRate.calculate(outputs.rollerVoltageSetpoint, 30, 100000000))
+								.withEnableFOC(true));
 				motorB.setControl(follower);
 				break;
-			default :
+			default:
 				break;
 		}
 		switch (outputs.pivotMode) {
-			case OFF :
+			case OFF:
 				pivotMotor.stopMotor();
 				break;
-			case POSITION :
+			case POSITION:
 				pivotMotor.setControl(pivotPosition.withPosition(outputs.pivotPositionSetpoint).withEnableFOC(false));
 				break;
-			case LOWER :
+			case LOWER:
 				pivotMotor.setControl(pivotPosition.withPosition(0.0).withEnableFOC(false));
 				break;
 
-			default :
+			default:
 				break;
 		}
 	}
