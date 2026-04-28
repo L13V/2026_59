@@ -164,9 +164,9 @@ public final class Constants {
 
 		public static final int StatorCurrentLimit = 120;
 		public static final boolean StatorCurrentLimitEnable = true;
-		public static final int SupplyCurrentLimit = 30;
+		public static final int SupplyCurrentLimit = 40;
 		public static final boolean SupplyCurrentLimitEnable = true;
-		public static final int SupplyCurrentLowerLimit = 30;
+		public static final int SupplyCurrentLowerLimit = 40;
 		public static final int SupplyCurrentLowerTime = 3;
 
 		public static final double turretAngleOffsetForZero = 0;

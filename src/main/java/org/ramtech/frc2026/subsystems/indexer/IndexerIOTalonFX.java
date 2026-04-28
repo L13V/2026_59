@@ -36,7 +36,7 @@ public class IndexerIOTalonFX implements IndexerIO {
 		// Build Configs
 		// Roller
 		indexer.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
-		indexer.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+		indexer.MotorOutput.NeutralMode = NeutralModeValue.Brake;
 		indexer.CurrentLimits.StatorCurrentLimit = 200;
 		indexer.CurrentLimits.StatorCurrentLimitEnable = true;
 		indexer.CurrentLimits.SupplyCurrentLimit = 100;
