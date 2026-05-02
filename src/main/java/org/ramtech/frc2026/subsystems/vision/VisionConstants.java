@@ -31,7 +31,7 @@ public class VisionConstants {
 			new Rotation3d(Units.degreesToRadians(0), Units.degreesToRadians(-22.5), Units.degreesToRadians(45)));
 
 	public static Transform3d robotToFR = new Transform3d(0.09467, -0.40582, 0.54004,
-			new Rotation3d(Units.degreesToRadians(0), Units.degreesToRadians(-25), Units.degreesToRadians(315)));
+			new Rotation3d(Units.degreesToRadians(0), Units.degreesToRadians(-22.5), Units.degreesToRadians(315)));
 
 	public static Transform3d robotToBL = new Transform3d(-0.25977, 0.40582, 0.54004,
 			new Rotation3d(Units.degreesToRadians(0), Units.degreesToRadians(-25), Units.degreesToRadians(135)));

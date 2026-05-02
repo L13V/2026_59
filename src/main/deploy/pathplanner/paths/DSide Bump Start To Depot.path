@@ -3,26 +3,10 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 5.8,
-        "y": 2.7
-      },
-      "prevControl": null,
-      "nextControl": {
-        "x": 5.3,
-        "y": 2.7
-      },
-      "isLocked": false,
-      "linkedName": "Depot Center Intake End"
-    },
-    {
-      "anchor": {
         "x": 3.4,
         "y": 5.34
       },
-      "prevControl": {
-        "x": 3.9,
-        "y": 5.34
-      },
+      "prevControl": null,
       "nextControl": {
         "x": 2.4,
         "y": 5.34
@@ -32,12 +16,12 @@
     },
     {
       "anchor": {
-        "x": 0.6,
-        "y": 7.54
+        "x": 0.5,
+        "y": 5.95
       },
       "prevControl": {
-        "x": 2.5318516525781365,
-        "y": 7.022361909794958
+        "x": 2.5,
+        "y": 5.95
       },
       "nextControl": null,
       "isLocked": false,
@@ -46,26 +30,18 @@
   ],
   "rotationTargets": [
     {
-      "waypointRelativePos": 0.4,
-      "rotationDegrees": 90.0
-    },
-    {
-      "waypointRelativePos": 0.95,
-      "rotationDegrees": 90.0
-    },
-    {
-      "waypointRelativePos": 1.75,
+      "waypointRelativePos": 0.9,
       "rotationDegrees": 180.0
     }
   ],
   "constraintZones": [
     {
       "name": "Depot",
-      "minWaypointRelativePos": 1.9,
-      "maxWaypointRelativePos": 2.0,
+      "minWaypointRelativePos": 0.95,
+      "maxWaypointRelativePos": 1.0,
       "constraints": {
-        "maxVelocity": 4.5,
-        "maxAcceleration": 9.4,
+        "maxVelocity": 4.0,
+        "maxAcceleration": 12.0,
         "maxAngularVelocity": 540.0,
         "maxAngularAcceleration": 1464.0,
         "nominalVoltage": 11.0,
@@ -73,22 +49,9 @@
       }
     },
     {
-      "name": "Bump",
-      "minWaypointRelativePos": 0.3,
-      "maxWaypointRelativePos": 0.9,
-      "constraints": {
-        "maxVelocity": 3.0,
-        "maxAcceleration": 0.5,
-        "maxAngularVelocity": 10.0,
-        "maxAngularAcceleration": 10.0,
-        "nominalVoltage": 10.0,
-        "unlimited": false
-      }
-    },
-    {
       "name": "Rotation",
-      "minWaypointRelativePos": 1.1,
-      "maxWaypointRelativePos": 2.0,
+      "minWaypointRelativePos": 0.0,
+      "maxWaypointRelativePos": 0.9986187845303868,
       "constraints": {
         "maxVelocity": 1.0,
         "maxAcceleration": 1.0,
@@ -103,8 +66,8 @@
   "eventMarkers": [
     {
       "name": "shoot",
-      "waypointRelativePos": 0.8,
-      "endWaypointRelativePos": null,
+      "waypointRelativePos": 0.0,
+      "endWaypointRelativePos": 1.0,
       "command": {
         "type": "named",
         "data": {
@@ -114,11 +77,11 @@
     }
   ],
   "globalConstraints": {
-    "maxVelocity": 4.5,
-    "maxAcceleration": 9.4,
-    "maxAngularVelocity": 540.0,
-    "maxAngularAcceleration": 1464.0,
-    "nominalVoltage": 11.0,
+    "maxVelocity": 3.6,
+    "maxAcceleration": 12.0,
+    "maxAngularVelocity": 360.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
     "unlimited": false
   },
   "goalEndState": {
@@ -129,7 +92,7 @@
   "folder": null,
   "idealStartingState": {
     "velocity": 5.0,
-    "rotation": -90.0
+    "rotation": 90.0
   },
   "useDefaultConstraints": true
 }

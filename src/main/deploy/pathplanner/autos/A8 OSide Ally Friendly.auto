@@ -13,31 +13,43 @@
         {
           "type": "path",
           "data": {
-            "pathName": "DSide Trench Contest Half"
+            "pathName": "OSide Trench Reach Ally"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "DSide Bump Return To Sweep"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "DSide Trench Safe Half"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "DSide Bump Return To Catch"
+            "pathName": "OSide Bump Return To Sweep"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "shoot"
+            "name": "deploy_intake"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "OSide Trench Ally Half"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "OSide Bump Return To Sweep"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "deploy_intake"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "OSide Trench Ally Half"
           }
         }
       ]

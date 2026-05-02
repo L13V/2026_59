@@ -7,13 +7,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Bump Depot Hook"
+            "pathName": "DSide Bump To Close Sweep"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "DSide Bump Return To Depot"
+            "pathName": "DSide Bump Return To Hub"
           }
         },
         {

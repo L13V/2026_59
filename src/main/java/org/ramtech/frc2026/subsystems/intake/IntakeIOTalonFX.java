@@ -61,20 +61,20 @@ public class IntakeIOTalonFX implements IntakeIO {
 		// Complete the config
 		intakeMotorConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
 		intakeMotorConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
-		intakeMotorConfig.CurrentLimits.StatorCurrentLimit = 120;
+		intakeMotorConfig.CurrentLimits.StatorCurrentLimit = 70;
 		intakeMotorConfig.CurrentLimits.StatorCurrentLimitEnable = true;
-		intakeMotorConfig.CurrentLimits.SupplyCurrentLimit = 80;
+		intakeMotorConfig.CurrentLimits.SupplyCurrentLimit = 30;
 		intakeMotorConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-		intakeMotorConfig.CurrentLimits.SupplyCurrentLowerLimit = 40;
+		intakeMotorConfig.CurrentLimits.SupplyCurrentLowerLimit = 30;
 		intakeMotorConfig.CurrentLimits.SupplyCurrentLowerTime = 1.5;
 
 		pivotMotorConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
 		pivotMotorConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
-		pivotMotorConfig.CurrentLimits.StatorCurrentLimit = 120;
+		pivotMotorConfig.CurrentLimits.StatorCurrentLimit = 70;
 		pivotMotorConfig.CurrentLimits.StatorCurrentLimitEnable = true;
-		pivotMotorConfig.CurrentLimits.SupplyCurrentLimit = 30;
+		pivotMotorConfig.CurrentLimits.SupplyCurrentLimit = 20;
 		pivotMotorConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-		pivotMotorConfig.CurrentLimits.SupplyCurrentLowerLimit = 30;
+		pivotMotorConfig.CurrentLimits.SupplyCurrentLowerLimit = 20;
 		pivotMotorConfig.CurrentLimits.SupplyCurrentLowerTime = 3;
 
 		pivotMotorConfig.Slot0.kP = IntakeConstants.kP_Slot0;
@@ -154,32 +154,32 @@ public class IntakeIOTalonFX implements IntakeIO {
 	@Override
 	public void applyOutputs(IntakeIOOutputs outputs) {
 		switch (outputs.rollerMode) {
-			case OFF:
+			case OFF :
 				motorA.stopMotor();
 				motorB.stopMotor();
 				slewRate.reset(0);
 				break;
-			case VOLTAGE:
+			case VOLTAGE :
 				motorA.setControl(
-						voltageOut.withOutput(slewRate.calculate(outputs.rollerVoltageSetpoint, 40, 100000000))
+						voltageOut.withOutput(slewRate.calculate(outputs.rollerVoltageSetpoint, 10, 100000000))
 								.withEnableFOC(true));
 				motorB.setControl(follower);
 				break;
-			default:
+			default :
 				break;
 		}
 		switch (outputs.pivotMode) {
-			case OFF:
+			case OFF :
 				pivotMotor.stopMotor();
 				break;
-			case POSITION:
+			case POSITION :
 				pivotMotor.setControl(pivotPosition.withPosition(outputs.pivotPositionSetpoint).withEnableFOC(false));
 				break;
-			case LOWER:
+			case LOWER :
 				pivotMotor.setControl(pivotPosition.withPosition(0.0).withEnableFOC(false));
 				break;
 
-			default:
+			default :
 				break;
 		}
 	}

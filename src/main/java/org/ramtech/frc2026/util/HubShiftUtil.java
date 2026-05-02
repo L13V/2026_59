@@ -7,8 +7,6 @@
 
 package org.ramtech.frc2026.util;
 
-import org.ramtech.frc2026.subsystems.shooter.ShotCalculator;
-
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Timer;
@@ -30,9 +28,9 @@ public class HubShiftUtil {
 	private static final double[] shiftStartTimes = {0.0, 10.0, 35.0, 60.0, 85.0, 110.0};
 	private static final double[] shiftEndTimes = {10.0, 35.0, 60.0, 85.0, 110.0, 140.0};
 
-	private static final double minFuelCountDelay = 1.0;
-	private static final double maxFuelCountDelay = 2.0;
-	private static final double shiftEndFuelCountExtension = 3.0;
+	private static final double minFuelCountDelay = 2.0;
+	private static final double maxFuelCountDelay = 0.0;
+	private static final double shiftEndFuelCountExtension = 4.0;
 
 	public static final double autoEndTime = 20.0;
 	public static final double teleopDuration = 140.0;
@@ -142,7 +140,8 @@ public class HubShiftUtil {
 		boolean[] shiftSchedule = getSchedule();
 
 		// 1. Get current flight time safely
-		double tFlight = Math.max(0.0, ShotCalculator.getInstance().gettFlight());
+		// double tFlight = Math.max(0.0, ShotCalculator.getInstance().gettFlight());
+		double tFlight = 0;
 
 		// 2. Calculate dynamic fudges based on the physical reality of the hub
 		// Start early so fuel arrives and processes right as it opens

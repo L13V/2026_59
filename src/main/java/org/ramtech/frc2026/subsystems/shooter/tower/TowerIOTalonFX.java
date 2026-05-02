@@ -17,6 +17,7 @@ import edu.wpi.first.units.measure.Voltage;
 
 import org.ramtech.frc2026.Constants;
 import org.ramtech.frc2026.Constants.TowerConstants;
+import org.ramtech.frc2026.util.DynamicRateLimiter;
 
 public class TowerIOTalonFX implements TowerIO {
 	// Motors
@@ -40,16 +41,17 @@ public class TowerIOTalonFX implements TowerIO {
 	private final VoltageOut voltageOut = new VoltageOut(0); // Control Method
 	private final VelocityVoltage velocityVoltage = new VelocityVoltage(0);
 	private final StrictFollower follower = new StrictFollower(TowerConstants.towerMotorAId);
+	private final DynamicRateLimiter slewRate = new DynamicRateLimiter(0);
 
 	public TowerIOTalonFX() {
 		// Complete the config
 		towerConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 		towerConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
-		towerConfig.CurrentLimits.StatorCurrentLimit = 120;
+		towerConfig.CurrentLimits.StatorCurrentLimit = 70;
 		towerConfig.CurrentLimits.StatorCurrentLimitEnable = true;
-		towerConfig.CurrentLimits.SupplyCurrentLimit = 60;
+		towerConfig.CurrentLimits.SupplyCurrentLimit = 30;
 		towerConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-		towerConfig.CurrentLimits.SupplyCurrentLowerLimit = 60;
+		towerConfig.CurrentLimits.SupplyCurrentLowerLimit = 30;
 		towerConfig.CurrentLimits.SupplyCurrentLowerTime = 1;
 
 		towerMotorAConfigured = tryUntilOkWithStatus(5, () -> towerMotorA.getConfigurator().apply(towerConfig));
@@ -101,7 +103,8 @@ public class TowerIOTalonFX implements TowerIO {
 
 				break;
 			case VOLTAGE :
-				towerMotorA.setControl(voltageOut.withOutput(outputs.voltageSetpoint).withEnableFOC(true));
+				towerMotorA.setControl(voltageOut
+						.withOutput(slewRate.calculate(outputs.voltageSetpoint, 1000000, 1000000)).withEnableFOC(true));
 				towerMotorB.setControl(follower);
 				break;
 			case VELOCITY :

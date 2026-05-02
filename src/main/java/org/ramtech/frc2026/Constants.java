@@ -85,10 +85,10 @@ public final class Constants {
 
 	public static final class TargetPoses {
 		public static Pose3d hub = new Pose3d(4.645, 4.02, 1.82, new Rotation3d());
-		public static Pose3d leftFarPass = new Pose3d(1.5, 4.02 + 2.3, 0.20, new Rotation3d());
-		public static Pose3d rightFarPass = new Pose3d(1.5, 4.02 - 2.3, 0.20, new Rotation3d());
-		public static Pose3d leftClosePass = new Pose3d(1.5, 4.02 + 2.3, 0.20, new Rotation3d());
-		public static Pose3d rightClosePass = new Pose3d(1.5, 4.02 - 2.3, 0.20, new Rotation3d());
+		public static Pose3d leftFarPass = new Pose3d(4.0, 4.02 + 3.3, 0.4, new Rotation3d());
+		public static Pose3d rightFarPass = new Pose3d(4.0, 4.02 - 3.3, 0.4, new Rotation3d());
+		public static Pose3d leftClosePass = new Pose3d(1.5, 4.02 + 2.3, 0.2, new Rotation3d());
+		public static Pose3d rightClosePass = new Pose3d(1.5, 4.02 - 2.3, 0.2, new Rotation3d());
 
 	}
 
@@ -164,9 +164,9 @@ public final class Constants {
 
 		public static final int StatorCurrentLimit = 120;
 		public static final boolean StatorCurrentLimitEnable = true;
-		public static final int SupplyCurrentLimit = 40;
+		public static final int SupplyCurrentLimit = 20;
 		public static final boolean SupplyCurrentLimitEnable = true;
-		public static final int SupplyCurrentLowerLimit = 40;
+		public static final int SupplyCurrentLowerLimit = 20;
 		public static final int SupplyCurrentLowerTime = 3;
 
 		public static final double turretAngleOffsetForZero = 0;
@@ -207,15 +207,15 @@ public final class Constants {
 		public static final int leftMotorId = 58;
 		public static final int rightMotorId = 59;
 
-		public static final Double kP_Slot0 = 0.7;
-		public static final Double kI_Slot0 = 2.0;
+		public static final Double kP_Slot0 = 0.6;
+		public static final Double kI_Slot0 = 1.0;
 		public static final Double kD_Slot0 = 0.0;
 		public static final Double kS_Slot0 = 0.0;
 		public static final Double kV_Slot0 = 0.13;
 		public static final Double kA_Slot0 = 0.0;
 		public static final Double kG_Slot0 = 0.0;
-		public static final Double peakForwardVoltage = 13.0;
-		public static final Double peakReverseVoltage = 4.25;
+		public static final Double peakForwardVoltage = 10.0;
+		public static final Double peakReverseVoltage = 4.0;
 
 	}
 

@@ -32,11 +32,11 @@
     },
     {
       "anchor": {
-        "x": 4.2,
+        "x": 4.0,
         "y": 0.6
       },
       "prevControl": {
-        "x": 1.7000000000000002,
+        "x": 1.5,
         "y": 0.5999999999999996
       },
       "nextControl": null,
@@ -45,10 +45,6 @@
     }
   ],
   "rotationTargets": [
-    {
-      "waypointRelativePos": 0.4,
-      "rotationDegrees": -90.0
-    },
     {
       "waypointRelativePos": 0.95,
       "rotationDegrees": -90.0
@@ -61,11 +57,11 @@
   "constraintZones": [
     {
       "name": "Bump",
-      "minWaypointRelativePos": 0.35,
+      "minWaypointRelativePos": 0.4,
       "maxWaypointRelativePos": 0.9,
       "constraints": {
-        "maxVelocity": 3.3,
-        "maxAcceleration": 0.5,
+        "maxVelocity": 3.6,
+        "maxAcceleration": 0.1,
         "maxAngularVelocity": 10.0,
         "maxAngularAcceleration": 10.0,
         "nominalVoltage": 10.0,
@@ -74,12 +70,12 @@
     },
     {
       "name": "Rotation",
-      "minWaypointRelativePos": 1.1,
-      "maxWaypointRelativePos": 1.95,
+      "minWaypointRelativePos": 1.05,
+      "maxWaypointRelativePos": 2.0,
       "constraints": {
         "maxVelocity": 0.8,
         "maxAcceleration": 1.0,
-        "maxAngularVelocity": 360.0,
+        "maxAngularVelocity": 105.0,
         "maxAngularAcceleration": 120.0,
         "nominalVoltage": 10.0,
         "unlimited": false
@@ -89,29 +85,45 @@
   "pointTowardsZones": [],
   "eventMarkers": [
     {
-      "name": "intake",
-      "waypointRelativePos": 0.0,
-      "endWaypointRelativePos": 0.89,
-      "command": null
-    },
-    {
       "name": "shoot",
       "waypointRelativePos": 0.9,
-      "endWaypointRelativePos": 1.93,
+      "endWaypointRelativePos": 2.0,
       "command": {
         "type": "named",
         "data": {
           "name": "shoot"
         }
       }
+    },
+    {
+      "name": "raise_intake",
+      "waypointRelativePos": 1.5,
+      "endWaypointRelativePos": 1.9,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "raise_intake"
+        }
+      }
+    },
+    {
+      "name": "deploy_intake",
+      "waypointRelativePos": 1.91,
+      "endWaypointRelativePos": 2.0,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "deploy_intake"
+        }
+      }
     }
   ],
   "globalConstraints": {
-    "maxVelocity": 4.5,
-    "maxAcceleration": 9.4,
-    "maxAngularVelocity": 540.0,
-    "maxAngularAcceleration": 1464.0,
-    "nominalVoltage": 11.0,
+    "maxVelocity": 3.6,
+    "maxAcceleration": 12.0,
+    "maxAngularVelocity": 360.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
     "unlimited": false
   },
   "goalEndState": {

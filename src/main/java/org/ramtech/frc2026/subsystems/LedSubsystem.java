@@ -21,7 +21,6 @@ import com.ctre.phoenix6.signals.AnimationDirectionValue;
 import com.ctre.phoenix6.signals.LossOfSignalBehaviorValue;
 import com.ctre.phoenix6.signals.RGBWColor;
 import com.ctre.phoenix6.signals.StripTypeValue;
-import com.ctre.phoenix6.signals.VBatOutputModeValue;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -30,6 +29,8 @@ public class LedSubsystem extends SubsystemBase {
 	final CANdle robotCANdle = new CANdle(LedConstants.CANdleID, Constants.CANivore);
 
 	// State tracking so we only update the CANdle when necessary
+	private boolean hasBeenEnabled = false;
+
 	private GlobalStates lastGlobalState = null;
 	private boolean lastMisalignedState = false;
 	private boolean lastDisabledState = false;
@@ -50,7 +51,11 @@ public class LedSubsystem extends SubsystemBase {
 	// SLOT 1: TURRET ANIMATIONS (LEDs 14 to 24)
 	// ==========================================
 	private final SingleFadeAnimation turretDisabled = new SingleFadeAnimation(14, 24).withSlot(1)
-			.withColor(new RGBWColor(0, 0, 255, 0)).withFrameRate(Hertz.of(100.0));
+			.withColor(new RGBWColor(0, 0, 0, 0)).withFrameRate(Hertz.of(100.0));
+	// private final SingleFadeAnimation turretDisabled = new
+	// SingleFadeAnimation(14, 24).withSlot(1)
+	// .withColor(new RGBWColor(0, 0, 255, 0)).withFrameRate(Hertz.of(100.0));
+
 	private final SingleFadeAnimation turretReady = new SingleFadeAnimation(14, 24).withSlot(1)
 			.withColor(new RGBWColor(2, 255, 1, 0)).withFrameRate(Hertz.of(100.0));
 
@@ -65,6 +70,7 @@ public class LedSubsystem extends SubsystemBase {
 	// ==========================================
 	private final SingleFadeAnimation underglowDisabled = new SingleFadeAnimation(25, 34).withSlot(2)
 			.withColor(new RGBWColor(0, 0, 255, 0)).withFrameRate(Hertz.of(100.0));
+
 	private final SingleFadeAnimation underglowReady = new SingleFadeAnimation(25, 34).withSlot(2)
 			.withColor(new RGBWColor(2, 255, 1, 0)) // Green Fade
 			.withFrameRate(Hertz.of(100.0));
@@ -76,12 +82,16 @@ public class LedSubsystem extends SubsystemBase {
 	private final ColorFlowAnimation underglowShooting = new ColorFlowAnimation(25, 34).withSlot(2)
 			.withColor(new RGBWColor(255, 191, 0, 0)) // Orange Flow
 			.withDirection(AnimationDirectionValue.Forward).withFrameRate(Hertz.of(100));
+	// ==========================================
+	// SLOT 3: candle (LEDs 0 to 3)
+	// ==========================================
+	private final SingleFadeAnimation candleReady = new SingleFadeAnimation(0, 3).withSlot(3)
+			.withColor(new RGBWColor(0, 0, 255, 0)).withFrameRate(Hertz.of(100.0));
 
 	public LedSubsystem() {
 		CANdleConfiguration config = new CANdleConfiguration();
-		config.LED.BrightnessScalar = 1.0;
-		config.LED.LossOfSignalBehavior = LossOfSignalBehaviorValue.KeepRunning;
-		config.CANdleFeatures.VBatOutputMode = VBatOutputModeValue.On;
+		config.LED.BrightnessScalar = 0.6;
+		config.LED.LossOfSignalBehavior = LossOfSignalBehaviorValue.DisableLEDs;
 		config.LED.StripType = StripTypeValue.RGB;
 
 		PhoenixUtil.tryUntilOk(5, () -> robotCANdle.getConfigurator().apply(config));
@@ -89,40 +99,47 @@ public class LedSubsystem extends SubsystemBase {
 
 	@Override
 	public void periodic() {
+
 		boolean currentDisabled = DriverStation.isDisabled();
 		GlobalStates currentGlobalState = RobotState.getInstance().getGlobalState();
 		boolean currentMisaligned = RobotState.getInstance().isTurretMisalinged();
 
 		// Only send setControl if one of our states has actually changed
-		if (currentDisabled != lastDisabledState || currentGlobalState != lastGlobalState
-				|| currentMisaligned != lastMisalignedState) {
+		if (!hasBeenEnabled) {
+			hasBeenEnabled = DriverStation.isEnabled(); // checks again
+			robotCANdle.setControl(candleReady); // makes sure candle displays ready status.
+		} else {
+			if (currentDisabled != lastDisabledState || currentGlobalState != lastGlobalState
+					|| currentMisaligned != lastMisalignedState) {
 
-			if (currentDisabled) {
-				robotCANdle.setControl(tunnelDisabled);
-				robotCANdle.setControl(turretDisabled);
-				robotCANdle.setControl(underglowDisabled);
+				if (currentDisabled) {
+					// robotCANdle.setControl(tunnelDisabled);
+					robotCANdle.setControl(turretDisabled);
+					// robotCANdle.setControl(underglowDisabled);
 
-			} else if (currentGlobalState == GlobalStates.SHOOTING) {
-				robotCANdle.setControl(tunnelShooting);
-				robotCANdle.setControl(turretShooting);
-				robotCANdle.setControl(underglowShooting);
+				} else if (currentGlobalState == GlobalStates.SHOOTING) {
+					// robotCANdle.setControl(tunnelShooting);
+					robotCANdle.setControl(turretShooting);
+					// robotCANdle.setControl(underglowShooting);
 
-			} else if (currentMisaligned) {
-				robotCANdle.setControl(tunnelReady);
-				robotCANdle.setControl(turretMisaligned);
-				robotCANdle.setControl(underglowMisaligned);
+				} else if (currentMisaligned) {
+					// robotCANdle.setControl(tunnelReady);
+					robotCANdle.setControl(turretMisaligned);
+					// robotCANdle.setControl(underglowMisaligned);
 
-			} else {
-				// Default "Ready" state while enabled and aligned
-				robotCANdle.setControl(tunnelReady);
-				robotCANdle.setControl(turretReady);
-				robotCANdle.setControl(underglowReady);
+				} else {
+					// Default "Ready" state while enabled and aligned
+					// robotCANdle.setControl(tunnelReady);
+					robotCANdle.setControl(turretReady);
+					// robotCANdle.setControl(underglowReady);
+				}
+
+				// Update our trackers
+				lastDisabledState = currentDisabled;
+				lastGlobalState = currentGlobalState;
+				lastMisalignedState = currentMisaligned;
 			}
-
-			// Update our trackers
-			lastDisabledState = currentDisabled;
-			lastGlobalState = currentGlobalState;
-			lastMisalignedState = currentMisaligned;
 		}
+
 	}
 }

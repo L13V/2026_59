@@ -9,6 +9,7 @@ import org.ramtech.frc2026.Constants.TargetPoses;
 import org.ramtech.frc2026.Constants.TurretConstants;
 import org.ramtech.frc2026.util.AllianceFlipUtil;
 import org.ramtech.frc2026.util.DataProcessing;
+import org.ramtech.frc2026.util.HubShiftUtil;
 import org.ramtech.frc2026.util.Zones;
 import org.ramtech.frc2026.util.Zones.Zone;
 import org.ramtech.frc2026.util.Zones.zoneType;
@@ -84,20 +85,17 @@ public class ShotCalculator {
 	private static final double rpsMin = 30;
 	// private static final double rpsInterference = 80; // rps when the turret is
 	// aiming at the polycarb at home
-	private static final double rpsMax = 100;
-	private static final double rpsIdeal = 76;
-	private static final double rpsBump = 0;
-	private static final double rpsMult = 1.2;
+	private static final double rpsMax = 80;
+	private static final double rpsBump = -5;
+	private static final double rpsMult = 1.3;
 
 	// Angles from horizontal (Radians)
 	public static final double hoodMinAngle = Math.toRadians(79);
-	public static final double hoodRange = Math.toRadians(41);
-	private static final double hoodMaxAngle = hoodMinAngle - hoodRange; // Math.toRadians(38)
-	private static final double hoodIdealAngle = Math.toRadians(48);
-	// private static final double hoodInterferenceAngle = Math.toRadians(55);
+	public static final double hoodRange = Math.toRadians(37);
+	private static final double hoodMaxAngle = hoodMinAngle - hoodRange;
 
 	private static final double g = 9.81; // m/s^2
-	private static final double ballMass = 0.226796; // kg
+	private static final double ballMass = 0.227; // kg
 	private static final double airDensity = 1.225; // kg/m^3
 	private static final double dragCoeff = 0.47; // dimensionless
 
@@ -114,8 +112,8 @@ public class ShotCalculator {
 	private static final double flyWheelRatio = (24.0 / 72.0); // relative to the motor
 	private static final double backWheelRatio = (flyWheelRatio * (36.0 / 16.0) * (27.0 / 16.0));
 
-	private static final double maxGyroVelocity = 6;
-	private static final double maxChassisVelocity = 2.5;
+	private static final double maxGyroVelocity = 12;
+	private static final double maxChassisVelocity = 1.6;
 	// private static final double maxGyroAcceleration = 15;
 	private static double angleRateLast = 0;
 	private static double tFlight = 0;
@@ -251,8 +249,8 @@ public class ShotCalculator {
 				targetPose = TargetPoses.rightClosePass;
 				break;
 			case scoring :
-				// shootingAllowed = HubShiftUtil.getShiftedShiftInfo().active();
-				shootingAllowed = true;
+				shootingAllowed = HubShiftUtil.getShiftedShiftInfo().active();
+				// shootingAllowed = true;
 				targetPose = TargetPoses.hub;
 				break;
 			case hoodUnsafe :
@@ -344,10 +342,15 @@ public class ShotCalculator {
 		// FIXED: Properly convert last.hoodAngle (vertical degrees) back to horizontal
 		// radians before smoothing/sanitizing
 		double lastHoodAngleRad = hoodMinAngle - Math.toRadians(last.hoodAngle);
-		hoodAngle = DataProcessing.rawToSmooth(6, lastHoodAngleRad, hoodAngle);
+		hoodAngle = DataProcessing.rawToSmooth(8, lastHoodAngleRad, hoodAngle);
 
 		double distanceToThreshold = getDistancetoClosestXThreshhold(turretPose);
-		double hoodSafeAngle = hoodMinAngle - ((hoodMinAngle - hoodMaxAngle) * (distanceToThreshold - 0.6));
+
+		double hoodSafeAngle = hoodMaxAngle;
+
+		if (robotPose.getY() > 6.944 || robotPose.getY() < 1.1) {
+			hoodSafeAngle = hoodMinAngle - ((hoodMinAngle - hoodMaxAngle) * (distanceToThreshold - 0.6));
+		} ;
 
 		hoodSafeAngle = DataProcessing.sanitize(lastHoodAngleRad, hoodMaxAngle, hoodMinAngle, hoodSafeAngle);
 		hoodAngle = DataProcessing.sanitize(lastHoodAngleRad, hoodMaxAngle, hoodMinAngle, hoodAngle);
@@ -376,6 +379,10 @@ public class ShotCalculator {
 		// flyWheelVelocity = Math.min(flyWheelVelocity, rpsInterference);
 		// }
 		// }
+		if (distanceToThreshold < 0.7) {
+			flyWheelVelocity = 60;
+		} ;
+
 		flyWheelVelocity = DataProcessing.sanitize(last.flyWheelVelocity, rpsMin, rpsMax, flyWheelVelocity);
 
 		Rotation2d dynamicRobotAngle = velocityVectorField.getAngle().minus(robotPose.getRotation());
@@ -396,10 +403,10 @@ public class ShotCalculator {
 
 		last = latest;
 
-		double turretDiff = DataProcessing.rawToSmooth(6, turretDiffLast,
+		double turretDiff = DataProcessing.rawToSmooth(1, turretDiffLast,
 				Math.abs((turretAngle - 90) - turretAngleFeedback));
 		turretDiffLast = turretDiff;
-		transitionInProgress = ((turretDiff > 50) || switchCommanded);
+		transitionInProgress = ((turretDiff > 67) || switchCommanded);
 
 		// angleRatePose = robotPose.transformBy(new Transform2d(0.0, 0.0, new
 		// Rotation2d(angleRate * tOutput)));

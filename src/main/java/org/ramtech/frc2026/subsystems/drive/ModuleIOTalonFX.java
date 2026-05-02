@@ -107,6 +107,10 @@ public class ModuleIOTalonFX implements ModuleIO {
 		driveConfig.MotorOutput.Inverted = constants.DriveMotorInverted
 				? InvertedValue.Clockwise_Positive
 				: InvertedValue.CounterClockwise_Positive;
+
+		var driveConfigWithCoast = driveConfig;
+		driveConfigWithCoast.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+
 		tryUntilOk(5, () -> driveTalon.getConfigurator().apply(driveConfig, 0.25));
 		tryUntilOk(5, () -> driveTalon.setPosition(0.0, 0.25));
 
@@ -243,5 +247,32 @@ public class ModuleIOTalonFX implements ModuleIO {
 			case Voltage -> positionVoltageRequest.withPosition(rotation.getRotations());
 			case TorqueCurrentFOC -> positionTorqueCurrentRequest.withPosition(rotation.getRotations());
 		});
+	}
+
+	public void setCoast(boolean coast) {
+		// Configure drive motor
+		var driveConfig = constants.DriveMotorInitialConfigs;
+		driveConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+		driveConfig.Slot0 = constants.DriveMotorGains;
+		driveConfig.Feedback.SensorToMechanismRatio = constants.DriveMotorGearRatio;
+		driveConfig.TorqueCurrent.PeakForwardTorqueCurrent = constants.SlipCurrent;
+		driveConfig.TorqueCurrent.PeakReverseTorqueCurrent = -constants.SlipCurrent;
+		driveConfig.CurrentLimits.StatorCurrentLimit = constants.SlipCurrent;
+		driveConfig.CurrentLimits.StatorCurrentLimitEnable = true;
+
+		driveConfig.MotorOutput.Inverted = constants.DriveMotorInverted
+				? InvertedValue.Clockwise_Positive
+				: InvertedValue.CounterClockwise_Positive;
+
+		var driveConfigWithCoast = driveConfig;
+		driveConfigWithCoast.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+
+		if (coast) {
+			tryUntilOk(5, () -> driveTalon.getConfigurator().apply(driveConfigWithCoast, 0.25));
+
+		} else {
+			tryUntilOk(5, () -> driveTalon.getConfigurator().apply(driveConfig, 0.25));
+
+		}
 	}
 }

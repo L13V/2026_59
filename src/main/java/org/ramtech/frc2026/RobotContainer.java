@@ -350,9 +350,9 @@ public class RobotContainer {
 				// tower.setVoltage(10);
 				// indexer.setVoltage(10);
 				// flywheel.enableCalculation();
-				intake.setRollerVoltage(13);
-				tower.setVoltage(13);
-				indexer.setVoltage(13);
+				intake.setRollerVoltage(6);
+				tower.setVoltage(10);
+				indexer.setVoltage(10);
 				// intake.setAutoMode(IntakeIOAutoDirections.FORWARD);
 			} else {
 				tower.stop();

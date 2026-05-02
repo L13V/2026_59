@@ -4,104 +4,96 @@
     {
       "anchor": {
         "x": 5.8,
-        "y": 2.7
+        "y": 5.34
       },
       "prevControl": null,
       "nextControl": {
         "x": 5.3,
-        "y": 2.7
+        "y": 5.34
       },
       "isLocked": false,
-      "linkedName": "Outpost Center Intake End"
+      "linkedName": null
     },
     {
       "anchor": {
         "x": 3.4,
-        "y": 2.7
+        "y": 5.34
       },
       "prevControl": {
         "x": 3.9,
-        "y": 2.7
+        "y": 5.34
       },
       "nextControl": {
-        "x": 2.4,
-        "y": 2.7
+        "x": 2.65,
+        "y": 5.34
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 3.0,
-        "y": 0.85
+        "x": 3.4,
+        "y": 7.44
       },
       "prevControl": {
-        "x": 3.3535533905932304,
-        "y": 1.2035533905932305
+        "x": 3.15,
+        "y": 7.44
       },
       "nextControl": {
-        "x": 2.6464466094067376,
-        "y": 0.4964466094067375
+        "x": 3.6500000000000004,
+        "y": 7.44
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 0.6,
-        "y": 0.5
+        "x": 4.0,
+        "y": 7.44
       },
       "prevControl": {
-        "x": 1.5961946980917454,
-        "y": 0.5871557427476581
+        "x": 3.5,
+        "y": 7.44
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Oside Corner"
+      "linkedName": null
     }
   ],
   "rotationTargets": [
     {
-      "waypointRelativePos": 0.4,
-      "rotationDegrees": -90.0
-    },
-    {
       "waypointRelativePos": 0.95,
-      "rotationDegrees": -90.0
+      "rotationDegrees": 90.0
     },
     {
-      "waypointRelativePos": 1.5,
-      "rotationDegrees": -75.0
-    },
-    {
-      "waypointRelativePos": 2.5,
-      "rotationDegrees": -165.0
+      "waypointRelativePos": 1.4,
+      "rotationDegrees": 0.0
     }
   ],
   "constraintZones": [
     {
       "name": "Bump",
-      "minWaypointRelativePos": 0.3,
+      "minWaypointRelativePos": 0.4,
       "maxWaypointRelativePos": 0.9,
       "constraints": {
-        "maxVelocity": 3.0,
-        "maxAcceleration": 0.5,
-        "maxAngularVelocity": 10.0,
+        "maxVelocity": 3.6,
+        "maxAcceleration": 0.1,
+        "maxAngularVelocity": 90.0,
         "maxAngularAcceleration": 10.0,
-        "nominalVoltage": 10.0,
+        "nominalVoltage": 12.0,
         "unlimited": false
       }
     },
     {
       "name": "Rotation",
       "minWaypointRelativePos": 1.2,
-      "maxWaypointRelativePos": 3.0,
+      "maxWaypointRelativePos": 2.5,
       "constraints": {
-        "maxVelocity": 1.5,
-        "maxAcceleration": 2.0,
-        "maxAngularVelocity": 105.0,
+        "maxVelocity": 0.5,
+        "maxAcceleration": 1.0,
+        "maxAngularVelocity": 90.0,
         "maxAngularAcceleration": 120.0,
-        "nominalVoltage": 10.0,
+        "nominalVoltage": 12.0,
         "unlimited": false
       }
     }
@@ -110,8 +102,8 @@
   "eventMarkers": [
     {
       "name": "shoot",
-      "waypointRelativePos": 1.1,
-      "endWaypointRelativePos": 3.0,
+      "waypointRelativePos": 0.9,
+      "endWaypointRelativePos": 2.7,
       "command": {
         "type": "named",
         "data": {
@@ -129,14 +121,14 @@
     "unlimited": false
   },
   "goalEndState": {
-    "velocity": 0.0,
-    "rotation": 180.0
+    "velocity": 3.6,
+    "rotation": 14.999999999999998
   },
   "reversed": false,
   "folder": null,
   "idealStartingState": {
-    "velocity": 5.0,
-    "rotation": -90.0
+    "velocity": 3.6,
+    "rotation": 90.0
   },
   "useDefaultConstraints": true
 }

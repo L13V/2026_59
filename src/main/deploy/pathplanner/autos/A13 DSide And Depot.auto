@@ -1,0 +1,79 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "named",
+          "data": {
+            "name": "deploy_intake"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "DSide Trench Contest Half"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "DSide Bump Return To Sweep"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "deploy_intake"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "DSide Trench Safe Half"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "DSide Bump Return To In Depot"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "shoot"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Depot To Mid"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "deploy_intake"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "DSide Trench Safe Half"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "shoot"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": null,
+  "choreoAuto": false
+}

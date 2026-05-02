@@ -3,28 +3,12 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 5.9,
+        "x": 5.8,
         "y": 5.34
       },
       "prevControl": null,
       "nextControl": {
-        "x": 4.9,
-        "y": 5.34
-      },
-      "isLocked": false,
-      "linkedName": "Depot Sweep"
-    },
-    {
-      "anchor": {
-        "x": 3.3,
-        "y": 5.34
-      },
-      "prevControl": {
-        "x": 4.3,
-        "y": 5.34
-      },
-      "nextControl": {
-        "x": 2.3,
+        "x": 5.3,
         "y": 5.34
       },
       "isLocked": false,
@@ -32,62 +16,52 @@
     },
     {
       "anchor": {
-        "x": 0.5,
-        "y": 5.95
+        "x": 3.4,
+        "y": 5.34
       },
       "prevControl": {
-        "x": 2.5,
-        "y": 5.95
+        "x": 3.9,
+        "y": 5.34
+      },
+      "nextControl": {
+        "x": 2.4,
+        "y": 5.34
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 2.0963815789473683,
+        "y": 5.156893274853801
+      },
+      "prevControl": {
+        "x": 2.3463815789473683,
+        "y": 5.156893274853801
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Inside Depot"
+      "linkedName": null
     }
   ],
   "rotationTargets": [
     {
-      "waypointRelativePos": 1.0,
+      "waypointRelativePos": 0.4,
       "rotationDegrees": 90.0
     },
     {
-      "waypointRelativePos": 1.57,
-      "rotationDegrees": 180.0
+      "waypointRelativePos": 0.95,
+      "rotationDegrees": 90.0
     }
   ],
   "constraintZones": [
     {
       "name": "Depot",
-      "minWaypointRelativePos": 1.96,
+      "minWaypointRelativePos": 1.9,
       "maxWaypointRelativePos": 2.0,
       "constraints": {
-        "maxVelocity": 4.5,
-        "maxAcceleration": 5.0,
-        "maxAngularVelocity": 540.0,
-        "maxAngularAcceleration": 1464.0,
-        "nominalVoltage": 11.0,
-        "unlimited": false
-      }
-    },
-    {
-      "name": "Bump Launch",
-      "minWaypointRelativePos": 0,
-      "maxWaypointRelativePos": 0.2,
-      "constraints": {
-        "maxVelocity": 4.5,
-        "maxAcceleration": 9.4,
-        "maxAngularVelocity": 540.0,
-        "maxAngularAcceleration": 1464.0,
-        "nominalVoltage": 11.0,
-        "unlimited": false
-      }
-    },
-    {
-      "name": "Shooting",
-      "minWaypointRelativePos": 1.0,
-      "maxWaypointRelativePos": 2.0,
-      "constraints": {
-        "maxVelocity": 0.6,
-        "maxAcceleration": 5.0,
+        "maxVelocity": 4.0,
+        "maxAcceleration": 12.0,
         "maxAngularVelocity": 540.0,
         "maxAngularAcceleration": 1464.0,
         "nominalVoltage": 11.0,
@@ -96,14 +70,27 @@
     },
     {
       "name": "Bump",
-      "minWaypointRelativePos": 0.0,
-      "maxWaypointRelativePos": 1.0,
+      "minWaypointRelativePos": 0.3,
+      "maxWaypointRelativePos": 0.9,
       "constraints": {
         "maxVelocity": 3.0,
+        "maxAcceleration": 0.5,
+        "maxAngularVelocity": 10.0,
+        "maxAngularAcceleration": 10.0,
+        "nominalVoltage": 10.0,
+        "unlimited": false
+      }
+    },
+    {
+      "name": "Rotation",
+      "minWaypointRelativePos": 1.1,
+      "maxWaypointRelativePos": 2.0,
+      "constraints": {
+        "maxVelocity": 1.5,
         "maxAcceleration": 1.0,
-        "maxAngularVelocity": 540.0,
-        "maxAngularAcceleration": 1464.0,
-        "nominalVoltage": 11.0,
+        "maxAngularVelocity": 90.0,
+        "maxAngularAcceleration": 120.0,
+        "nominalVoltage": 10.0,
         "unlimited": false
       }
     }
@@ -111,19 +98,8 @@
   "pointTowardsZones": [],
   "eventMarkers": [
     {
-      "name": "intake",
-      "waypointRelativePos": 0.0,
-      "endWaypointRelativePos": 0.2202274087372869,
-      "command": {
-        "type": "named",
-        "data": {
-          "name": "intake"
-        }
-      }
-    },
-    {
       "name": "shoot",
-      "waypointRelativePos": 0.95,
+      "waypointRelativePos": 0.85,
       "endWaypointRelativePos": 2.0,
       "command": {
         "type": "named",
@@ -142,13 +118,13 @@
     "unlimited": false
   },
   "goalEndState": {
-    "velocity": 0,
-    "rotation": 180.0
+    "velocity": 0.0,
+    "rotation": 90.0
   },
   "reversed": false,
   "folder": null,
   "idealStartingState": {
-    "velocity": 0.0,
+    "velocity": 5.0,
     "rotation": 90.0
   },
   "useDefaultConstraints": true

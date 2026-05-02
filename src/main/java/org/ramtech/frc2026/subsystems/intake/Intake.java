@@ -36,8 +36,8 @@ public class Intake extends FullSubsystem {
 	@Override
 	public void periodic() {
 		// This method will be called once per scheduler run
-		// io.updateInputs(inputs);
-		// Logger.processInputs("Intake", inputs);
+		io.updateInputs(inputs);
+		Logger.processInputs("Intake", inputs);
 		motorADisconnected.set(Robot.showHardwareAlerts() && !motorADebouncer.calculate(inputs.motorAConnected));
 		motorBDisconnected.set(Robot.showHardwareAlerts() && !motorBDebouncer.calculate(inputs.motorBConnected));
 		intakePivotMotorDisconnected.set(

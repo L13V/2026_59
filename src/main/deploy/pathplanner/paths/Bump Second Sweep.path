@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 0.6,
-        "y": 7.54
+        "x": 0.5,
+        "y": 5.95
       },
       "prevControl": null,
       "nextControl": {
-        "x": 0.8500000000000001,
-        "y": 7.54
+        "x": 0.75,
+        "y": 5.95
       },
       "isLocked": false,
       "linkedName": "Inside Depot"
@@ -159,11 +159,11 @@
     }
   ],
   "globalConstraints": {
-    "maxVelocity": 4.5,
-    "maxAcceleration": 9.4,
-    "maxAngularVelocity": 540.0,
-    "maxAngularAcceleration": 1464.0,
-    "nominalVoltage": 11.0,
+    "maxVelocity": 3.6,
+    "maxAcceleration": 12.0,
+    "maxAngularVelocity": 360.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
     "unlimited": false
   },
   "goalEndState": {

@@ -68,13 +68,12 @@ public class Drive extends SubsystemBase {
 					Math.hypot(TunerConstants.BackRight.LocationX, TunerConstants.BackRight.LocationY)));
 
 	// Inside your Swerve Subsystem class
-	private final DynamicRateLimiter m_xLimiter = new DynamicRateLimiter(0);
-	private final DynamicRateLimiter m_yLimiter = new DynamicRateLimiter(0);
+	private final DynamicRateLimiter m_magLimiter = new DynamicRateLimiter(0);
 
 	// PathPlanner config constants
 	private static final double ROBOT_MASS_KG = 65;
 	private static final double ROBOT_MOI = 10.0;
-	private static final double WHEEL_COF = 1.0;
+	private static final double WHEEL_COF = 1.2;
 	private static final RobotConfig PP_CONFIG = new RobotConfig(ROBOT_MASS_KG, ROBOT_MOI,
 			new ModuleConfig(TunerConstants.FrontLeft.WheelRadius, TunerConstants.kSpeedAt12Volts.in(MetersPerSecond),
 					WHEEL_COF, DCMotor.getKrakenX60Foc(1).withReduction(TunerConstants.FrontLeft.DriveMotorGearRatio),
@@ -145,13 +144,13 @@ public class Drive extends SubsystemBase {
 	public Double getTranslationalSlewFromState(GlobalStates state) {
 		switch (state) {
 			case IDLE :
-				return 12.0;
+				return 11.0;
 			case INTAKING :
-				return 10.0;
+				return 11.0;
 			case SHOOTING :
-				return 4.0;
+				return 3.0;
 			default :
-				return 12.0;
+				return 11.0;
 		}
 		// return 100000000000.0;
 
@@ -162,9 +161,9 @@ public class Drive extends SubsystemBase {
 			case IDLE :
 				return 1.0;
 			case INTAKING :
-				return (3.5 / TunerConstants.kSpeedAt12Volts.baseUnitMagnitude());
+				return 1.0;
 			case SHOOTING :
-				return (2.5 / TunerConstants.kSpeedAt12Volts.baseUnitMagnitude());
+				return (1.5 / TunerConstants.kSpeedAt12Volts.baseUnitMagnitude());
 			default :
 				return 1.0;
 		}
@@ -178,7 +177,7 @@ public class Drive extends SubsystemBase {
 			case INTAKING :
 				return 1.0;
 			case SHOOTING :
-				return (2.5 / TunerConstants.kSpeedAt12Volts.baseUnitMagnitude());
+				return 0.2;
 			default :
 				return 1.0;
 		}
@@ -294,13 +293,18 @@ public class Drive extends SubsystemBase {
 	}
 
 	public void runVelocity(ChassisSpeeds speeds, double slewRateTranslation) {
+		Translation2d requestedTranslation = new Translation2d(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond);
+		double requestedMagnitude = requestedTranslation.getNorm();
+		double limitedMagnitude = m_magLimiter.calculate(requestedMagnitude, slewRateTranslation, slewRateTranslation);
+
+		Translation2d limitedTranslation = new Translation2d(limitedMagnitude, requestedTranslation.getAngle());
+
 		// Apply the limiters using the parameter passed in
-		double x = m_xLimiter.calculate(speeds.vxMetersPerSecond, slewRateTranslation, slewRateTranslation);
-		double y = m_yLimiter.calculate(speeds.vyMetersPerSecond, slewRateTranslation, slewRateTranslation);
-		double rot = speeds.omegaRadiansPerSecond; // Rot is often faster
+		double x = limitedTranslation.getX();
+		double y = limitedTranslation.getY();
+		double rot = speeds.omegaRadiansPerSecond;
 
 		ChassisSpeeds limitedSpeeds = new ChassisSpeeds(x, y, rot);
-
 		// Standard Kinematics
 		ChassisSpeeds discreteSpeeds = ChassisSpeeds.discretize(limitedSpeeds, 0.02);
 		SwerveModuleState[] setpointStates = kinematics.toSwerveModuleStates(discreteSpeeds);
