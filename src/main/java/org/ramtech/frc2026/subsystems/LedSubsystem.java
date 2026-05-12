@@ -85,12 +85,12 @@ public class LedSubsystem extends SubsystemBase {
 	// ==========================================
 	// SLOT 3: candle (LEDs 0 to 3)
 	// ==========================================
-	private final SingleFadeAnimation candleReady = new SingleFadeAnimation(0, 3).withSlot(3)
-			.withColor(new RGBWColor(0, 0, 255, 0)).withFrameRate(Hertz.of(100.0));
+	private final SingleFadeAnimation candleReady = new SingleFadeAnimation(0, 7).withSlot(3)
+			.withColor(new RGBWColor(0, 0, 255 / 2, 0)).withFrameRate(Hertz.of(100.0));
 
 	public LedSubsystem() {
 		CANdleConfiguration config = new CANdleConfiguration();
-		config.LED.BrightnessScalar = 0.6;
+		config.LED.BrightnessScalar = 1.0;
 		config.LED.LossOfSignalBehavior = LossOfSignalBehaviorValue.DisableLEDs;
 		config.LED.StripType = StripTypeValue.RGB;
 

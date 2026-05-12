@@ -37,7 +37,7 @@ public class Turret extends ShooterSubsystem {
 	public void periodic() {
 		// This method will be called once per scheduler run
 		io.updateInputs(inputs);
-		// Logger.processInputs("Shooter/Turret", inputs);
+		Logger.processInputs("Shooter/Turret", inputs);
 		turretMotorDisconnected
 				.set(Robot.showHardwareAlerts() && !turretDebouncer.calculate(inputs.turretMotorConnected));
 		turretEncoderADisconnected

@@ -171,10 +171,10 @@ public final class Constants {
 
 		public static final double turretAngleOffsetForZero = 0;
 
-		public static final double forwardSoftLimit = 1015;
+		public static final double forwardSoftLimit = 1028;
 		public static final boolean forwardSoftLimitEnable = true;
 
-		public static final double reverseSoftLimit = 200;
+		public static final double reverseSoftLimit = 190;
 		public static final boolean reverseSoftLimitEnable = true;
 
 	}

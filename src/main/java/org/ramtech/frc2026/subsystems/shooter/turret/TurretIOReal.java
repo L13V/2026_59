@@ -108,13 +108,13 @@ public class TurretIOReal implements TurretIO {
 		 * Encoder A
 		 */
 		encoderAConfig.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
-		encoderAConfig.MagnetSensor.MagnetOffset = 0.389990234375;
+		encoderAConfig.MagnetSensor.MagnetOffset = 0.58994140625;
 		encoderAConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 1;
 		/*
 		 * Encoder B
 		 */
 		encoderBConfig.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
-		encoderBConfig.MagnetSensor.MagnetOffset = 0.569023075810185;
+		encoderBConfig.MagnetSensor.MagnetOffset = 0.7957481971;
 		encoderBConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 1;
 
 		/*
