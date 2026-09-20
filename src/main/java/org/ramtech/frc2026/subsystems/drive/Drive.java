@@ -54,7 +54,7 @@ import org.ramtech.frc2026.RobotState;
 import org.ramtech.frc2026.RobotState.GlobalStates;
 import org.ramtech.frc2026.Constants.Mode;
 import org.ramtech.frc2026.generated.TunerConstants;
-import org.ramtech.frc2026.util.DynamicRateLimiter;
+import org.ramtech.frc2026.util.DynamicRateLimiter2D;
 import org.ramtech.frc2026.util.LocalADStarAK;
 
 public class Drive extends SubsystemBase {
@@ -68,7 +68,7 @@ public class Drive extends SubsystemBase {
 					Math.hypot(TunerConstants.BackRight.LocationX, TunerConstants.BackRight.LocationY)));
 
 	// Inside your Swerve Subsystem class
-	private final DynamicRateLimiter m_magLimiter = new DynamicRateLimiter(0);
+	private final DynamicRateLimiter2D m_magLimiter = new DynamicRateLimiter2D(Translation2d.kZero);
 
 	// PathPlanner config constants
 	private static final double ROBOT_MASS_KG = 65;
@@ -156,7 +156,7 @@ public class Drive extends SubsystemBase {
 
 	}
 
-	public Double getDriveMaxVelocity(GlobalStates state) {
+	public Double getDriveStickLimit(GlobalStates state) {
 		switch (state) {
 			case IDLE :
 				return 1.0;
@@ -170,14 +170,14 @@ public class Drive extends SubsystemBase {
 
 	}
 
-	public Double getRotationMaxVelocity(GlobalStates state) {
+	public Double getRotationStickLimit(GlobalStates state) { // TODO: Check
 		switch (state) {
 			case IDLE :
 				return 1.0;
 			case INTAKING :
 				return 1.0;
 			case SHOOTING :
-				return 0.2;
+				return 0.5;
 			default :
 				return 1.0;
 		}
@@ -185,9 +185,9 @@ public class Drive extends SubsystemBase {
 	}
 
 	// Add this helper method to your subsystem or command configuration file
-	public double clampToMaxDriveVelocity(double joystickInput) {
+	public double clampToMaxDriveStick(double joystickInput) {
 		// 1. Get the current limit (e.g., 0.5)
-		double limit = getDriveMaxVelocity(RobotState.getInstance().getGlobalState());
+		double limit = getDriveStickLimit(RobotState.getInstance().getGlobalState());
 
 		// 2. Clamp the input between -limit and +limit
 		// Note: Make sure to import edu.wpi.first.math.MathUtil;
@@ -195,9 +195,9 @@ public class Drive extends SubsystemBase {
 	}
 
 	// Add this helper method to your subsystem or command configuration file
-	public double clampToMaxRotationVelocity(double joystickInput) {
+	public double clampToMaxRotationStick(double joystickInput) {
 		// 1. Get the current limit (e.g., 0.5)
-		double limit = getRotationMaxVelocity(RobotState.getInstance().getGlobalState());
+		double limit = getRotationStickLimit(RobotState.getInstance().getGlobalState());
 
 		// 2. Clamp the input between -limit and +limit
 		// Note: Make sure to import edu.wpi.first.math.MathUtil;
@@ -274,6 +274,18 @@ public class Drive extends SubsystemBase {
 	 *            Speeds in meters/sec
 	 */
 	public void runVelocity(ChassisSpeeds speeds) {
+		m_magLimiter
+				.reset(new Translation2d(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond).rotateBy(getRotation())); // keep
+																														// track
+																														// of
+																														// ts
+																														// when
+																														// no
+																														// slew
+																														// rate
+																														// is
+																														// actually
+																														// running.
 		// Calculate module setpoints
 		ChassisSpeeds discreteSpeeds = ChassisSpeeds.discretize(speeds, 0.02);
 		SwerveModuleState[] setpointStates = kinematics.toSwerveModuleStates(discreteSpeeds);
@@ -293,11 +305,18 @@ public class Drive extends SubsystemBase {
 	}
 
 	public void runVelocity(ChassisSpeeds speeds, double slewRateTranslation) {
-		Translation2d requestedTranslation = new Translation2d(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond);
-		double requestedMagnitude = requestedTranslation.getNorm();
-		double limitedMagnitude = m_magLimiter.calculate(requestedMagnitude, slewRateTranslation, slewRateTranslation);
+		Rotation2d heading = getRotation(); // to actually apply the slew rate field relative instead of robot relative.
 
-		Translation2d limitedTranslation = new Translation2d(limitedMagnitude, requestedTranslation.getAngle());
+		Translation2d requestedTranslationFieldRel = new Translation2d(speeds.vxMetersPerSecond,
+				speeds.vyMetersPerSecond).rotateBy(heading);
+		Translation2d limitedTranslationFieldRel = m_magLimiter.calculate(requestedTranslationFieldRel,
+				slewRateTranslation, slewRateTranslation);
+
+		Translation2d limitedTranslation = limitedTranslationFieldRel.rotateBy(heading.unaryMinus()); // make limited
+																										// translation
+																										// robot
+																										// relative
+																										// again
 
 		// Apply the limiters using the parameter passed in
 		double x = limitedTranslation.getX();
@@ -323,25 +342,27 @@ public class Drive extends SubsystemBase {
 		Logger.recordOutput("SwerveStates/SetpointsOptimized", setpointStates);
 	}
 
-	public void runVelocityForAutos(ChassisSpeeds speeds) {
-		// Calculate module setpoints
-		ChassisSpeeds discreteSpeeds = ChassisSpeeds.discretize(speeds, 0.02);
-		previousSetpoint = setpointGenerator.generateSetpoint(previousSetpoint, speeds, 0.02);
-		SwerveModuleState[] setpointStates = previousSetpoint.moduleStates();
-		SwerveDriveKinematics.desaturateWheelSpeeds(setpointStates, TunerConstants.kSpeedAt12Volts);
+	// public void runVelocityForAutos(ChassisSpeeds speeds) {
+	// // Calculate module setpoints
+	// ChassisSpeeds discreteSpeeds = ChassisSpeeds.discretize(speeds, 0.02);
+	// previousSetpoint = setpointGenerator.generateSetpoint(previousSetpoint,
+	// speeds, 0.02);
+	// SwerveModuleState[] setpointStates = previousSetpoint.moduleStates();
+	// SwerveDriveKinematics.desaturateWheelSpeeds(setpointStates,
+	// TunerConstants.kSpeedAt12Volts);
 
-		// Log unoptimized setpoints and setpoint speeds
-		Logger.recordOutput("SwerveStates/Setpoints", setpointStates);
-		Logger.recordOutput("SwerveChassisSpeeds/Setpoints", discreteSpeeds);
+	// // Log unoptimized setpoints and setpoint speeds
+	// Logger.recordOutput("SwerveStates/Setpoints", setpointStates);
+	// Logger.recordOutput("SwerveChassisSpeeds/Setpoints", discreteSpeeds);
 
-		// Send setpoints to modules
-		for (int i = 0; i < 4; i++) {
-			modules[i].runSetpoint(setpointStates[i]);
-		}
+	// // Send setpoints to modules
+	// for (int i = 0; i < 4; i++) {
+	// modules[i].runSetpoint(setpointStates[i]);
+	// }
 
-		// Log optimized setpoints (runSetpoint mutates each state)
-		Logger.recordOutput("SwerveStates/SetpointsOptimized", setpointStates);
-	}
+	// // Log optimized setpoints (runSetpoint mutates each state)
+	// Logger.recordOutput("SwerveStates/SetpointsOptimized", setpointStates);
+	// }
 
 	/** Runs the drive in a straight line with the specified drive output. */
 	public void runCharacterization(double output) {

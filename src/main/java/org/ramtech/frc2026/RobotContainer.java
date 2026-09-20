@@ -243,9 +243,9 @@ public class RobotContainer {
 		 */
 		// Drive
 		drive.setDefaultCommand(DriveCommands.joystickDrive(drive,
-				() -> drive.clampToMaxDriveVelocity(-drivercontroller.getLeftY() * slowModeMultiplier),
-				() -> drive.clampToMaxDriveVelocity(-drivercontroller.getLeftX() * slowModeMultiplier),
-				() -> drive.clampToMaxDriveVelocity(-drivercontroller.getRightX()),
+				() -> drive.clampToMaxDriveStick(-drivercontroller.getLeftY() * slowModeMultiplier),
+				() -> drive.clampToMaxDriveStick(-drivercontroller.getLeftX() * slowModeMultiplier),
+				() -> drive.clampToMaxRotationStick(-drivercontroller.getRightX()),
 				() -> drive.getTranslationalSlewFromState(RobotState.getInstance().getGlobalState())));
 		// Reset gyro
 		drivercontroller.start().onTrue(Commands
@@ -351,8 +351,8 @@ public class RobotContainer {
 				// indexer.setVoltage(10);
 				// flywheel.enableCalculation();
 				intake.setRollerVoltage(6);
-				tower.setVoltage(10);
-				indexer.setVoltage(10);
+				tower.setVoltage(13);
+				indexer.setVoltage(6);
 				// intake.setAutoMode(IntakeIOAutoDirections.FORWARD);
 			} else {
 				tower.stop();

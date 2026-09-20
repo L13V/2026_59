@@ -26,7 +26,8 @@ public class DynamicRateLimiter {
 	 */
 	public double calculate(double input, double accelLimit, double decelLimit) {
 		double currentTime = Timer.getFPGATimestamp();
-		double dt = currentTime - m_prevTime;
+		// double dt = currentTime - m_prevTime;
+		double dt = MathUtil.clamp(currentTime - m_prevTime, 0.0, 0.1);
 		m_prevTime = currentTime;
 
 		double limit;

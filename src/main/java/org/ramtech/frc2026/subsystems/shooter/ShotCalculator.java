@@ -214,7 +214,7 @@ public class ShotCalculator {
 		angleRateLast = angleRate;
 
 		double fieldAngle = Math.toRadians(250 - 90) + rotation.getRadians() + (angleRate * tLoop);
-		double turretAngular = (Offsets.turretOffset.getTranslation().getNorm() * angleRate);
+		// double turretAngular = (Offsets.turretOffset.getTranslation().getNorm() * angleRate);
 
 		Translation2d swingVelocityField = new Translation2d(0, new Rotation2d(fieldAngle));
 
@@ -379,7 +379,7 @@ public class ShotCalculator {
 		// flyWheelVelocity = Math.min(flyWheelVelocity, rpsInterference);
 		// }
 		// }
-		if (distanceToThreshold < 0.7) {
+		if (distanceToThreshold < 0.7) { // TODO: CHECK
 			flyWheelVelocity = 60;
 		} ;
 
@@ -403,7 +403,7 @@ public class ShotCalculator {
 
 		last = latest;
 
-		double turretDiff = DataProcessing.rawToSmooth(1, turretDiffLast,
+		double turretDiff = DataProcessing.rawToSmooth(4, turretDiffLast, // TODO: Tune?
 				Math.abs((turretAngle - 90) - turretAngleFeedback));
 		turretDiffLast = turretDiff;
 		transitionInProgress = ((turretDiff > 67) || switchCommanded);
