@@ -108,13 +108,13 @@ public class TurretIOReal implements TurretIO {
 		 * Encoder A
 		 */
 		encoderAConfig.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
-		encoderAConfig.MagnetSensor.MagnetOffset = 0.58994140625;
+		encoderAConfig.MagnetSensor.MagnetOffset = -0.198779296875;
 		encoderAConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 1;
 		/*
 		 * Encoder B
 		 */
 		encoderBConfig.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
-		encoderBConfig.MagnetSensor.MagnetOffset = 0.7957481971;
+		encoderBConfig.MagnetSensor.MagnetOffset = 0.0352629485;
 		encoderBConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 1;
 
 		/*
@@ -238,7 +238,7 @@ public class TurretIOReal implements TurretIO {
 				turretMotor.setControl(voltageOut.withOutput(outputs.voltageSetpoint).withEnableFOC(true));
 				break;
 			case POSITION :
-				if (outputs.turretLockedByIntake || outputs.turretLockedByDriver) {
+				if (outputs.turretLockedByDriver) {
 					turretMotor.stopMotor();
 
 				} else {

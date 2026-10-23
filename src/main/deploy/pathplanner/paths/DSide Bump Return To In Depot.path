@@ -98,8 +98,19 @@
   "pointTowardsZones": [],
   "eventMarkers": [
     {
+      "name": "center_turret",
+      "waypointRelativePos": 0.4,
+      "endWaypointRelativePos": 0.6,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "center_turret"
+        }
+      }
+    },
+    {
       "name": "shoot",
-      "waypointRelativePos": 0.9,
+      "waypointRelativePos": 0.8,
       "endWaypointRelativePos": 2.0,
       "command": {
         "type": "named",

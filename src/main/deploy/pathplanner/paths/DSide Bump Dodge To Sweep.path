@@ -89,7 +89,7 @@
       "minWaypointRelativePos": 1.2,
       "maxWaypointRelativePos": 2.5,
       "constraints": {
-        "maxVelocity": 0.5,
+        "maxVelocity": 0.6,
         "maxAcceleration": 1.0,
         "maxAngularVelocity": 90.0,
         "maxAngularAcceleration": 120.0,
@@ -101,6 +101,17 @@
   "pointTowardsZones": [],
   "eventMarkers": [
     {
+      "name": "center_turret",
+      "waypointRelativePos": 0.5,
+      "endWaypointRelativePos": 0.7,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "center_turret"
+        }
+      }
+    },
+    {
       "name": "shoot",
       "waypointRelativePos": 0.9,
       "endWaypointRelativePos": 2.7,
@@ -108,6 +119,17 @@
         "type": "named",
         "data": {
           "name": "shoot"
+        }
+      }
+    },
+    {
+      "name": "bump_intake",
+      "waypointRelativePos": 1.65,
+      "endWaypointRelativePos": 1.74,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "bump_intake"
         }
       }
     }

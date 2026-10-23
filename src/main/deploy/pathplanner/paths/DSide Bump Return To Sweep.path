@@ -89,8 +89,19 @@
   "pointTowardsZones": [],
   "eventMarkers": [
     {
+      "name": "center_turret",
+      "waypointRelativePos": 0.4,
+      "endWaypointRelativePos": 0.6,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "center_turret"
+        }
+      }
+    },
+    {
       "name": "shoot",
-      "waypointRelativePos": 0.9,
+      "waypointRelativePos": 0.8,
       "endWaypointRelativePos": 2.0,
       "command": {
         "type": "named",
@@ -100,13 +111,13 @@
       }
     },
     {
-      "name": "raise_intake",
-      "waypointRelativePos": 1.5,
-      "endWaypointRelativePos": 1.9,
+      "name": "bump_intake",
+      "waypointRelativePos": 1.65,
+      "endWaypointRelativePos": 1.74,
       "command": {
         "type": "named",
         "data": {
-          "name": "raise_intake"
+          "name": "bump_intake"
         }
       }
     },

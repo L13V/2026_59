@@ -118,6 +118,9 @@ public class ShotCalculator {
 	private static double angleRateLast = 0;
 	private static double tFlight = 0;
 
+	private volatile double overrideTargetAngleDeg = 0.0;
+	private volatile boolean overrideTargetAngle = false;
+
 	/*
 	 * Turret
 	 */
@@ -214,7 +217,8 @@ public class ShotCalculator {
 		angleRateLast = angleRate;
 
 		double fieldAngle = Math.toRadians(250 - 90) + rotation.getRadians() + (angleRate * tLoop);
-		// double turretAngular = (Offsets.turretOffset.getTranslation().getNorm() * angleRate);
+		// double turretAngular = (Offsets.turretOffset.getTranslation().getNorm() *
+		// angleRate);
 
 		Translation2d swingVelocityField = new Translation2d(0, new Rotation2d(fieldAngle));
 
@@ -397,6 +401,14 @@ public class ShotCalculator {
 
 		boolean isValid = true;
 
+		if (overrideTargetAngle) {
+			double finalTarget = MathUtil.clamp(overrideTargetAngleDeg,
+					TurretConstants.reverseSoftLimit - TurretConstants.turretAngleOffsetForZero,
+					TurretConstants.forwardSoftLimit - TurretConstants.turretAngleOffsetForZero);
+			turretAngle = finalTarget;
+			overrideTargetAngle = false;
+		}
+
 		latest = new ShotParameters(isValid, Math.toDegrees(hoodMinAngle) - Math.toDegrees(hoodAngle),
 				// to 52)
 				flyWheelVelocity, 0.0, turretAngle, true, shootingAllowed);
@@ -410,6 +422,8 @@ public class ShotCalculator {
 
 		// angleRatePose = robotPose.transformBy(new Transform2d(0.0, 0.0, new
 		// Rotation2d(angleRate * tOutput)));
+
+		double penis = robotPose.getX();
 
 	}
 
@@ -430,4 +444,9 @@ public class ShotCalculator {
 		// Logger.recordOutput("anglerratepose", safehood);
 		// Logger.recordOutput("anglerratepose", angleRatePose);
 	}
+
+	public void setTarget(double newTarget) {
+		overrideTargetAngleDeg = newTarget;
+		overrideTargetAngle = true;
+	};
 }

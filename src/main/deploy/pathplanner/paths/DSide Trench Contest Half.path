@@ -16,15 +16,15 @@
     },
     {
       "anchor": {
-        "x": 8.0,
+        "x": 7.6,
         "y": 6.34
       },
       "prevControl": {
-        "x": 7.646446609406726,
+        "x": 7.246446609406726,
         "y": 6.693553390593274
       },
       "nextControl": {
-        "x": 8.353553390593273,
+        "x": 7.953553390593273,
         "y": 5.986446609406726
       },
       "isLocked": false,
@@ -32,15 +32,15 @@
     },
     {
       "anchor": {
-        "x": 8.0,
+        "x": 7.6,
         "y": 4.74
       },
       "prevControl": {
-        "x": 8.176776695296637,
+        "x": 7.776776695296636,
         "y": 4.916776695296637
       },
       "nextControl": {
-        "x": 7.8232233047033635,
+        "x": 7.423223304703363,
         "y": 4.563223304703364
       },
       "isLocked": false,
@@ -83,7 +83,7 @@
     },
     {
       "waypointRelativePos": 1.5,
-      "rotationDegrees": -90.0
+      "rotationDegrees": -105.00000000000001
     },
     {
       "waypointRelativePos": 2.7,
@@ -93,10 +93,10 @@
   "constraintZones": [
     {
       "name": "Constraints Zone",
-      "minWaypointRelativePos": 0.8,
-      "maxWaypointRelativePos": 2.4,
+      "minWaypointRelativePos": 0.7,
+      "maxWaypointRelativePos": 2.7,
       "constraints": {
-        "maxVelocity": 2.0,
+        "maxVelocity": 1.5,
         "maxAcceleration": 12.0,
         "maxAngularVelocity": 360.0,
         "maxAngularAcceleration": 1464.0,
@@ -110,7 +110,7 @@
     {
       "name": "deploy_intake",
       "waypointRelativePos": 0.0,
-      "endWaypointRelativePos": 0.19,
+      "endWaypointRelativePos": 0.14,
       "command": {
         "type": "named",
         "data": {
@@ -120,12 +120,23 @@
     },
     {
       "name": "intake",
-      "waypointRelativePos": 0.25,
+      "waypointRelativePos": 0.15109749872383346,
       "endWaypointRelativePos": 3.3,
       "command": {
         "type": "named",
         "data": {
           "name": "intake"
+        }
+      }
+    },
+    {
+      "name": "center_turret",
+      "waypointRelativePos": 3.8,
+      "endWaypointRelativePos": 4.0,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "center_turret"
         }
       }
     }

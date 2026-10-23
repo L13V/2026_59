@@ -17,9 +17,11 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
+import org.ramtech.frc2026.Constants.TurretConstants;
 import org.ramtech.frc2026.RobotState.GlobalStates;
 import org.ramtech.frc2026.commands.AutoSystemsCheck;
 import org.ramtech.frc2026.commands.DriveCommands;
@@ -181,9 +183,13 @@ public class RobotContainer {
 		NamedCommands.registerCommand("shoot", shoot());
 
 		NamedCommands.registerCommand("deploy_intake", deploy_intake());
+		NamedCommands.registerCommand("bump_intake", bump_intake());
 		NamedCommands.registerCommand("raise_intake", raise_intake());
 
 		NamedCommands.registerCommand("intake", intake_auto());
+		NamedCommands.registerCommand("center_turret",
+				new InstantCommand(() -> ShotCalculator.getInstance().setTarget(TurretConstants.reverseSoftLimit
+						+ (TurretConstants.forwardSoftLimit - TurretConstants.reverseSoftLimit) / 2)));
 
 		RobotState.getInstance().setPoseSupplier(drive::getPose);
 		RobotState.getInstance().setSpeedSupplier(drive::getChassisSpeeds);
@@ -267,24 +273,28 @@ public class RobotContainer {
 					intake.lowerPivot();
 				}));
 
-		drivercontroller.rightTrigger().whileTrue(outtake());
+		drivercontroller.leftBumper().whileTrue(outtake());
 
 		// Raise Intake
 		drivercontroller.y().onTrue(raise_intake());
+		drivercontroller.x().onTrue(bump_intake());
+		drivercontroller.a().onTrue(unstick_intake());
 
 		/*
 		 * Shooting
 		 */
 		// Re-enable shooter
-		drivercontroller.leftBumper().onTrue(new InstantCommand(() -> ShotCalculator.getInstance().requestSafe()));
+		drivercontroller.rightTrigger().onTrue(new InstantCommand(() -> ShotCalculator.getInstance().requestSafe()));
 
 		// Shoot
-		drivercontroller.leftBumper().and(() -> ShotCalculator.getInstance().getLatest().hoodSafe())
-				.and(() -> ShotCalculator.getInstance().getLatest().shootingAllowed()).whileTrue(shoot());
+		drivercontroller.rightTrigger().and(() -> ShotCalculator.getInstance().getLatest().hoodSafe())
+				// .and(() -> ShotCalculator.getInstance().getLatest().shootingAllowed()) TODO
+				// Re-Enable for comp.
+				.whileTrue(shoot());
 		drivercontroller.b().whileTrue(shoot());
 
 		// Overrides for helping battery conservation during auto testing.
-		drivercontroller.a().onTrue(conserve());
+		// drivercontroller.a().onTrue(conserve());
 
 		/*
 		 * Operator Overrides
@@ -352,7 +362,7 @@ public class RobotContainer {
 				// flywheel.enableCalculation();
 				intake.setRollerVoltage(6);
 				tower.setVoltage(13);
-				indexer.setVoltage(6);
+				indexer.setVoltage(6.5);
 				// intake.setAutoMode(IntakeIOAutoDirections.FORWARD);
 			} else {
 				tower.stop();
@@ -364,7 +374,7 @@ public class RobotContainer {
 			ShotCalculator.getInstance().requestSafe();
 			flywheel.enableCalculation();
 		}, () -> {
-			indexer.stop();
+			indexer.setVoltage(-2);
 			tower.stop();
 			intake.stopRollers();
 			if (RobotState.getInstance().getGlobalState() == GlobalStates.SHOOTING) {
@@ -378,56 +388,65 @@ public class RobotContainer {
 		return (Commands.runOnce(() -> intake.lowerPivot()));
 	}
 
+	public Command bump_intake() {
+		// drivercontroller.x().onTrue();
+		return (Commands.sequence(raise_intake(), new WaitCommand(1), deploy_intake()));
+	}
+
+	public Command unstick_intake() {
+		// drivercontroller.x().onTrue();
+		return (Commands.sequence(full_raise_intake(), new WaitCommand(0.5), deploy_intake()));
+	}
+
 	public Command raise_intake() {
 		return Commands.runOnce(() -> intake.setPivotPosition(0.185));
 	}
 
+	public Command full_raise_intake() {
+		return Commands.runOnce(() -> intake.setPivotPosition(0.315));
+	}
+
 	public Command intake() {
-		return Commands.either(new LowerIntake(intake, turret), // Run this if true
-				Commands.none(), // Do nothing if false
-				turret::isIntakeLocked).alongWith(Commands.startEnd(() -> {
-					if (RobotState.getInstance().getGlobalState() != GlobalStates.SHOOTING
-							&& RobotState.getInstance().getGlobalState() != GlobalStates.INTAKING) {
-						RobotState.getInstance().setGlobalState(GlobalStates.INTAKING);
-					}
-					intake.lowerPivot();
-					intake.setRollerVoltage(13);
-					indexer.stop();
-					// intake.setRollerVoltage(10.0);
-					// indexer.setVoltage(-10);
-				}, () -> {
-					intake.stopRollers();
-					indexer.stop();
-					if (RobotState.getInstance().getGlobalState() == GlobalStates.INTAKING) {
-						RobotState.getInstance().setGlobalState(GlobalStates.IDLE);
-					}
-				}, indexer));
+		return new LowerIntake(intake, turret).alongWith(Commands.startEnd(() -> {
+			if (RobotState.getInstance().getGlobalState() != GlobalStates.SHOOTING
+					&& RobotState.getInstance().getGlobalState() != GlobalStates.INTAKING) {
+				RobotState.getInstance().setGlobalState(GlobalStates.INTAKING);
+			}
+			intake.lowerPivot();
+			intake.setRollerVoltage(13);
+			// indexer.stop();
+			indexer.setVoltage(-2);
+		}, () -> {
+			intake.stopRollers();
+			indexer.setVoltage(-2);
+			// indexer.stop();
+			if (RobotState.getInstance().getGlobalState() == GlobalStates.INTAKING) {
+				RobotState.getInstance().setGlobalState(GlobalStates.IDLE);
+			}
+		}, indexer));
 	}
 
 	public Command outtake() {
-		return Commands.either(new LowerIntake(intake, turret), // Run this if true
-				Commands.none(), // Do nothing if false
-				turret::isIntakeLocked).alongWith(Commands.startEnd(() -> {
-					intake.lowerPivot();
-					intake.setRollerVoltage(-13);
-					indexer.setVoltage(-13);
-				}, () -> {
-					intake.stopRollers();
-					indexer.stop();
-				}, indexer));
+		return new LowerIntake(intake, turret).alongWith(Commands.startEnd(() -> {
+			intake.lowerPivot();
+			intake.setRollerVoltage(-13);
+			indexer.setVoltage(-13);
+		}, () -> {
+			intake.stopRollers();
+			indexer.setVoltage(-2);
+		}, indexer));
 	}
 
 	public Command intake_auto() {
-		return Commands.either(new LowerIntake(intake, turret), // Run this if true
-				Commands.none(), // Do nothing if false
-				turret::isIntakeLocked).alongWith(Commands.startEnd(() -> {
-					intake.lowerPivot();
-					indexer.stop();
-					intake.setRollerVoltage(13.0);
-				}, () -> {
-					intake.stopRollers();
-					indexer.stop();
-				}, indexer));
+		return new LowerIntake(intake, turret).alongWith(Commands.startEnd(() -> {
+			intake.lowerPivot();
+			intake.setRollerVoltage(13);
+			// indexer.stop();
+			indexer.setVoltage(-2);
+		}, () -> {
+			intake.stopRollers();
+			indexer.setVoltage(-3);
+		}, indexer));
 	}
 
 	public Command conserve() {

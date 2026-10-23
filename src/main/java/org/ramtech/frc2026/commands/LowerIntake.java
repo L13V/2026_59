@@ -26,7 +26,6 @@ public class LowerIntake extends Command {
 	// Called when the command is initially scheduled.
 	@Override
 	public void initialize() {
-		turret.setTurretIntakeLock(true);
 		intake.lowerPivot();
 
 	}
@@ -39,7 +38,6 @@ public class LowerIntake extends Command {
 	// Called once the command ends or is interrupted.
 	@Override
 	public void end(boolean interrupted) {
-		turret.setTurretIntakeLock(false);
 	}
 
 	// Returns true when the command should end.

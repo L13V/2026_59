@@ -63,10 +63,10 @@ public class IntakeIOTalonFX implements IntakeIO {
 		intakeMotorConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
 		intakeMotorConfig.CurrentLimits.StatorCurrentLimit = 70;
 		intakeMotorConfig.CurrentLimits.StatorCurrentLimitEnable = true;
-		intakeMotorConfig.CurrentLimits.SupplyCurrentLimit = 30;
+		intakeMotorConfig.CurrentLimits.SupplyCurrentLimit = 50;
 		intakeMotorConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-		intakeMotorConfig.CurrentLimits.SupplyCurrentLowerLimit = 30;
-		intakeMotorConfig.CurrentLimits.SupplyCurrentLowerTime = 1.5;
+		intakeMotorConfig.CurrentLimits.SupplyCurrentLowerLimit = 40;
+		intakeMotorConfig.CurrentLimits.SupplyCurrentLowerTime = 1.8;
 
 		pivotMotorConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
 		pivotMotorConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
@@ -161,7 +161,7 @@ public class IntakeIOTalonFX implements IntakeIO {
 				break;
 			case VOLTAGE :
 				motorA.setControl(
-						voltageOut.withOutput(slewRate.calculate(outputs.rollerVoltageSetpoint, 10, 100000000))
+						voltageOut.withOutput(slewRate.calculate(outputs.rollerVoltageSetpoint, 24, 100000000))
 								.withEnableFOC(true));
 				motorB.setControl(follower);
 				break;

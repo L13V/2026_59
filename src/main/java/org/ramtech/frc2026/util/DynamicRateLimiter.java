@@ -17,8 +17,10 @@ public class DynamicRateLimiter {
 	}
 
 	/**
-	 * Calculates the limited value based on a dynamic rate. * @param input The
-	 * target value
+	 * Calculates the limited value based on a dynamic rate. *
+	 *
+	 * @param input
+	 *            The target value
 	 *
 	 * @param rateLimit
 	 *            The maximum units per second change (positive)

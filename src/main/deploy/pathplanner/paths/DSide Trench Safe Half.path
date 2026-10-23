@@ -96,7 +96,7 @@
       "minWaypointRelativePos": 1.1,
       "maxWaypointRelativePos": 4.0,
       "constraints": {
-        "maxVelocity": 2.0,
+        "maxVelocity": 1.8,
         "maxAcceleration": 12.0,
         "maxAngularVelocity": 360.0,
         "maxAngularAcceleration": 1464.0,
@@ -115,6 +115,17 @@
         "type": "named",
         "data": {
           "name": "intake"
+        }
+      }
+    },
+    {
+      "name": "center_turret",
+      "waypointRelativePos": 3.8,
+      "endWaypointRelativePos": 4.0,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "center_turret"
         }
       }
     }

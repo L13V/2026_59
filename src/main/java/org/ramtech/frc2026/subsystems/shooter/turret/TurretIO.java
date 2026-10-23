@@ -53,7 +53,6 @@ public interface TurretIO {
 		public double voltageSetpoint = 0.0;
 		public double positionSetpoint = 0.0;
 		public boolean turretLockedByDriver = false;
-		public boolean turretLockedByIntake = false;
 	}
 
 	default void updateInputs(TurretIOInputs inputs) {

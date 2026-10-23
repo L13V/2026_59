@@ -163,7 +163,7 @@ public class Drive extends SubsystemBase {
 			case INTAKING :
 				return 1.0;
 			case SHOOTING :
-				return (1.5 / TunerConstants.kSpeedAt12Volts.baseUnitMagnitude());
+				return (1.7 / TunerConstants.kSpeedAt12Volts.baseUnitMagnitude()); /// this is scalled to m/s of robot
 			default :
 				return 1.0;
 		}

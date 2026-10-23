@@ -50,11 +50,11 @@ public class LedSubsystem extends SubsystemBase {
 	// ==========================================
 	// SLOT 1: TURRET ANIMATIONS (LEDs 14 to 24)
 	// ==========================================
-	private final SingleFadeAnimation turretDisabled = new SingleFadeAnimation(14, 24).withSlot(1)
-			.withColor(new RGBWColor(0, 0, 0, 0)).withFrameRate(Hertz.of(100.0));
 	// private final SingleFadeAnimation turretDisabled = new
 	// SingleFadeAnimation(14, 24).withSlot(1)
-	// .withColor(new RGBWColor(0, 0, 255, 0)).withFrameRate(Hertz.of(100.0));
+	// .withColor(new RGBWColor(0, 0, 0, 0)).withFrameRate(Hertz.of(100.0));
+	private final SingleFadeAnimation turretDisabled = new SingleFadeAnimation(14, 24).withSlot(1)
+			.withColor(new RGBWColor(0, 0, 255, 0)).withFrameRate(Hertz.of(100.0));
 
 	private final SingleFadeAnimation turretReady = new SingleFadeAnimation(14, 24).withSlot(1)
 			.withColor(new RGBWColor(2, 255, 1, 0)).withFrameRate(Hertz.of(100.0));
@@ -113,25 +113,25 @@ public class LedSubsystem extends SubsystemBase {
 					|| currentMisaligned != lastMisalignedState) {
 
 				if (currentDisabled) {
-					// robotCANdle.setControl(tunnelDisabled);
+					robotCANdle.setControl(tunnelDisabled);
 					robotCANdle.setControl(turretDisabled);
-					// robotCANdle.setControl(underglowDisabled);
+					robotCANdle.setControl(underglowDisabled);
 
 				} else if (currentGlobalState == GlobalStates.SHOOTING) {
-					// robotCANdle.setControl(tunnelShooting);
+					robotCANdle.setControl(tunnelShooting);
 					robotCANdle.setControl(turretShooting);
-					// robotCANdle.setControl(underglowShooting);
+					robotCANdle.setControl(underglowShooting);
 
 				} else if (currentMisaligned) {
-					// robotCANdle.setControl(tunnelReady);
+					robotCANdle.setControl(tunnelReady);
 					robotCANdle.setControl(turretMisaligned);
-					// robotCANdle.setControl(underglowMisaligned);
+					robotCANdle.setControl(underglowMisaligned);
 
 				} else {
 					// Default "Ready" state while enabled and aligned
-					// robotCANdle.setControl(tunnelReady);
+					robotCANdle.setControl(tunnelReady);
 					robotCANdle.setControl(turretReady);
-					// robotCANdle.setControl(underglowReady);
+					robotCANdle.setControl(underglowReady);
 				}
 
 				// Update our trackers

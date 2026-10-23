@@ -65,12 +65,12 @@ public class FlywheelIOTalonFX implements FlywheelIO {
 		// Right Side
 		rightSideConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 		rightSideConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
-		rightSideConfig.CurrentLimits.StatorCurrentLimit = 100;
-		rightSideConfig.CurrentLimits.StatorCurrentLimitEnable = true;
-		rightSideConfig.CurrentLimits.SupplyCurrentLimit = 35;
-		rightSideConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-		rightSideConfig.CurrentLimits.SupplyCurrentLowerLimit = 35;
-		rightSideConfig.CurrentLimits.SupplyCurrentLowerTime = 10;
+		leftSideConfig.CurrentLimits.StatorCurrentLimit = 100;
+		leftSideConfig.CurrentLimits.StatorCurrentLimitEnable = true;
+		leftSideConfig.CurrentLimits.SupplyCurrentLimit = 35;
+		leftSideConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
+		leftSideConfig.CurrentLimits.SupplyCurrentLowerLimit = 35;
+		leftSideConfig.CurrentLimits.SupplyCurrentLowerTime = 10;
 		rightSideConfig.Voltage.PeakForwardVoltage = FlywheelConstants.peakForwardVoltage;
 		rightSideConfig.Voltage.PeakReverseVoltage = FlywheelConstants.peakReverseVoltage;
 
